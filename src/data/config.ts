@@ -19,13 +19,13 @@ export const siteConfig = {
     seeHome: 'See a week at home',
     seeWork: 'See a day at work'
   },
-  // POST target for signups (WAITLIST_ENDPOINT). Leave empty to simulate success locally.
+  // POST target for signups (WAITLIST_ENDPOINT). While empty, the form says signups aren't open.
   waitlistEndpoint: '',
   analytics: {
     enabled: false,
     provider: 'plausible' as 'plausible' | 'ga4'
   },
-  contactEmail: 'hello@example.com',
+  contactEmail: '', // Hidden until a real address is set
   accentColour: '#9A5226'
 };
 

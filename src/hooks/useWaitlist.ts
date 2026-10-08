@@ -20,6 +20,12 @@ export function useWaitlist(audience: Audience) {
       setStatus('error');
       return;
     }
+    // No endpoint means signups aren't stored anywhere: say so instead of faking success.
+    if (!siteConfig.waitlistEndpoint) {
+      setError("Signups aren't open yet, so your email wasn't saved. Please check back soon.");
+      setStatus('error');
+      return;
+    }
     setError(null);
     setStatus('submitting');
 
@@ -31,16 +37,12 @@ export function useWaitlist(audience: Audience) {
     };
 
     try {
-      if (siteConfig.waitlistEndpoint) {
-        const res = await fetch(siteConfig.waitlistEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 700));
-      }
+      const res = await fetch(siteConfig.waitlistEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       trackEvent('waitlist_signup', { audience });
       setStatus('success');
     } catch {

@@ -20,11 +20,13 @@ export function Footer() {
             <li>
               <a href="#terms" className="transition-colors duration-150 hover:text-ink">Terms</a>
             </li>
+            {siteConfig.contactEmail &&
             <li>
-              <a href={`mailto:${siteConfig.contactEmail}`} className="transition-colors duration-150 hover:text-ink">
-                {siteConfig.contactEmail}
-              </a>
-            </li>
+                <a href={`mailto:${siteConfig.contactEmail}`} className="transition-colors duration-150 hover:text-ink">
+                  {siteConfig.contactEmail}
+                </a>
+              </li>
+            }
           </ul>
         </nav>
       </div>
