@@ -1,5 +1,4 @@
-/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap');
+/* Fonts (Inter, Newsreader) load from index.html without blocking render; see the <head> there. */
 
 /* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
 @import 'tailwindcss/base';
@@ -23,10 +22,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 section[id] {
-  scroll-margin-top: 5rem;
+  scroll-margin-top: 6rem;
 }
+/* The sticky CTA bar (StickyCtaBar, below 768px) covers the bottom 57px (56px + its 1px top border) plus
+   the safe area. Keyboard focus and in-page scrolling keep their target, and its 5px focus ring, clear of
+   it (WCAG 2.4.11 focus not obscured): 56px + 1rem leaves room for the border and the ring. */
+@media (max-width: 767px) {
+  html {
+    scroll-padding-bottom: calc(56px + 1rem + env(safe-area-inset-bottom));
+  }
+}
+/* Copper ring on light surfaces. No border-radius here: outlines follow each element's own shape, so
+   pills stay pills. On ink, copper fails contrast, so .surface-dark switches to copper-light. */
 :focus-visible {
   outline: 2px solid #9a5226;
   outline-offset: 3px;
-  border-radius: 4px;
+}
+.surface-dark :focus-visible,
+.surface-dark:focus-visible {
+  outline-color: #d9a27a;
 }

@@ -1,32 +1,63 @@
-// Single source of truth for brand name, copy, and integrations.
-// "Roger" is a code name — change productName here to rename everywhere.
+// Single source of truth for brand, prices, links and proof slots (spec §8).
+// Framework-free: the Node launch-check script imports this file, so no import.meta, JSX or asset imports.
+// Every empty value hides its element or shows "Opening soon" (spec §8.1). Track TODOs in src/data/launch.ts.
 export const siteConfig = {
   productName: 'Roger',
-  seo: {
-    title: 'Roger: Personal intelligence for home and work',
-    description:
-    'Roger prepares your week like a chef preps a kitchen: dinners planned and groceries ordered at home, inbox drafted and meetings followed up at work.'
+  domain: '', // TODO(Peter): confirm, e.g. 'https://meetroger.ai'
+  founder: {
+    name: 'Peter',
+    photo: '', // TODO(Peter): '/peter.jpg' once the file is in /public
+    city: 'Toronto',
+    links: [] as { label: string; href: string }[] // e.g. X, LinkedIn
+  }, // TODO(Peter): full name, photo, links
+  contactEmail: '', // TODO(Peter): required before launch
+  headline: 'A' as 'A' | 'B' | 'C',
+  // After the founding 10 (spec §3.1): $3,000 work paid $1,500 / $1,500, and $750 home.
+  prices: {
+    work: 2000,
+    workDeposit: 1000,
+    home: 500,
+    regularWork: 3000,
+    regularWorkDeposit: 1500,
+    regularHome: 750,
+    currency: 'CAD' as const
   },
-  taglines: {
-    mastery: 'Mastery, in everything you hand off.',
-    miseEnPlace: 'Mise en place for your life.',
-    prepared: 'Everything prepared. Nothing dropped.',
-    sunday: "Dinner's planned. Groceries are ordered. You've got your Sunday back."
+  anchor: { adminHourly: 0, source: '' }, // TODO(Peter): sourced Toronto admin hourly rate; hidden if 0
+  founding: { total: 10, spotsLeft: 10, perk: 'a free 60-day tune-up session' },
+  capacityLine: 'I take 3 setups a week',
+  speed: { fitCallDays: 1, session1Days: 2, liveDays: 5, homeSessionLeadDays: 3 },
+  providerCostRange: '', // TODO(Peter): e.g. "$20–$40"; hidden if empty
+  taxNote: 'Prices in CAD.', // TODO(Peter): HST wording
+  stripe: {
+    workDeposit: '', // $1,000 Payment Link: "Skip the call" + pasted on fit calls
+    homeCheckout: '', // $500 Payment Link (on /home only)
+    // Regular prices (spec §3.4): once founding.spotsLeft hits 0 the CTAs switch to these. Empty → "Opening soon".
+    workDepositRegular: '', // $1,500 deposit Payment Link used once founding spots are full
+    homeCheckoutRegular: '' // $750 home Payment Link used once founding spots are full
+    // workBalance is deliberately NOT here: anything in this file ships to the browser.
+    // Peter emails it after the week of running. Document it in the README only.
   },
-  cta: {
-    primary: 'Join the waitlist',
-    success: "You're on the list. We'll be in touch.",
-    seeHome: 'See a week at home',
-    seeWork: 'See a day at work'
+  cal: {
+    fitCall: '', // 20-min, public, slots every business day
+    workSession1: '', // shown only on /thanks/work, next 2 business days
+    homeSession: '' // shown only on /thanks/home
   },
-  // POST target for signups (WAITLIST_ENDPOINT). While empty, the form says signups aren't open.
-  waitlistEndpoint: '',
-  analytics: {
-    enabled: false,
-    provider: 'plausible' as 'plausible' | 'ga4'
+  forms: { workshopEndpoint: '', newsletterEndpoint: '' },
+  // Workshop group codes Peter has created in Stripe (as {GROUP}WORK / {GROUP}HOME promotion codes).
+  // Alphanumeric, uppercase, e.g. 'OSSINGTON'. A ?code= not in this list is ignored.
+  workshopCodes: [] as string[],
+  proof: {
+    counter: { setups: 0, workshops: 0, refunds: 0 },
+    endorsements: [] as { org: string; person: string; title: string; quote: string; logo?: string }[],
+    videos: [] as { src: string; poster: string; caption: string; captionsVtt: string; kind: 'demo' | 'testimonial' }[],
+    screenshots: [] as { src: string; caption: string }[],
+    stats: [] as { value: string; label: string }[],
+    sampleReport: '', // '/sample-setup-report.pdf'
+    reviewsUrl: ''
   },
-  contactEmail: '', // Hidden until a real address is set
+  workshopHostPack: '', // '/workshop-host-pack.pdf'
+  analytics: { enabled: false, provider: 'plausible' as 'plausible' | 'ga4' },
   accentColour: '#9A5226'
 };
 
-export type TaglineKey = keyof typeof siteConfig.taglines;
+export type SiteConfig = typeof siteConfig;

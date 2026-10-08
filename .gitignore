@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# compound-engineering run artifacts
+.context/
+
+# generated at build time (launch status)
+src/generated/
+
+# TypeScript incremental build info
+*.tsbuildinfo
