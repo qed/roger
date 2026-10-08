@@ -9,7 +9,7 @@
     "build": "tsx scripts/launch-check.ts --write && vite build",
     "preview": "vite preview",
     "launch-check": "tsx scripts/launch-check.ts",
-    "test": "tsx --test src/data/data.test.ts src/lib/browserStorage.test.ts src/lib/checkoutLinks.test.ts src/lib/claims.test.ts src/lib/clientReference.test.ts src/lib/payback.test.ts src/lib/picks.test.ts src/lib/workshopCode.test.ts src/lib/proofLines.test.ts src/lib/proofSection.test.ts src/lib/stickyBar.test.ts src/lib/formPost.test.ts src/lib/utm.test.ts src/lib/offerPrice.test.ts src/data/launch.test.ts scripts/build-env.test.ts scripts/launch-check.test.ts src/lib/thanks.test.ts src/lib/workshopForm.test.ts src/lib/safeHref.test.ts src/lib/libraryFilter.test.ts",
+    "test": "tsx --test src/data/data.test.ts src/lib/browserStorage.test.ts src/lib/checkoutLinks.test.ts src/lib/claims.test.ts src/lib/clientReference.test.ts src/lib/payback.test.ts src/lib/picks.test.ts src/lib/workshopCode.test.ts src/lib/proofLines.test.ts src/lib/proofSection.test.ts src/lib/stickyBar.test.ts src/lib/formPost.test.ts src/lib/utm.test.ts src/lib/offerPrice.test.ts src/data/launch.test.ts scripts/build-env.test.ts scripts/launch-check.test.ts src/lib/thanks.test.ts src/lib/workshopForm.test.ts src/lib/safeHref.test.ts src/lib/libraryFilter.test.ts src/lib/jsonLd.test.ts src/lib/analyticsEvents.test.ts scripts/og-image.test.ts scripts/test-registry.test.ts",
     "test:bundle": "tsx scripts/bundle-check.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node-tests.json",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"

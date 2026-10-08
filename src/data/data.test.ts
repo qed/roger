@@ -10,6 +10,7 @@ import * as thanksCopy from './copy/thanks.ts';
 import * as homeCopy from './copy/home.ts';
 import * as workshopsCopy from './copy/workshops.ts';
 import * as libraryCopyModule from './copy/library.ts';
+import * as legalCopy from './copy/legal.ts';
 import * as homeContentModule from './homeContent.ts';
 import { homeFaqs } from './homeFaqs.ts';
 import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
@@ -311,7 +312,8 @@ describe('copy sweep, founding and full', () => {
     homeContent: 'home',
     homeFaqs: 'home',
     workshops: 'none',
-    library: 'none'
+    library: 'none',
+    legal: 'none'
   };
   const scopeOf = (path: string): Scope => {
     const scope = MODULE_OFFER[path.split('.')[0]];
@@ -337,7 +339,8 @@ describe('copy sweep, founding and full', () => {
     'shared.phoneMockupCopy.label': ['Your Chief of Staff', 'Monday 6:48 AM', 'work'],
     'thanks.bookingFallbackCopy.mailtoSubject': ['work', 'home'],
     'library.libraryCopy.count': [12, 33],
-    'workshops.workshopFormCopy.closedNote': ['peter@example.ca']
+    'workshops.workshopFormCopy.closedNote': ['peter@example.ca'],
+    'legal.privacyCopy.sections': [{ enabled: true, provider: 'plausible' }]
   };
 
   // A string (so `${x}` reads as an amount) that also carries the OfferAmounts fields.
@@ -409,7 +412,8 @@ describe('copy sweep, founding and full', () => {
       homeContent: homeContentModule,
       offers: offersModule,
       workshops: workshopsCopy,
-      library: libraryCopyModule
+      library: libraryCopyModule,
+      legal: legalCopy
     };
     for (const [name, mod] of Object.entries(modules)) collect({ ...mod }, name, state, out);
     for (const [name, list, offer] of [
@@ -488,7 +492,9 @@ describe('copy sweep, founding and full', () => {
       'homeFaqs.home-cost-after',
       'workshops.workshopsHeroCopy.',
       'workshops.workshopsMembersGetCopy.',
-      'workshops.workshopFormCopy.closedNote()'
+      'workshops.workshopFormCopy.closedNote()',
+      'legal.refundsCopy.definition',
+      'legal.privacyCopy.sections()'
     ]) {
       assert.ok(paths.some((p) => p.startsWith(prefix)), prefix);
     }
@@ -752,5 +758,62 @@ describe('library copy (spec §7.3)', () => {
     for (const c of useCaseCategories) assert.ok(libraryCopyModule.categoryLabels[c], c);
     const text = JSON.stringify(libraryCopyModule.libraryCopy) + libraryCopyModule.libraryCopy.count(12, 33);
     assert.doesNotMatch(text, /\$\d/);
+  });
+});
+
+// Legal pages (spec §6.12, §3.5). /refunds is §3.5 verbatim; the drafts state no prices, and the only
+// numbers anywhere are §3.5's time commitments.
+describe('legal copy', () => {
+  it('renders spec §3.5 verbatim on /refunds, with the claim line split around the address', () => {
+    const r = legalCopy.refundsCopy;
+    assert.deepEqual(r.definition, [
+      offersModule.workingDefinition.working,
+      offersModule.workingDefinition.checked,
+      offersModule.workingDefinition.disagree,
+      offersModule.workingDefinition.windows
+    ]);
+    assert.deepEqual(r.after, [offersModule.workingDefinition.accounts]);
+    assert.equal(`${r.claimLine.lead}contactEmail${r.claimLine.rest}`, offersModule.workingDefinition.claim);
+    assert.equal(r.claimLine.lead, 'Claim: one email to ');
+    assert.match(offersModule.workingDefinition.disagree, /the client decides/);
+  });
+
+  it('describes analytics as off or on, by provider', () => {
+    const line = (enabled: boolean, provider: 'plausible' | 'ga4') =>
+      legalCopy.privacyCopy.sections({ enabled, provider }).find((s) => s.heading === 'Analytics')?.paragraphs.join(' ') ?? '';
+    assert.match(line(false, 'plausible'), /doesn't run analytics/);
+    assert.match(line(true, 'plausible'), /Plausible/);
+    assert.match(line(true, 'ga4'), /Google Analytics/);
+  });
+
+  it('states no amount and no number outside the §3.5 time commitments', () => {
+    const RULES = [/\b14 days\b/, /\b10 business days\b/, /\bSession 1\b/, /\bday 7\b/];
+    const found: { path: string; text: string }[] = [];
+    const walk = (v: unknown, path: string): void => {
+      if (typeof v === 'string') found.push({ path, text: v });
+      else if (typeof v === 'function') {
+        for (const enabled of [true, false]) {
+          for (const provider of ['plausible', 'ga4'] as const) walk((v as (a: unknown) => unknown)({ enabled, provider }), `${path}()`);
+        }
+      } else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${path}[${i}]`));
+      else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, `${path}.${k}`);
+    };
+    walk({ ...legalCopy }, 'legal');
+    assert.ok(found.length > 40, `walked only ${found.length} strings`);
+    let numbered = 0;
+    for (const { path, text } of found) {
+      assert.doesNotMatch(text, /\$/, `${path}: amount in legal copy "${text}"`);
+      if (!/\d/.test(text)) continue;
+      numbered++;
+      const rest = RULES.reduce((t, rule) => t.replace(new RegExp(rule.source, 'g'), ''), text);
+      assert.doesNotMatch(rest, /\d/, `${path}: number outside §3.5 in "${text}"`);
+    }
+    assert.ok(numbered >= 3, `only ${numbered} digit-bearing strings seen`);
+  });
+});
+
+describe('refunds claim placeholder (review)', () => {
+  it('the §3.5 claim line holds exactly one contactEmail placeholder for LegalPage to split on', () => {
+    assert.equal(offersModule.workingDefinition.claim.split('contactEmail').length, 2);
   });
 });

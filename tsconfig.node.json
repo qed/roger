@@ -12,6 +12,7 @@
   },
   "include": [
     "vite.config.ts",
-    "scripts/build-env.ts"
+    "scripts/build-env.ts",
+    "scripts/og-image.ts"
   ]
 }

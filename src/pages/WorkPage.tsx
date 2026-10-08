@@ -1,4 +1,5 @@
 import { StickyCtaBar } from '../components/cta/StickyCtaBar';
+import { JsonLd } from '../components/layout/JsonLd';
 import { usePageMeta } from '../components/layout/usePageMeta';
 import { AboutPeter } from '../components/sections/AboutPeter';
 import { BeforeAfter } from '../components/sections/BeforeAfter';
@@ -22,6 +23,7 @@ export function WorkPage() {
 
   return (
     <>
+      <JsonLd />
       {/* §6.2 */}
       <WorkHero />
       {/* §6.3 */}

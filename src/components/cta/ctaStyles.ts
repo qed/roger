@@ -1,7 +1,8 @@
 // Types and the button style table shared by Cta, the offer CTAs, the sticky bar and form submit buttons.
 // Kept out of Cta.tsx so that file only exports components (react-refresh).
+import type { AnalyticsEventName } from '../../lib/analyticsEvents';
 
-export type TrackedEvent = { name: string; props?: Record<string, string | number | boolean> };
+export type TrackedEvent = { name: AnalyticsEventName; props?: Record<string, string | number | boolean> };
 
 export type CtaVariant = 'primary' | 'secondary' | 'text';
 export type CtaTone = 'light' | 'dark'; // dark = placed on an ink background

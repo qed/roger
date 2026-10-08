@@ -1,4 +1,5 @@
 import { StickyCtaBar } from '../components/cta/StickyCtaBar';
+import { JsonLd } from '../components/layout/JsonLd';
 import { usePageMeta } from '../components/layout/usePageMeta';
 import { BeforeAfter } from '../components/sections/BeforeAfter';
 import { FaqList } from '../components/sections/FaqList';
@@ -23,6 +24,7 @@ export function HomePage() {
 
   return (
     <>
+      <JsonLd />
       {/* 1 */}
       <HomeHero />
       {/* 2 */}

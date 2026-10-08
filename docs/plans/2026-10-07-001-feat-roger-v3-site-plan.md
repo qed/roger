@@ -533,7 +533,7 @@ sequenceDiagram
 
 ### Phase E — Polish, verify, ship
 
-- [ ] **Unit 11: Legal pages, SEO, analytics, README**
+- [x] **Unit 11: Legal pages, SEO, analytics, README**
 
 **Goal:** Spec §5 meta, §6.12 legal, §9.7 events, §10 README and SEO.
 
