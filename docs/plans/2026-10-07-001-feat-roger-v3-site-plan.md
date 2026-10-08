@@ -296,7 +296,7 @@ sequenceDiagram
 
 **Verification:** All `src/lib` tests pass under `npm test`, and the modules import no React, DOM globals or `import.meta`.
 
-- [ ] **Unit 4: Launch checklist and production gate**
+- [x] **Unit 4: Launch checklist and production gate**
 
 **Goal:** Spec §8.4 with the fail-closed tightening from the origin doc.
 

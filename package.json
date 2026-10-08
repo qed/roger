@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "tsx scripts/launch-check.ts --write",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsx scripts/launch-check.ts --write && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "tsx --test src/data/data.test.ts src/lib/browserStorage.test.ts src/lib/checkoutLinks.test.ts src/lib/claims.test.ts src/lib/clientReference.test.ts src/lib/payback.test.ts src/lib/picks.test.ts src/lib/workshopCode.test.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node-tests.json"
+    "launch-check": "tsx scripts/launch-check.ts",
+    "test": "tsx --test src/data/data.test.ts src/lib/browserStorage.test.ts src/lib/checkoutLinks.test.ts src/lib/claims.test.ts src/lib/clientReference.test.ts src/lib/payback.test.ts src/lib/picks.test.ts src/lib/workshopCode.test.ts src/data/launch.test.ts scripts/build-env.test.ts scripts/launch-check.test.ts",
+    "test:bundle": "tsx scripts/bundle-check.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node-tests.json",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
