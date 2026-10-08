@@ -348,7 +348,7 @@ sequenceDiagram
 
 ### Phase C — Shared UI
 
-- [ ] **Unit 5: Layout, CTA primitives and shared sections**
+- [x] **Unit 5: Layout, CTA primitives and shared sections**
 
 **Goal:** The components shared across pages, built once.
 

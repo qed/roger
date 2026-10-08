@@ -23,10 +23,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 section[id] {
-  scroll-margin-top: 5rem;
+  scroll-margin-top: 6rem;
 }
+/* Copper ring on light surfaces. No border-radius here: outlines follow each element's own shape, so
+   pills stay pills. On ink, copper fails contrast, so .surface-dark switches to copper-light. */
 :focus-visible {
   outline: 2px solid #9a5226;
   outline-offset: 3px;
-  border-radius: 4px;
+}
+.surface-dark :focus-visible,
+.surface-dark:focus-visible {
+  outline-color: #d9a27a;
 }

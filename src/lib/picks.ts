@@ -43,6 +43,11 @@ export function writePicks(storage: StorageLike, kind: MenuKind, picks: readonly
   return clean;
 }
 
+// Analytics value for picks (spec §9.7): ids without their leading offer prefix, comma-joined, or 'none'.
+export function picksAnalyticsValue(picks: readonly string[]): string {
+  return picks.map((id) => id.replace(/^(work|home)-/, '')).join(',') || 'none';
+}
+
 export type ToggleStatus = 'added' | 'removed' | 'max-reached' | 'invalid';
 
 export function togglePick(

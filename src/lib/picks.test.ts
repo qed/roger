@@ -4,6 +4,7 @@ import {
   PICKS_KEYS,
   PICKS_MAX,
   createPicksStore,
+  picksAnalyticsValue,
   readPicks,
   sanitisePicks,
   togglePick,
@@ -192,5 +193,21 @@ describe('store no-op commits (review)', () => {
     store.set('work', ['work-leads']);
     assert.equal(store.getSnapshot('work'), one);
     assert.equal(calls, 1);
+  });
+});
+
+describe('picksAnalyticsValue', () => {
+  it("returns 'none' for no picks", () => {
+    assert.equal(picksAnalyticsValue([]), 'none');
+  });
+
+  it('strips the offer prefix and comma-joins', () => {
+    assert.equal(picksAnalyticsValue(['work-customers', 'work-invoices']), 'customers,invoices');
+    assert.equal(picksAnalyticsValue(['home-meals']), 'meals');
+  });
+
+  it('strips the prefix only at the start', () => {
+    assert.equal(picksAnalyticsValue(['custom-work-home-x']), 'custom-work-home-x');
+    assert.equal(picksAnalyticsValue(['work-home-x']), 'home-x');
   });
 });

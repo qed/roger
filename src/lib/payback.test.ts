@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { HOURS_MAX, HOURS_MIN, weeksToPayBack } from './payback.ts';
+import { HOURS_MAX, HOURS_MIN, calculatorResult, parseRate, weeksToPayBack } from './payback.ts';
 
 describe('weeksToPayBack', () => {
   it('matches the spec examples', () => {
@@ -46,5 +46,39 @@ describe('clamping (review)', () => {
   it('clamps infinite hours to the max and NaN hours to the min', () => {
     assert.equal(weeksToPayBack(2000, Number.POSITIVE_INFINITY, 50), 4);
     assert.equal(weeksToPayBack(2000, Number.NaN, 50), 40);
+  });
+});
+
+describe('parseRate', () => {
+  it('accepts positive finite numbers, trimmed', () => {
+    assert.equal(parseRate('50'), 50);
+    assert.equal(parseRate(' 72.5 '), 72.5);
+  });
+
+  it('rejects empty, junk, zero, negative and infinite values', () => {
+    for (const bad of ['', '   ', 'abc', '50abc', '0', '-10', 'Infinity', 'NaN']) assert.equal(parseRate(bad), null, bad);
+  });
+});
+
+describe('calculatorResult', () => {
+  it('builds the plural sentence', () => {
+    assert.equal(calculatorResult(2000, 3, '50'), 'At 3 hours a week, this pays for itself in about 14 weeks.');
+  });
+
+  it('uses the singular for 1 hour', () => {
+    assert.equal(calculatorResult(2000, 1, '50'), 'At 1 hour a week, this pays for itself in about 40 weeks.');
+  });
+
+  it('uses the singular for 1 week', () => {
+    assert.equal(calculatorResult(500, 10, '100'), 'At 10 hours a week, this pays for itself in about 1 week.');
+    assert.equal(calculatorResult(50, 1, '100'), 'At 1 hour a week, this pays for itself in about 1 week.');
+  });
+
+  it('returns null instead of guessing when the rate is not a positive number', () => {
+    for (const bad of ['', 'abc', '0', '-5']) assert.equal(calculatorResult(2000, 3, bad), null, bad);
+  });
+
+  it('follows the price it is given (regular price once founding is full)', () => {
+    assert.equal(calculatorResult(3000, 3, '50'), 'At 3 hours a week, this pays for itself in about 20 weeks.');
   });
 });

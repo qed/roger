@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import {
   WORKSHOP_CODE_KEY,
   acceptWorkshopCode,
+  captureCodeFromSearch,
+  createWorkshopCodeStore,
   normaliseWorkshopCode,
   promoCodeFor,
   readWorkshopCode,
@@ -115,5 +117,72 @@ describe('over-length codes (review)', () => {
     const allowed = 'A'.repeat(32);
     assert.equal(acceptWorkshopCode(allowed, [allowed]), allowed);
     assert.equal(acceptWorkshopCode(`${allowed}ZZZ`, [allowed]), null);
+  });
+});
+
+describe('captureCodeFromSearch', () => {
+  it('returns null when there is no code param', () => {
+    assert.equal(captureCodeFromSearch('', ALLOW), null);
+    assert.equal(captureCodeFromSearch('?utm_source=bia', ALLOW), null);
+  });
+
+  it('accepts a valid code and strips it; nextSearch is empty when nothing remains', () => {
+    assert.deepEqual(captureCodeFromSearch('?code=ossington', ALLOW), { code: 'OSSINGTON', nextSearch: '' });
+    assert.deepEqual(captureCodeFromSearch('code=OSSINGTON', ALLOW), { code: 'OSSINGTON', nextSearch: '' });
+  });
+
+  it('strips an invalid code but reports no accepted code', () => {
+    assert.deepEqual(captureCodeFromSearch('?code=FREE', ALLOW), { code: null, nextSearch: '' });
+  });
+
+  it('keeps every other param in order', () => {
+    assert.deepEqual(captureCodeFromSearch('?utm_source=bia&code=OSSINGTON&utm_medium=qr', ALLOW), {
+      code: 'OSSINGTON',
+      nextSearch: '?utm_source=bia&utm_medium=qr'
+    });
+  });
+
+  it('never strips a WORK-looking suffix from the code', () => {
+    assert.deepEqual(captureCodeFromSearch('?code=network', ALLOW), { code: 'NETWORK', nextSearch: '' });
+  });
+});
+
+describe('createWorkshopCodeStore', () => {
+  it('starts from the stored code and notifies on a new accepted code', () => {
+    const storage = createMemoryStorage();
+    storeWorkshopCode(storage, 'OSSINGTON', ALLOW);
+    const store = createWorkshopCodeStore(storage, ALLOW);
+    assert.equal(store.getSnapshot(), 'OSSINGTON');
+    let calls = 0;
+    const off = store.subscribe(() => calls++);
+    assert.equal(store.set('network'), 'NETWORK');
+    assert.equal(store.getSnapshot(), 'NETWORK');
+    assert.equal(storage.getItem(WORKSHOP_CODE_KEY), 'NETWORK');
+    assert.equal(calls, 1);
+    off();
+    store.set('OSSINGTON');
+    assert.equal(calls, 1);
+  });
+
+  it('an invalid code keeps the previously stored code and does not notify', () => {
+    const storage = createMemoryStorage();
+    const store = createWorkshopCodeStore(storage, ALLOW);
+    store.set(captureCodeFromSearch('?code=OSSINGTON', ALLOW)?.code);
+    let calls = 0;
+    store.subscribe(() => calls++);
+    const captured = captureCodeFromSearch('?code=FREE', ALLOW);
+    assert.equal(store.set(captured?.code), null);
+    assert.equal(store.getSnapshot(), 'OSSINGTON');
+    assert.equal(readWorkshopCode(storage, ALLOW), 'OSSINGTON');
+    assert.equal(calls, 0);
+  });
+
+  it('setting the same code again does not notify', () => {
+    const store = createWorkshopCodeStore(createMemoryStorage(), ALLOW);
+    store.set('OSSINGTON');
+    let calls = 0;
+    store.subscribe(() => calls++);
+    store.set('ossington');
+    assert.equal(calls, 0);
   });
 });

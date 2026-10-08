@@ -51,3 +51,51 @@ export function readWorkshopCode(
 ): string | null {
   return acceptWorkshopCode(safeStorage(storage).getItem(WORKSHOP_CODE_KEY), allowList);
 }
+
+// Reads `?code=` out of a query string. Returns null when there is no `code` param (nothing to do);
+// otherwise the accepted code (null if not allow-listed) and the query without `code`, every other
+// param kept in order ('' when nothing remains, else with a leading '?').
+export function captureCodeFromSearch(
+  search: string,
+  allowList: readonly string[] = siteConfig.workshopCodes
+): { code: string | null; nextSearch: string } | null {
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+  if (!params.has('code')) return null;
+  const code = acceptWorkshopCode(params.get('code'), allowList);
+  params.delete('code');
+  const rest = params.toString();
+  return { code, nextSearch: rest ? `?${rest}` : '' };
+}
+
+// A tiny external store for useSyncExternalStore, like createPicksStore. `set` stores an accepted code
+// (a newer one overwrites the old) and notifies; an unaccepted code leaves the current one untouched.
+export type WorkshopCodeStore = {
+  getSnapshot(): string | null;
+  subscribe(listener: () => void): () => void;
+  set(raw: string | null | undefined): string | null;
+};
+
+export function createWorkshopCodeStore(
+  storage: StorageLike,
+  allowList: readonly string[] = siteConfig.workshopCodes
+): WorkshopCodeStore {
+  let current = readWorkshopCode(storage, allowList);
+  const listeners = new Set<() => void>();
+  return {
+    getSnapshot: () => current,
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    set(raw) {
+      const accepted = storeWorkshopCode(storage, raw, allowList);
+      if (accepted && accepted !== current) {
+        current = accepted;
+        listeners.forEach((listener) => listener());
+      }
+      return accepted;
+    }
+  };
+}

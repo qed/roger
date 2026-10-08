@@ -41,6 +41,11 @@ describe('appendParams', () => {
   it('returns the base unchanged when there are no params', () => {
     assert.equal(appendParams('https://x.test/p', []), 'https://x.test/p');
   });
+
+  it('does not throw on a malformed escape in the base query; keeps that pair as-is', () => {
+    assert.equal(appendParams('https://cal.com/p?x%zz=1', [['picks', 'a']]), 'https://cal.com/p?x%zz=1&picks=a');
+    assert.equal(appendParams('https://cal.com/p?%E0%A4%A=1&picks=old', [['picks', 'new']]), 'https://cal.com/p?%E0%A4%A=1&picks=new');
+  });
 });
 
 describe('workDepositUrl', () => {

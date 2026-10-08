@@ -15,6 +15,16 @@ export type LinkContext = {
 
 type Param = [string, string];
 
+// A malformed escape (e.g. "%zz") makes decodeURIComponent throw; compare the raw key instead.
+function decodeKey(raw: string): string {
+  const spaced = raw.replace(/\+/g, ' ');
+  try {
+    return decodeURIComponent(spaced);
+  } catch {
+    return spaced;
+  }
+}
+
 // Appends params with encodeURIComponent (spaces as %20: Cal reads a literal "+" as a space).
 // Keeps the rest of any existing query and the hash; a key we set replaces the same key on the base,
 // so a pasted Payment Link never carries two prefilled_promo_code or client_reference_id values.
@@ -30,7 +40,7 @@ export function appendParams(base: string, params: readonly Param[]): string | n
   const managed = new Set(params.map(([key]) => key));
   const kept = (queryAt === -1 ? '' : beforeHash.slice(queryAt + 1))
     .split('&')
-    .filter((pair) => pair && !managed.has(decodeURIComponent(pair.split('=')[0].replace(/\+/g, ' '))));
+    .filter((pair) => pair && !managed.has(decodeKey(pair.split('=')[0])));
   const added = params.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
   return `${path}?${[...kept, ...added].join('&')}${hash}`;
 }
