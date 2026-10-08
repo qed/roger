@@ -6,9 +6,10 @@ import * as sharedCopy from './copy/shared.ts';
 import * as pricingCopyModule from './copy/pricing.ts';
 import * as workCopy from './copy/work.ts';
 import * as whatYouGetCopyModule from './copy/whatYouGet.ts';
+import * as thanksCopy from './copy/thanks.ts';
 import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
 import { pricingCopy } from './copy/pricing.ts';
-import { faqAnswer } from '../lib/claims.ts';
+import { faqAnswer, renderLine } from '../lib/claims.ts';
 import { displayedOffer, offerAmounts } from '../lib/offerPrice.ts';
 import { isUseCaseCategory, library, useCaseCategories } from './library.ts';
 import type { UseCaseCategory } from './library.ts';
@@ -292,7 +293,8 @@ describe('copy sweep, founding and full', () => {
     'shared.ctaA11yCopy.disabledPrefix': ['Book a fit call'],
     'shared.foundingCopy.spotsLeft': [5, 10],
     'shared.foundingCopy.badge': ['5 of 10 founding spots left'],
-    'shared.phoneMockupCopy.label': ['Your Chief of Staff', 'Monday 6:48 AM', 'work']
+    'shared.phoneMockupCopy.label': ['Your Chief of Staff', 'Monday 6:48 AM', 'work'],
+    'thanks.bookingFallbackCopy.mailtoSubject': ['work', 'home']
   };
 
   // A string (so `${x}` reads as an amount) that also carries the OfferAmounts fields.
@@ -352,6 +354,7 @@ describe('copy sweep, founding and full', () => {
       pricing: pricingCopyModule,
       work: workCopy,
       whatYouGet: whatYouGetCopyModule,
+      thanks: thanksCopy,
       offers: offersModule
     };
     for (const [name, mod] of Object.entries(modules)) collect({ ...mod }, name, state, out);
@@ -411,9 +414,34 @@ describe('copy sweep, founding and full', () => {
       'whatYouGet.whatYouGetCopy.work.summary()',
       'whatYouGet.whatYouGetCopy.home.summary()',
       'offers.offers.home.payment()',
-      'faqs.skip-call'
+      'faqs.skip-call',
+      'thanks.thanksWorkCopy.',
+      'thanks.thanksHomeCopy.timing.',
+      'thanks.notFoundCopy.'
     ]) {
       assert.ok(paths.some((p) => p.startsWith(prefix)), prefix);
     }
+  });
+});
+
+// Post-payment pages (spec §9.2, §9.4): they follow a payment, so they never restate an amount, and the
+// home timing line only promises "3 business days" once signed off.
+describe('thanks copy', () => {
+  it('states no amounts', () => {
+    const text = JSON.stringify(thanksCopy);
+    assert.doesNotMatch(text, /\$\d/);
+  });
+
+  it('gates the home session timing, with the spec fallback', () => {
+    const line = thanksCopy.thanksHomeCopy.timing;
+    assert.equal(line.needs, 'homeSessionLeadConfirmed');
+    assert.equal(renderLine(line, { ...signoff, homeSessionLeadConfirmed: false }), 'Pick a time that suits you.');
+    assert.match(renderLine(line, { ...signoff, homeSessionLeadConfirmed: true }) ?? '', /3 business days/);
+  });
+
+  it('lists the spec §9.2 checklist and links NotFound to /, /home and /library', () => {
+    const work = thanksCopy.thanksWorkCopy.checklist.join(' ');
+    for (const item of [/admin access to your email and calendar/i, /list of your tools/i, /join Session 2/i]) assert.match(work, item);
+    assert.deepEqual(thanksCopy.notFoundCopy.links.map((l) => l.to), ['/', '/home', '/library']);
   });
 });

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { isThanksPath } from '../../lib/thanks';
 import { MenuIcon, XIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { siteConfig } from '../../data/config';
@@ -23,6 +24,9 @@ export function Header() {
   const menuId = useId();
 
   const onOfferPage = OFFER_PAGES.has(pathname);
+  // After payment (/thanks/*) the visitor is already a customer: no fit-call or checkout CTA in the
+  // header, so the thanks pages fire no conversion events (plan Unit 7).
+  const onThanksPage = isThanksPath(pathname);
   const audienceLink = pathname === '/home' ? headerCopy.forBusiness : headerCopy.forHome;
   const navTarget = (id: string) => ({ pathname: onOfferPage ? pathname : '/', hash: `#${id}` });
 
@@ -79,7 +83,7 @@ export function Header() {
           <Link to={audienceLink.to} className={`hidden md:inline ${navLinkClass}`}>
             {audienceLink.label}
           </Link>
-          {pathname === '/home' ? (
+          {onThanksPage ? null : pathname === '/home' ? (
             <HomeCheckoutCta location="header" size="sm" />
           ) : (
             <FitCallCta location="header" label={ctaLabels.fitCall} size="sm" />

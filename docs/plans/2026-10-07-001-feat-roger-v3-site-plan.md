@@ -425,7 +425,7 @@ sequenceDiagram
 
 **Verification:** The spec §12 first-bullet check passes by inspection.
 
-- [ ] **Unit 7: Thanks pages and NotFound**
+- [x] **Unit 7: Thanks pages and NotFound**
 
 **Goal:** Post-payment booking pages and a catch-all.
 

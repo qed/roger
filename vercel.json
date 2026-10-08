@@ -1,4 +1,20 @@
 {
   "buildCommand": "npm run build",
-  "rewrites": [{ "source": "/((?!assets/)(?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/" }]
+  "rewrites": [
+    {
+      "source": "/((?!assets/)(?!.*\\.[a-zA-Z0-9]+$).*)",
+      "destination": "/"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/thanks/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
 }
