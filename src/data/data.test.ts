@@ -9,6 +9,7 @@ import * as whatYouGetCopyModule from './copy/whatYouGet.ts';
 import * as thanksCopy from './copy/thanks.ts';
 import * as homeCopy from './copy/home.ts';
 import * as workshopsCopy from './copy/workshops.ts';
+import * as libraryCopyModule from './copy/library.ts';
 import * as homeContentModule from './homeContent.ts';
 import { homeFaqs } from './homeFaqs.ts';
 import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
@@ -309,7 +310,8 @@ describe('copy sweep, founding and full', () => {
     home: 'home',
     homeContent: 'home',
     homeFaqs: 'home',
-    workshops: 'none'
+    workshops: 'none',
+    library: 'none'
   };
   const scopeOf = (path: string): Scope => {
     const scope = MODULE_OFFER[path.split('.')[0]];
@@ -334,6 +336,7 @@ describe('copy sweep, founding and full', () => {
     'shared.foundingCopy.badge': ['5 of 10 founding spots left'],
     'shared.phoneMockupCopy.label': ['Your Chief of Staff', 'Monday 6:48 AM', 'work'],
     'thanks.bookingFallbackCopy.mailtoSubject': ['work', 'home'],
+    'library.libraryCopy.count': [12, 33],
     'workshops.workshopFormCopy.closedNote': ['peter@example.ca']
   };
 
@@ -405,7 +408,8 @@ describe('copy sweep, founding and full', () => {
       home: homeCopy,
       homeContent: homeContentModule,
       offers: offersModule,
-      workshops: workshopsCopy
+      workshops: workshopsCopy,
+      library: libraryCopyModule
     };
     for (const [name, mod] of Object.entries(modules)) collect({ ...mod }, name, state, out);
     for (const [name, list, offer] of [
@@ -731,5 +735,22 @@ describe('workshops copy', () => {
     // A rule that never matches is stale (its copy moved or changed); drop or fix it.
     for (const rule of RULES) assert.ok(used.has(rule), `unused §6B rule ${rule.path} ${rule.phrase}`);
     assert.ok(numbered >= 6, `only ${numbered} digit-bearing strings seen`);
+  });
+});
+
+describe('library copy (spec §7.3)', () => {
+  it('keeps the spec header, subhead, card links and honest-miss tag verbatim', () => {
+    assert.equal(libraryCopyModule.libraryCopy.heading, 'Real-world AI assistant use cases.');
+    assert.equal(libraryCopyModule.libraryCopy.subhead, 'Collected weekly from public posts. Not Roger clients. Each one links to the original.');
+    assert.equal(libraryCopyModule.libraryCopy.readOriginal, 'Read the original ↗');
+    assert.equal(libraryCopyModule.libraryCopy.setUp, 'I can set this up for you →');
+    assert.equal(libraryCopyModule.libraryCopy.honestMiss, "Didn't go as planned.");
+    assert.equal(libraryCopyModule.libraryMeta.title, 'Real AI assistant use cases · Roger');
+  });
+
+  it('labels every category, and states no amount of its own', () => {
+    for (const c of useCaseCategories) assert.ok(libraryCopyModule.categoryLabels[c], c);
+    const text = JSON.stringify(libraryCopyModule.libraryCopy) + libraryCopyModule.libraryCopy.count(12, 33);
+    assert.doesNotMatch(text, /\$\d/);
   });
 });

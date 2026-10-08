@@ -10,7 +10,8 @@ applies_when:
   - A landing URL carries params the app must remember and then remove (?code=, utm_*)
   - The app also scrolls to #hash targets on navigation
   - Several components on a page need the same captured value
-tags: [react-router, spa, utm, attribution, scroll-restoration, url-params, session-storage, use-sync-external-store]
+tags: [react-router, spa, utm, attribution, scroll-restoration, url-params, session-storage, use-sync-external-store, debounce, filters]
+last_updated: 2026-10-08
 ---
 
 # Capturing URL params (promo codes, UTMs) in a React Router SPA without scroll jumps or lost attribution
@@ -38,6 +39,16 @@ bugs that appeared together.
 4. **Keep the decisions pure and tested.** `captureCodeFromSearch(search, allowList)` returns
    `{ code, nextSearch }` or `null`, and `mergeUtm(stored, fromUrl)` lives in `src/lib/utm.ts`. Both are
    unit-tested without a DOM. The hooks only wire them up.
+
+5. **URL-synced filters (e.g. /library ?for=&cat=&q=): touch only your own keys.** Canonicalise and
+   update with a helper that deletes and rewrites `for`, `cat` and `q` and leaves every other key (utm_*,
+   code) and the hash alone. A page-level `setSearchParams(canonicalOnly)` silently strips attribution
+   the layout hasn't captured yet. Use `replace` and the preserve-scroll marker so filtering never adds
+   history or scrolls.
+6. **Debounced search must read the latest state when it fires.** A `setTimeout` created in an effect
+   keyed on `[query]` closes over that render's params, so a chip clicked during the pause gets reverted
+   when the timer fires. Keep the latest params in a ref, have every filter click cancel the pending
+   timer and carry the typed text along, and skip tracking when the canonical query doesn't change.
 
 ## Why This Matters
 Each bug is invisible in a quick click-through. Scroll jumps only happen when landing with both a param

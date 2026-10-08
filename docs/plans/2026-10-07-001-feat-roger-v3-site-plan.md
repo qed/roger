@@ -496,7 +496,7 @@ sequenceDiagram
 
 **Verification:** The form posts to a test endpoint (or shows "Opening soon" when empty) with real success and error handling.
 
-- [ ] **Unit 10: Library page `/library`**
+- [x] **Unit 10: Library page `/library`**
 
 **Goal:** A browsable, filterable use-case library routing back to the offers.
 

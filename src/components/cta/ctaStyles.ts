@@ -9,7 +9,7 @@ export type CtaSize = 'sm' | 'md' | 'lg';
 // inline → cta_click { cta, location }; sticky → sticky_cta_click { cta } (spec §9.7).
 export type CtaSurface = 'inline' | 'sticky';
 // Where a CTA sits, for cta_click analytics. The one list of locations.
-export type CtaLocation = 'hero' | 'header' | 'picker' | 'pricing' | 'final' | 'library' | 'workshops' | 'thanks' | 'sticky';
+export type CtaLocation = 'hero' | 'header' | 'picker' | 'pricing' | 'final' | 'library' | 'library-band' | 'workshops' | 'thanks' | 'sticky';
 
 const base =
   'inline-flex items-center justify-center text-center font-medium transition-colors duration-150 disabled:cursor-not-allowed';
