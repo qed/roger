@@ -1,4 +1,4 @@
-// "What you get" + picker section copy, per offer (spec §6.5 work, §6A.4 home). Peter's first person,
+// "What you get" + picker section copy, per offer (spec §6.5 work, §6A.4 home). Roger's "we" voice,
 // Canadian spelling. The price comes in as the displayed price (founding or regular, spec §3.1).
 import type { OfferId } from '../offers';
 import type { WhatYouGetCopy } from './types';

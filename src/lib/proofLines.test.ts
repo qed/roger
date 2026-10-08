@@ -17,7 +17,7 @@ import {
 
 const EMPTY = { setups: 0, workshops: 0, refunds: 0 };
 const FOUNDING = { total: 10, spotsLeft: 10 };
-const CAPACITY = 'I take 3 setups a week';
+const CAPACITY = 'We take 3 setups a week';
 
 describe('formatCad', () => {
   it('formats whole dollars with a thousands separator', () => {

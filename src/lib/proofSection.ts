@@ -1,5 +1,5 @@
 // Per-page variants of the proof section (spec §6.4, §6A.3). Framework-free and tested.
-// - "What I won't do": each line uses its /home wording on /home when it has one, then goes through the
+// - "What we won't do": each line uses its /home wording on /home when it has one, then goes through the
 //   sign-off gate (renderLine), so a gated line hides on both pages until it's signed off.
 // - Headings that differ per page are a Record<Audience, string>, so a missing page is a compile error.
 import type { Audience, WontDoLine } from '../data/copy/types';

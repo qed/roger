@@ -1,5 +1,5 @@
 // Copy for the shared layout, CTAs and sections (spec §6.1, §6.4, §6.8, §6.9, §6.11, §6.12, §8.3, §9).
-// Peter's first person, Canadian spelling. Gated lines carry `needs` (spec §8.4.3) and render through
+// Roger's "we" voice (owner decision, 2026-10-08), Canadian spelling. Gated lines carry `needs` (spec §8.4.3) and render through
 // renderLine in src/lib/claims.ts. Strings stating a deposit, balance or refund are functions of the
 // displayed amounts (offerAmounts in src/lib/offerPrice.ts), never a hard-coded "$1,000".
 import type { OfferAmounts, OfferLine } from '../offers';
@@ -51,7 +51,7 @@ export const formCopy = {
 export const ctaNotes = {
   fitCallNext: 'Next available: within 1 business day.',
   depositFitCheck: (deposit: string) =>
-    `Your first 15 minutes of Session 1 is the fit check. If I can't help, you get the full ${deposit} back.`
+    `Your first 15 minutes of Session 1 is the fit check. If we can't help, you get the full ${deposit} back.`
 };
 
 export const headerCopy = {
@@ -109,25 +109,25 @@ export const proofCopy: {
   caseStudiesHeading: { work: 'Set up for real Toronto businesses.', home: 'Set up for real Toronto homes.' },
   metricBefore: 'Before',
   metricAfter: 'After',
-  screenshotsHeading: { work: 'I run my own business this way', home: 'I run my own week this way' },
+  screenshotsHeading: { work: 'We run our own business this way', home: 'We run our own week this way' },
   sampleReport: 'See exactly what you get →',
   reviews: 'Read independent reviews ↗',
-  wontDoHeading: "What I won't do",
+  wontDoHeading: "What we won't do",
   wontDo: [
-    { text: "I won't set up anything that sends money or messages on its own unless you write the rule." },
+    { text: "We won't set up anything that sends money or messages on its own unless you write the rule." },
     {
-      text: "I won't promise a task the assistant can't do reliably yet. If it's shaky, I'll tell you on the fit call.",
+      text: "We won't promise a task the assistant can't do reliably yet. If it's shaky, we'll tell you on the fit call.",
       // /home has no fit call (spec §6A): the visitor pays, then books the session.
-      home: "I won't promise a job the assistant can't do reliably yet. If one you picked is shaky, I'll tell you before we set it up."
+      home: "We won't promise a job the assistant can't do reliably yet. If one you picked is shaky, we'll tell you before we set it up."
     },
-    { text: "I won't keep your passwords.", needs: 'passwordPolicy' },
-    { text: "I don't take referral fees from AI companies, so I recommend what fits you.", needs: 'noReferralFees' }
+    { text: "We won't keep your passwords.", needs: 'passwordPolicy' },
+    { text: "We don't take referral fees from AI companies, so we recommend what fits you.", needs: 'noReferralFees' }
   ]
 };
 
 // Work guarantee (spec §6.8), shared by the band and FAQ #6 (src/data/faqs.ts).
 export const workGuaranteeBody = (a: OfferAmounts) =>
-  `You pay ${a.deposit} to book. The other ${a.balance} is due only after your Chief of Staff and 3 helpers have run for a full week. If it isn't working within 14 days of Session 1, I refund the ${a.deposit} too.`;
+  `You pay ${a.deposit} to book. The other ${a.balance} is due only after your Chief of Staff and 3 helpers have run for a full week. If it isn't working within 14 days of Session 1, we refund the ${a.deposit} too.`;
 
 const workWorking =
   "Every helper you picked has run on its own at least once and produced something you'd actually use. We check it together, and it's written into your setup report. If we disagree, you decide.";
@@ -146,7 +146,7 @@ export const guaranteeCopy = {
   },
   home: {
     body: (a: OfferAmounts) => [
-      `If your assistant isn't doing your 5 jobs within 14 days of your session, I'll refund the full ${a.price}. If we disagree on whether it's working, you decide.`
+      `If your assistant isn't doing your 5 jobs within 14 days of your session, we'll refund the full ${a.price}. If we disagree on whether it's working, you decide.`
     ],
     workingLabel: '',
     working: ''
@@ -154,18 +154,17 @@ export const guaranteeCopy = {
   claimLabel: 'How to claim:',
   claim: 'One email. No forms, no questions about why.',
   accounts: {
-    text: 'Your accounts stay yours. I never keep your passwords, and I remove my access when we\'re done.',
+    text: "Your accounts stay yours. We never keep your passwords, and we remove our access when we're done.",
     needs: 'passwordPolicy'
   } satisfies OfferLine
 };
 
-// About Peter (spec §6.9). The bio renders only once signoff.bioApproved is true.
+// About section (spec §6.9, replaced by Peter's decision on 2026-10-08): the section introduces Roger,
+// not a person, so it needs no full name and no bio sign-off. Text approved verbatim by Peter.
 export const aboutCopy = {
   eyebrow: 'About',
-  bio: {
-    text: "I run my own work with a Chief of Staff assistant and a team of helpers every day. I started Roger because business owners kept asking how to get the same thing. Background in coding education; I've spent years teaching people to build with new tools.",
-    needs: 'bioApproved'
-  } satisfies OfferLine
+  heading: 'Roger',
+  body: 'Roger is a personal intelligent implementation system. This means that we help you set up agents and bots to help you be more productive, save you time and make you money.'
 };
 
 // Final CTA band (spec §6.11, §6A.10).

@@ -66,7 +66,7 @@ const workOffer: Offer = {
   ],
   payment: (a) => `${a.deposit} to book; ${a.balance} after a full week of running.`,
   guarantee: (a) =>
-    `If your setup isn't working within 14 days of Session 1, I refund the ${a.deposit} too. You pay nothing. The second half is only due once it runs.`,
+    `If your setup isn't working within 14 days of Session 1, we refund the ${a.deposit} too. You pay nothing. The second half is only due once it runs.`,
   flow: (a) => [
     'Book a free fit call → deposit link pasted in the call chat → /thanks/work → Session 1 booked before hanging up.',
     `Skip the call → ${a.deposit} deposit Payment Link → /thanks/work → book Session 1. The fit check is the first 15 min of Session 1; full refund if it's not a fit.`
@@ -106,16 +106,17 @@ const homeOffer: Offer = {
   flow: (a) => [`Pay ${a.price} & book (Payment Link) → /thanks/home → book the session (picks prefilled).`]
 };
 
-// What "working" means (spec §3.5). /refunds uses this verbatim.
+// What "working" means (spec §3.5), in the owner-approved "we" voice (2026-10-08). /refunds uses this
+// verbatim.
 export const workingDefinition = {
   working:
     'Working = every helper/job the client picked has run on its own at least once and produced output the client would use.',
   checked:
     "It's checked together at the end of the week of running (work) or at day 7 (home), and recorded in the setup report.",
-  disagree: 'If Peter and the client disagree, the client decides.',
+  disagree: 'If we disagree, you decide.',
   windows: 'Windows: 14 days from Session 1 (work) or from the session (home).',
   claim: 'Claim: one email to contactEmail. Refund to the original card through Stripe within 10 business days.',
-  accounts: 'When a refund happens, the client keeps their accounts. Peter removes his access.'
+  accounts: 'When a refund happens, you keep your accounts. We remove our access.'
 };
 
 export const offers: Record<OfferId, Offer> = { work: workOffer, home: homeOffer };
@@ -123,7 +124,7 @@ export const offers: Record<OfferId, Offer> = { work: workOffer, home: homeOffer
 // Pricing honesty line under the card (spec §6.7). `optionalClause` is dropped when providerCostRange
 // is empty (R8); see fillClause in src/lib/claims.ts.
 export const honestyLine = {
-  text: "You'll also pay your assistant's own subscription directly to the provider, usually {providerCostRange} a month. I'll recommend the right plan; you never pay me for it.",
+  text: "You'll also pay your assistant's own subscription directly to the provider, usually {providerCostRange} a month. We'll recommend the right plan; you never pay us for it.",
   interpolates: 'providerCostRange' as const,
   optionalClause: ', usually {providerCostRange} a month'
 };

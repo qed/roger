@@ -47,6 +47,6 @@ export type TimeMathCopy = {
 // Which page a shared section is rendering for (spec §6 work, §6A home).
 export type Audience = OfferId;
 
-// A "What I won't do" line (spec §6.4): a gated line, with optional /home wording when the work wording
+// A "What we won't do" line (spec §6.4): a gated line, with optional /home wording when the work wording
 // doesn't fit (e.g. it mentions the fit call, which /home doesn't have). Resolve with resolveWontDo.
 export type WontDoLine = OfferLine & { home?: string };

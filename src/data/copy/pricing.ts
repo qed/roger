@@ -86,7 +86,7 @@ export const diyCopy: Record<OfferId, { caption: string; rows: DiyRow[] }> = {
     caption: 'Do it yourself vs. Roger',
     rows: [
       { label: 'Cost', diy: "Your assistant's subscription", roger: (price) => `${price} once + the same subscription` },
-      { label: 'Choosing an assistant', diy: 'You compare them', roger: 'I pick, and tell you why' },
+      { label: 'Choosing an assistant', diy: 'You compare them', roger: 'We pick, and tell you why' },
       { label: 'Connecting email, calendar, tools', diy: 'Your evenings, trial and error', roger: 'Done in Session 1' },
       { label: 'Time to live', diy: 'Usually weeks', roger: '5 days' },
       { label: 'When something breaks in week 1', diy: 'Forums', roger: 'Me, for 30 days' },
@@ -97,7 +97,7 @@ export const diyCopy: Record<OfferId, { caption: string; rows: DiyRow[] }> = {
     caption: 'Do it yourself vs. Roger',
     rows: [
       { label: 'Cost', diy: "Your assistant's subscription", roger: (price) => `${price} once + the same subscription` },
-      { label: 'Choosing an assistant', diy: 'You compare them', roger: 'I pick, and tell you why' },
+      { label: 'Choosing an assistant', diy: 'You compare them', roger: 'We pick, and tell you why' },
       { label: 'Connecting email and calendar', diy: 'Your evenings, trial and error', roger: 'Done in your session' },
       { label: 'Time to live', diy: 'Usually weeks', roger: 'The same day' },
       { label: 'When something breaks in week 1', diy: 'Forums', roger: 'Me, for 30 days' },

@@ -74,7 +74,7 @@ export function foundingIsFull(founding: Founding): boolean {
   return Math.min(count(founding.spotsLeft), count(founding.total)) === 0;
 }
 
-// Capacity line (§1.12): "{spotsLeft} of 10 founding spots left · I take 3 setups a week".
+// Capacity line (§1.12): "{spotsLeft} of 10 founding spots left · We take 3 setups a week".
 export function capacityParts(founding: Founding, capacityLine: string): string[] {
   return [spotsLeftText(founding), capacityLine.trim()].filter(Boolean);
 }

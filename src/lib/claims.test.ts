@@ -73,7 +73,7 @@ describe('fillClause', () => {
     );
     assert.equal(
       text,
-      "Your assistant's own subscription, paid directly to the provider (usually $20–$40/month). Care plans are available if you want me to keep tuning it."
+      "Your assistant's own subscription, paid directly to the provider (usually $20–$40/month). Care plans are available if you want us to keep tuning it."
     );
   });
 
@@ -84,7 +84,7 @@ describe('fillClause', () => {
     );
     assert.equal(
       text,
-      "Your assistant's own subscription, paid directly to the provider. Care plans are available if you want me to keep tuning it."
+      "Your assistant's own subscription, paid directly to the provider. Care plans are available if you want us to keep tuning it."
     );
     assert.ok(!text?.includes('usually'));
     assert.ok(!text?.includes('{'));
@@ -125,7 +125,7 @@ describe('honestyLine (pricing, spec §6.7)', () => {
     assert.ok(!text.includes('usually'));
     assert.ok(!text.includes('  '));
     assert.ok(!text.includes('{'));
-    assert.match(text, /directly to the provider\. I'll recommend/);
+    assert.match(text, /directly to the provider\. We'll recommend/);
   });
 
   it('includes the range when set', () => {
@@ -176,11 +176,11 @@ describe('faqAnswer end to end, founding and full (work)', () => {
   it('states the displayed deposit in "What if I skip the call?"', () => {
     assert.equal(
       answer('skip-call', foundingState),
-      "The first 15 minutes of Session 1 is the fit check. If I can't help, you get the full $1,000 back."
+      "The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full $1,000 back."
     );
     assert.equal(
       answer('skip-call', fullState),
-      "The first 15 minutes of Session 1 is the fit check. If I can't help, you get the full $1,500 back."
+      "The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full $1,500 back."
     );
   });
 
@@ -189,7 +189,7 @@ describe('faqAnswer end to end, founding and full (work)', () => {
     const full = answer('doesnt-work', fullState);
     assert.ok(founding?.startsWith('You pay $1,000 to book. The other $1,000 is due only after'), founding ?? '');
     assert.ok(full?.startsWith('You pay $1,500 to book. The other $1,500 is due only after'), full ?? '');
-    assert.ok(full?.includes('I refund the $1,500 too.'));
+    assert.ok(full?.includes('we refund the $1,500 too.'));
     for (const text of [founding, full]) {
       assert.ok(text?.includes('What "working" means:'));
       assert.ok(text?.endsWith('How to claim: one email. No forms, no questions about why.'));

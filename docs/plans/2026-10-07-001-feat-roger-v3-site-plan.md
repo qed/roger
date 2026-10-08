@@ -81,6 +81,7 @@ From the origin doc. Spec sections are listed where relevant.
 
 ## Key Technical Decisions
 
+- **Voice: changed from Peter's first person to 'we' (owner decision, 2026-10-08).**
 - **Router: `react-router-dom@7` in declarative mode.** v6 is in maintenance, and the spec names the package, not the version. A `ScrollToHash` effect handles `/#pricing` and the nav anchors across routes, honouring reduced motion.
 - **Gate mode function shared by the script and `vite.config.ts`.** One pure `resolveBuildEnv(env)` in `scripts/build-env.ts` decides `strict` vs `report` and the `__VERCEL_ENV__` value:
   - Strict when `VERCEL_ENV === 'production'`, or when `VERCEL === '1'` and `VERCEL_ENV !== 'preview'`.

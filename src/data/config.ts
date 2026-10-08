@@ -3,14 +3,14 @@
 // Every empty value hides its element or shows "Opening soon" (spec §8.1). Track TODOs in src/data/launch.ts.
 export const siteConfig = {
   productName: 'Roger',
-  domain: '', // TODO(Peter): confirm, e.g. 'https://meetroger.ai'
+  domain: 'https://meetroger.ai',
   founder: {
     name: 'Peter',
     photo: '', // TODO(Peter): '/peter.jpg' once the file is in /public
     city: 'Toronto',
     links: [] as { label: string; href: string }[] // e.g. X, LinkedIn
   }, // TODO(Peter): full name, photo, links
-  contactEmail: '', // TODO(Peter): required before launch
+  contactEmail: 'hello@meetroger.ai',
   headline: 'A' as 'A' | 'B' | 'C',
   // After the founding 10 (spec §3.1): $3,000 work paid $1,500 / $1,500, and $750 home.
   prices: {
@@ -24,7 +24,7 @@ export const siteConfig = {
   },
   anchor: { adminHourly: 0, source: '' }, // TODO(Peter): sourced Toronto admin hourly rate; hidden if 0
   founding: { total: 10, spotsLeft: 10, perk: 'a free 60-day tune-up session' },
-  capacityLine: 'I take 3 setups a week',
+  capacityLine: 'We take 3 setups a week',
   speed: { fitCallDays: 1, session1Days: 2, liveDays: 5, homeSessionLeadDays: 3 },
   providerCostRange: '', // TODO(Peter): e.g. "$20–$40"; hidden if empty
   taxNote: 'Prices in CAD.', // TODO(Peter): HST wording

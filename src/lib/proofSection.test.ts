@@ -48,8 +48,8 @@ describe('resolveWontDo', () => {
 
 describe('headingFor', () => {
   it('picks each page its own heading', () => {
-    assert.equal(headingFor(proofCopy.screenshotsHeading, 'work'), 'I run my own business this way');
-    assert.equal(headingFor(proofCopy.screenshotsHeading, 'home'), 'I run my own week this way');
+    assert.equal(headingFor(proofCopy.screenshotsHeading, 'work'), 'We run our own business this way');
+    assert.equal(headingFor(proofCopy.screenshotsHeading, 'home'), 'We run our own week this way');
     assert.equal(headingFor(proofCopy.caseStudiesHeading, 'home'), 'Set up for real Toronto homes.');
     assert.notEqual(headingFor(proofCopy.caseStudiesHeading, 'work'), headingFor(proofCopy.caseStudiesHeading, 'home'));
   });

@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { caseStudies } from './caseStudies.ts';
 import type { CaseStudy } from './caseStudies.ts';
 import { siteConfig } from './config.ts';
 import type { SiteConfig } from './config.ts';
@@ -11,12 +10,34 @@ import { signoff } from './signoff.ts';
 const noFiles = () => false;
 const allFiles = () => true;
 
+// A launch-day config with nothing filled in, so these tests don't change as Peter fills the real one.
+function blank<T>(value: T): T {
+  if (typeof value === 'string') return '' as T;
+  if (Array.isArray(value)) return [] as T;
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, blank(v)])) as T;
+  }
+  return value;
+}
+const emptyConfig: SiteConfig = {
+  ...blank(siteConfig),
+  prices: siteConfig.prices,
+  founding: siteConfig.founding,
+  speed: siteConfig.speed,
+  headline: siteConfig.headline,
+  anchor: { adminHourly: 0, source: '' },
+  proof: { ...blank(siteConfig.proof), counter: { setups: 0, workshops: 0, refunds: 0 } }
+};
+const emptySignoff = Object.fromEntries(
+  Object.entries(signoff).map(([k, v]) => [k, typeof v === 'number' ? 0 : false])
+) as typeof signoff;
+
 function ctx(overrides: Partial<LaunchCtx> = {}): LaunchCtx {
-  return { config: siteConfig, signoff, caseStudies, assetExists: noFiles, ...overrides };
+  return { config: emptyConfig, signoff: emptySignoff, caseStudies: [], assetExists: noFiles, ...overrides };
 }
 
 function config(patch: (c: SiteConfig) => void): SiteConfig {
-  const c = structuredClone(siteConfig);
+  const c = structuredClone(emptyConfig);
   patch(c);
   return c;
 }
@@ -52,9 +73,9 @@ describe('launch checklist shape (spec §8.4.2)', () => {
     assert.deepEqual(
       launchChecklist.filter((i) => i.blocking).map((i) => i.id),
       [
-        'contact-email', 'domain', 'founder-name', 'founder-photo', 'stripe-deposit', 'stripe-home', 'cal-fit',
+        'contact-email', 'domain', 'founder-photo', 'stripe-deposit', 'stripe-home', 'cal-fit',
         'cal-session1', 'cal-home', 'form-workshop', 'form-newsletter', 'provider-cost', 'case-studies',
-        'workshops-booked', 'legal', 'hst', 'no-referral', 'passwords', 'future-price', 'bio'
+        'workshops-booked', 'legal', 'hst', 'no-referral', 'passwords', 'future-price'
       ]
     );
   });
@@ -70,7 +91,7 @@ describe('evaluateLaunch with today’s empty config', () => {
   const result = evaluateLaunch(ctx());
 
   it('has every blocking item undone', () => {
-    assert.equal(result.blockingMissing.length, 20);
+    assert.equal(result.blockingMissing.length, 18);
   });
 
   it('counts only non-optional items in the total', () => {
@@ -79,16 +100,11 @@ describe('evaluateLaunch with today’s empty config', () => {
   });
 
   it('formats the summary line like the spec', () => {
-    assert.equal(formatSummary(result), `Launch check: 0/${result.total} done · 20 blocking`);
+    assert.equal(formatSummary(result), `Launch check: 0/${result.total} done · 18 blocking`);
   });
 });
 
 describe('individual checks', () => {
-  it('founder name needs a first and last name', () => {
-    assert.equal(done(ctx({ config: config((c) => (c.founder.name = 'Peter')) }), 'founder-name'), false);
-    assert.equal(done(ctx({ config: config((c) => (c.founder.name = 'Peter Kuperman')) }), 'founder-name'), true);
-  });
-
   it('founder photo needs the config path set and the file present', () => {
     const withPath = config((c) => (c.founder.photo = '/peter.jpg'));
     assert.equal(done(ctx({ config: withPath }), 'founder-photo'), false);
@@ -118,8 +134,8 @@ describe('individual checks', () => {
   });
 
   it('workshops booked needs at least 2', () => {
-    assert.equal(done(ctx({ signoff: { ...signoff, workshopsBooked: 1 } }), 'workshops-booked'), false);
-    assert.equal(done(ctx({ signoff: { ...signoff, workshopsBooked: 2 } }), 'workshops-booked'), true);
+    assert.equal(done(ctx({ signoff: { ...emptySignoff, workshopsBooked: 1 } }), 'workshops-booked'), false);
+    assert.equal(done(ctx({ signoff: { ...emptySignoff, workshopsBooked: 2 } }), 'workshops-booked'), true);
   });
 
   it('screenshots need three entries whose files all exist', () => {
@@ -175,7 +191,6 @@ describe('a fully prepared launch', () => {
     const ready = config((c) => {
       c.contactEmail = 'peter@meetroger.ca';
       c.domain = 'https://meetroger.ai';
-      c.founder.name = 'Peter Kuperman';
       c.founder.photo = '/peter.jpg';
       c.stripe.workDeposit = 'https://buy.stripe.com/a';
       c.stripe.homeCheckout = 'https://buy.stripe.com/b';
@@ -231,12 +246,6 @@ describe('validators reject placeholders and look-alikes (review)', () => {
     assert.equal(check((c) => (c.cal.fitCall = 'https://cal.com/peter/fit-call'), 'cal-fit'), true);
   });
 
-  it('founder name needs two real words', () => {
-    for (const bad of ['Peter ', 'A B', 'Peter K']) {
-      assert.equal(check((c) => (c.founder.name = bad), 'founder-name'), false, bad);
-    }
-  });
-
   it('provider cost rejects a placeholder', () => {
     assert.equal(check((c) => (c.providerCostRange = 'TBD'), 'provider-cost'), false);
     assert.equal(check((c) => (c.providerCostRange = '$20–$40'), 'provider-cost'), true);
@@ -245,11 +254,11 @@ describe('validators reject placeholders and look-alikes (review)', () => {
   it('each sign-off flips exactly its own item', () => {
     const pairs: [keyof typeof signoff, string][] = [
       ['legalReviewed', 'legal'], ['hstConfirmed', 'hst'], ['noReferralFees', 'no-referral'],
-      ['passwordPolicy', 'passwords'], ['futurePriceCommitted', 'future-price'], ['bioApproved', 'bio'],
+      ['passwordPolicy', 'passwords'], ['futurePriceCommitted', 'future-price'],
       ['foundingPerkConfirmed', 'founding-perk'], ['homeSessionLeadConfirmed', 'home-lead'], ['libraryVerified', 'library-links']
     ];
     for (const [flag, id] of pairs) {
-      const result = evaluateLaunch(ctx({ signoff: { ...signoff, [flag]: true } }));
+      const result = evaluateLaunch(ctx({ signoff: { ...emptySignoff, [flag]: true } }));
       assert.deepEqual(result.items.filter((i) => i.done).map((i) => i.id), [id], flag);
     }
   });
@@ -265,6 +274,6 @@ describe('groupLaunchItems and formatBanner', () => {
   it('groups in spec order and formats the banner without "done"', () => {
     const result = evaluateLaunch(ctx());
     assert.deepEqual(groupLaunchItems(result.items).map((g) => g.title), ['Blocking', 'Not blocking', 'Optional']);
-    assert.equal(formatBanner(result), `Launch check: 0/${result.total} · 20 blocking`);
+    assert.equal(formatBanner(result), `Launch check: 0/${result.total} · 18 blocking`);
   });
 });

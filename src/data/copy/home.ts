@@ -1,6 +1,6 @@
-// `/home` copy (spec §6A). Peter's first person, Canadian spelling, CAD. The hero headline and subhead
-// and the before/after rows are verbatim from the spec; the rest is a draft for Peter to approve.
-// Copy says "I set you up", never "Roger does X" (spec §1, decision 1). Amounts are functions of the
+// `/home` copy (spec §6A). Roger's "we" voice (owner decision, 2026-10-08), Canadian spelling, CAD. The
+// hero headline and subhead and the before/after rows are spec text (the subhead moved to "we"); the rest is a draft for Peter to approve.
+// Copy says "we set you up", never "Roger does X" (spec §1, decision 1). Amounts are functions of the
 // displayed price (offerAmounts in src/lib/offerPrice.ts), so nothing goes stale when founding spots fill.
 // The job menu lives in ../menu.ts; the FAQ in ../homeFaqs.ts.
 import type { BeforeAfterRow, GatedTimelineStep, TimeMathCopy } from './types';
@@ -8,7 +8,7 @@ import type { BeforeAfterRow, GatedTimelineStep, TimeMathCopy } from './types';
 export const homeMeta = {
   title: 'Roger at home: your first AI assistant, set up for you · Toronto',
   description: (price: string) =>
-    `I'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. One 90-minute session, live the same day. ${price} CAD. Toronto.`
+    `We'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. One 90-minute session, live the same day. ${price} CAD. Toronto.`
 };
 
 // §6A.1 Hero
@@ -16,7 +16,7 @@ export const homeHeroCopy = {
   eyebrow: 'Toronto · AI assistants, set up for your home',
   headline: 'Get your Sundays back.',
   subhead:
-    "I'm Peter. I'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. Live the same day.",
+    "We'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. Live the same day.",
   seeJobs: 'See the 12 jobs',
   phone: { title: 'Your assistant', time: 'Sunday 8:12 AM' }
 };
@@ -49,7 +49,7 @@ export const homeMealPlanCopy: {
 } = {
   label: 'Featured example',
   heading: 'The weekly meal plan',
-  intro: "One of the 12 jobs, the way I'd set it up for you. You stay in charge: nothing is ordered until you've checked the cart.",
+  intro: "One of the 12 jobs, the way we'd set it up for you. You stay in charge: nothing is ordered until you've checked the cart.",
   timeMath: {
     heading: 'Time and money back',
     label: 'Meal planning, lists and shopping, every week',
@@ -110,7 +110,7 @@ export const homeTimelineCopy = {
         needs: 'homeSessionLeadConfirmed',
         fallback: 'Pick a time that suits you'
       },
-      what: 'By video, or in person in Toronto on request. I set up your assistant on your own account, doing your 5 jobs.',
+      what: 'By video, or in person in Toronto on request. We set up your assistant on your own account, doing your 5 jobs.',
       emphasis: 'Live the same day.'
     },
     { when: 'Day 7', what: "Check-in. We look at each job together, and it goes into your setup report." },

@@ -1,5 +1,5 @@
 // Copy for the post-payment pages and the catch-all (spec §9.2, §9.4; plan: Open Questions → Resolved
-// During Planning). Peter's first person, Canadian spelling. No amounts: these pages follow a payment
+// During Planning). Roger's "we" voice, Canadian spelling. No amounts: these pages follow a payment
 // that already happened, so they never restate a price. Gated lines render through renderLine.
 import type { MenuKind } from '../menu';
 import type { OfferLine } from '../offers';
@@ -7,8 +7,8 @@ import type { OfferLine } from '../offers';
 // Shown when the Cal session link isn't configured (instead of "Opening soon": they've already paid).
 // The email sentence appears, with a mailto link, only when siteConfig.contactEmail is set.
 export const bookingFallbackCopy = {
-  text: "I'll email you within 1 business day to book.",
-  emailLead: 'Or email me at',
+  text: "We'll email you within 1 business day to book.",
+  emailLead: 'Or email us at',
   mailtoSubject: (kind: MenuKind) => (kind === 'work' ? 'Booking Session 1' : 'Booking my home session')
 };
 

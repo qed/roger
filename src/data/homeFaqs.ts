@@ -12,7 +12,7 @@ export const homeFaqs: Faq[] = [
   {
     id: 'home-allergies',
     q: 'What about allergies and picky eaters?',
-    a: "I can't guarantee allergy safety. An assistant can get things wrong, so for a serious allergy, still check the labels yourself. In your session you tell me the allergies, the foods each person won't eat and the brands you buy. I set the meal plan up to take that list into account, and you approve each week's dinners before anything is ordered."
+    a: "We can't guarantee allergy safety. An assistant can get things wrong, so for a serious allergy, still check the labels yourself. In your session you tell us the allergies, the foods each person won't eat and the brands you buy. We set the meal plan up to take that list into account, and you approve each week's dinners before anything is ordered."
   },
   {
     id: 'home-grocery-account',

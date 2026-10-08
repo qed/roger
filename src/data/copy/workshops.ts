@@ -1,13 +1,13 @@
 // `/workshops` copy (spec §6B, §3.3). For hosts: BIA managers, association leads, school councils.
-// Peter's first person, Canadian spelling. The title, hero headline and subhead, the host-pack label and
-// the success line are verbatim from the spec; the rest is a draft for Peter to approve.
+// Roger's "we" voice (owner decision, 2026-10-08), Canadian spelling. The title, hero headline and
+// subhead, the host-pack label and the success line are spec text (moved to "we"); the rest is a draft for Peter to approve.
 // No amounts on this page: the member discount is described, not priced ("a 14-day member discount on a
 // setup", spec §6B.2). The amounts live in Stripe and on the offer pages, so nothing here goes stale.
 
 export const workshopsMeta = {
   title: 'Free AI assistant workshop for your members · Roger',
   description:
-    'A free, live AI assistant workshop for BIAs, business associations, chambers and school communities in Toronto or on Zoom. Peter sets up a real assistant, start to finish, in front of your members.'
+    'A free, live AI assistant workshop for BIAs, business associations, chambers and school communities in Toronto or on Zoom. We set up a real assistant, start to finish, in front of your members.'
 };
 
 // §6B.1 Hero
@@ -15,7 +15,7 @@ export const workshopsHeroCopy = {
   eyebrow: 'Free workshops · Toronto and Zoom',
   headline: 'Give your members a free, live AI assistant workshop.',
   subhead:
-    'In 60 minutes I set up a real AI assistant live, start to finish, and show your members what it can take off their plate. Free for BIAs, associations and school communities.',
+    'In 60 minutes we set up a real AI assistant live, start to finish, and show your members what it can take off their plate. Free for BIAs, associations and school communities.',
   cta: 'Request a date'
 };
 
@@ -28,7 +28,7 @@ export const workshopsMembersGetCopy = {
   items: [
     {
       title: 'The live build',
-      body: 'I set up one real AI assistant in front of the room, start to finish, and answer questions as I go.'
+      body: 'We set up one real AI assistant in front of the room, start to finish, and answer questions as we go.'
     },
     {
       title: 'A starter checklist',
@@ -36,7 +36,7 @@ export const workshopsMembersGetCopy = {
     },
     {
       title: 'A 14-day member discount on a setup',
-      body: 'A code for your group that takes money off my business or home setup, if anyone wants me to do it for them.'
+      body: 'A code for your group that takes money off our business or home setup, if anyone wants us to do it for them.'
     }
   ]
 };
@@ -69,7 +69,7 @@ export const workshopsProofCopy = {
 // §6B.7 Request form
 export const workshopFormCopy = {
   heading: 'Request a date',
-  intro: "Tell me a little about your group and I'll reply to find a date that works.",
+  intro: "Tell us a little about your group and we'll reply to find a date that works.",
   requiredNote: 'Fields marked * are required.',
   requiredMark: '*',
   labels: {
@@ -87,7 +87,7 @@ export const workshopFormCopy = {
     email: 'you@example.ca',
     size: 'Number of people',
     month: 'e.g. November',
-    notes: 'Anything I should know: the audience, the venue, dates that work.'
+    notes: 'Anything we should know: the audience, the venue, dates that work.'
   },
   groupTypeChoose: 'Choose one',
   groupTypes: [
@@ -118,7 +118,7 @@ export const workshopFormCopy = {
   },
   submit: 'Send request',
   submitting: 'Sending…',
-  success: "Thanks. I'll reply within 1 business day to find a date.",
+  success: "Thanks. We'll reply within 1 business day to find a date.",
   // Shown under the disabled "Opening soon" button while no endpoint is configured.
   closedNote: (contactEmail: string) =>
     contactEmail ? `Requests open soon. In the meantime, email ${contactEmail}.` : 'Requests open soon.'

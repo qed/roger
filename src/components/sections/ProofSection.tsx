@@ -15,7 +15,7 @@ function publishable(study: CaseStudy, audience: Audience): boolean {
 
 // Spec §6.4 (R9a). Slots in order: case studies, counter, endorsements, videos, Peter's own setup,
 // sample report, reviews. Each hides when empty; the case-study heading belongs to the case studies.
-// "What I won't do" always renders under its own heading, with its gated lines (spec §8.4.3).
+// "What we won't do" always renders under its own heading, with its gated lines (spec §8.4.3).
 export function ProofSection({ for: audience, id = 'proof' }: { for: Audience; id?: string }) {
   const { proof } = siteConfig;
   const studies = caseStudies.filter((study) => publishable(study, audience));

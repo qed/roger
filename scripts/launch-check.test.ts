@@ -4,8 +4,14 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { caseStudies } from '../src/data/caseStudies.ts';
+import { siteConfig } from '../src/data/config.ts';
+import { evaluateLaunch } from '../src/data/launch.ts';
+import { signoff } from '../src/data/signoff.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+// How many blocking items the live config still misses (asset checks treated as missing, like a fresh clone).
+const missing = evaluateLaunch({ config: siteConfig, signoff, caseStudies, assetExists: () => true }).blockingMissing.length;
 
 function run(env: Record<string, string>, ...args: string[]) {
   const clean = { ...process.env };
@@ -19,12 +25,12 @@ function run(env: Record<string, string>, ...args: string[]) {
   return { status: result.status, out: result.stdout, err: result.stderr };
 }
 
-describe('launch-check CLI with today’s empty config', () => {
+describe('launch-check CLI with the live config (blocking items still missing)', () => {
   it('reports without failing locally', () => {
     const r = run({});
     assert.equal(r.status, 0, r.err);
     assert.match(r.out, /mode=report/);
-    assert.match(r.out, /Launch check: \d+\/\d+ done · 20 blocking/);
+    assert.match(r.out, /Launch check: \d+\/\d+ done · \d+ blocking/);
   });
 
   it('reports without failing on a Vercel preview', () => {
@@ -38,7 +44,6 @@ describe('launch-check CLI with today’s empty config', () => {
     assert.equal(r.status, 1);
     assert.match(r.out, /mode=strict/);
     assert.match(r.err, /Production build blocked/);
-    assert.match(r.err, /- Public contact email/);
     assert.match(r.err, /- Work deposit Payment Link/);
   });
 
@@ -57,7 +62,7 @@ describe('launch-check CLI with today’s empty config', () => {
     assert.equal(r.status, 0, r.err);
     const status = JSON.parse(r.out) as { mode: string; blockingMissing: string[]; items: unknown[] };
     assert.equal(status.mode, 'report');
-    assert.equal(status.blockingMissing.length, 20);
+    assert.ok(status.blockingMissing.length >= missing);
     assert.ok(status.items.length > 20);
   });
 });

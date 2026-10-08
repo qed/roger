@@ -9,7 +9,7 @@ export function isThanksPath(pathname: string): boolean {
 
 export type ThanksBookingModel = {
   href: string | null; // the Cal session link, or null when not configured
-  showFallback: boolean; // "I'll email you within 1 business day to book."
+  showFallback: boolean; // "We'll email you within 1 business day to book."
   mailto: string | null; // offered with the fallback only when a contact email is set
   showTiming: boolean; // timing copy only makes sense beside a live booking link
 };

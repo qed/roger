@@ -9,7 +9,7 @@ import { formatCad } from './proofLines';
 
 type JsonLdConfig = Pick<SiteConfig, 'productName' | 'domain' | 'prices' | 'founding' | 'founder' | 'contactEmail'>;
 
-export const JSON_LD_DESCRIPTION = 'I set up AI assistants for small businesses and families in Toronto, on their own accounts.';
+export const JSON_LD_DESCRIPTION = 'We set up AI assistants for small businesses and families in Toronto, on their own accounts.';
 
 export function buildJsonLd(config: JsonLdConfig): Record<string, unknown> {
   const domain = config.domain.trim().replace(/\/+$/, '');

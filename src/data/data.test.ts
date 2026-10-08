@@ -525,11 +525,12 @@ describe('home copy', () => {
   const founding = { prices: siteConfig.prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 5 } };
   const full = { prices: siteConfig.prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 0 } };
 
-  it('keeps the spec §6A.1 headline and subhead verbatim', () => {
+  // Pins the owner-approved "we" voice (2026-10-08), which replaced the spec's first-person subhead.
+  it('keeps the spec §6A.1 headline and the approved subhead', () => {
     assert.equal(homeCopy.homeHeroCopy.headline, 'Get your Sundays back.');
     assert.equal(
       homeCopy.homeHeroCopy.subhead,
-      "I'm Peter. I'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. Live the same day."
+      "We'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. Live the same day."
     );
     assert.equal(homeCopy.homeMeta.title, 'Roger at home: your first AI assistant, set up for you · Toronto');
   });
@@ -614,7 +615,7 @@ describe('home copy', () => {
 
   it('leads the allergy answer with the disclaimer and keeps "check the labels"', () => {
     const answer = faqText(homeFaqs.find((f) => f.id === 'home-allergies') ?? { a: '' }, offerAmounts('home', founding));
-    assert.match(answer, /^I can't guarantee allergy safety\./);
+    assert.match(answer, /^We can't guarantee allergy safety\./);
     assert.match(answer, /still check the labels yourself/);
     assert.match(answer, /take that list into account/);
     assert.doesNotMatch(answer, /work from that list/);
@@ -686,16 +687,17 @@ describe('home copy', () => {
 // number is one the spec states: the 60/90-minute formats, 10–40 people, the 14-day member discount, the
 // 1-business-day reply, and the form's 1–500 size bound.
 describe('workshops copy', () => {
-  it('uses the spec title, hero and success line verbatim', () => {
+  // Pins the owner-approved "we" voice (2026-10-08) for the subhead and success line; the rest is spec text.
+  it('uses the spec title and hero, with the approved subhead and success line', () => {
     assert.equal(workshopsCopy.workshopsMeta.title, 'Free AI assistant workshop for your members · Roger');
     assert.equal(workshopsCopy.workshopsHeroCopy.headline, 'Give your members a free, live AI assistant workshop.');
     assert.equal(
       workshopsCopy.workshopsHeroCopy.subhead,
-      'In 60 minutes I set up a real AI assistant live, start to finish, and show your members what it can take off their plate. Free for BIAs, associations and school communities.'
+      'In 60 minutes we set up a real AI assistant live, start to finish, and show your members what it can take off their plate. Free for BIAs, associations and school communities.'
     );
     assert.equal(workshopsCopy.workshopsHeroCopy.cta, 'Request a date');
     assert.equal(workshopsCopy.workshopsHostPackCopy.link, 'Download the one-page host pack (PDF)');
-    assert.equal(workshopsCopy.workshopFormCopy.success, "Thanks. I'll reply within 1 business day to find a date.");
+    assert.equal(workshopsCopy.workshopFormCopy.success, "Thanks. We'll reply within 1 business day to find a date.");
   });
 
   it('states no number outside the §6B allow-list', () => {
@@ -741,11 +743,12 @@ describe('workshops copy', () => {
 });
 
 describe('library copy (spec §7.3)', () => {
-  it('keeps the spec header, subhead, card links and honest-miss tag verbatim', () => {
+  // The card link pins the owner-approved "we" voice (2026-10-08); the rest is spec text verbatim.
+  it('keeps the spec header, subhead, card links and honest-miss tag', () => {
     assert.equal(libraryCopyModule.libraryCopy.heading, 'Real-world AI assistant use cases.');
     assert.equal(libraryCopyModule.libraryCopy.subhead, 'Collected weekly from public posts. Not Roger clients. Each one links to the original.');
     assert.equal(libraryCopyModule.libraryCopy.readOriginal, 'Read the original ↗');
-    assert.equal(libraryCopyModule.libraryCopy.setUp, 'I can set this up for you →');
+    assert.equal(libraryCopyModule.libraryCopy.setUp, 'We can set this up for you →');
     assert.equal(libraryCopyModule.libraryCopy.honestMiss, "Didn't go as planned.");
     assert.equal(libraryCopyModule.libraryMeta.title, 'Real AI assistant use cases · Roger');
   });
@@ -757,10 +760,10 @@ describe('library copy (spec §7.3)', () => {
   });
 });
 
-// Legal pages (spec §6.12, §3.5). /refunds is §3.5 verbatim; the drafts state no prices, and the only
+// Legal pages (spec §6.12, §3.5). /refunds is §3.5 in the owner-approved "we" voice (2026-10-08); the drafts state no prices, and the only
 // numbers anywhere are §3.5's time commitments.
 describe('legal copy', () => {
-  it('renders spec §3.5 verbatim on /refunds, with the claim line split around the address', () => {
+  it('renders spec §3.5 on /refunds, with the claim line split around the address', () => {
     const r = legalCopy.refundsCopy;
     assert.deepEqual(r.definition, [
       offersModule.workingDefinition.working,
@@ -771,7 +774,8 @@ describe('legal copy', () => {
     assert.deepEqual(r.after, [offersModule.workingDefinition.accounts]);
     assert.equal(`${r.claimLine.lead}contactEmail${r.claimLine.rest}`, offersModule.workingDefinition.claim);
     assert.equal(r.claimLine.lead, 'Claim: one email to ');
-    assert.match(offersModule.workingDefinition.disagree, /the client decides/);
+    assert.equal(offersModule.workingDefinition.disagree, 'If we disagree, you decide.');
+    assert.equal(offersModule.workingDefinition.accounts, 'When a refund happens, you keep your accounts. We remove our access.');
   });
 
   it('describes analytics as off or on, by provider', () => {

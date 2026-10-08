@@ -39,7 +39,7 @@ const sharedFaqBodies: Record<SharedFaqId, Omit<Faq, 'id'>> = {
   },
   passwords: {
     q: 'What about my passwords and customer data?',
-    a: "You sign in yourself during our session. I don't store passwords, and I remove my access at handover.",
+    a: "You sign in yourself during our session. We don't store passwords, and we remove our access at handover.",
     needs: 'passwordPolicy'
   }
 };
@@ -52,13 +52,13 @@ export const faqs: Faq[] = [
   {
     id: 'which-ai',
     q: 'Which AI do you use?',
-    a: "Whichever fits your business. I'm not tied to one company. I'll recommend one on the fit call and tell you why."
+    a: "Whichever fits your business. We're not tied to one company. We'll recommend one on the fit call and tell you why."
   },
   sharedFaq('own-it'),
   {
     id: 'cost-after',
     q: 'What does it cost after setup?',
-    a: "Your assistant's own subscription, paid directly to the provider (usually {providerCostRange}/month). Care plans are available if you want me to keep tuning it.",
+    a: "Your assistant's own subscription, paid directly to the provider (usually {providerCostRange}/month). Care plans are available if you want us to keep tuning it.",
     interpolates: 'providerCostRange',
     optionalClause: ' (usually {providerCostRange}/month)'
   },
@@ -76,7 +76,7 @@ export const faqs: Faq[] = [
   {
     id: 'skip-call',
     q: 'What if I skip the call?',
-    a: (a) => `The first 15 minutes of Session 1 is the fit check. If I can't help, you get the full ${a.deposit} back.`
+    a: (a) => `The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full ${a.deposit} back.`
   },
   {
     id: 'staff',

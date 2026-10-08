@@ -4,8 +4,8 @@
 export const signoff = {
   legalReviewed: false, // Terms, Privacy, Refunds reviewed
   hstConfirmed: false, // taxNote wording confirmed with an accountant
-  noReferralFees: false, // "I don't take referral fees from AI companies" is true
-  passwordPolicy: false, // "I never keep your passwords; I remove my access at handover" is true
+  noReferralFees: false, // "We don't take referral fees from AI companies" is true
+  passwordPolicy: false, // "We never keep your passwords; we remove our access at handover" is true
   futurePriceCommitted: false, // will honour "$3,000 / $750 after the first 10 clients"
   bioApproved: false, // About bio text approved
   foundingPerkConfirmed: false, // 60-day tune-up is the founding perk

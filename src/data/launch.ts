@@ -44,7 +44,6 @@ const isHttpsUrl = (value: string) => {
 };
 // A live-mode Payment Link: test-mode links (buy.stripe.com/test_…) would take no real money.
 const isPaymentLink = (value: string) => /^https:\/\/buy\.stripe\.com\/(?!test_)[A-Za-z0-9_-]+$/.test(value.trim());
-const isFullName = (value: string) => value.trim().split(/\s+/).filter((part) => part.length >= 2).length >= 2;
 const assetSet = (path: string, ctx: LaunchCtx) => filled(path) && ctx.assetExists(path);
 
 // Same rule as the displayed price (offerPrice.ts), so the gate and the CTAs switch together.
@@ -56,7 +55,6 @@ export const launchChecklist: readonly LaunchItem[] = [
   // Blocking
   { id: 'contact-email', label: 'Public contact email', kind: 'config', blocking: true, check: (c) => EMAIL.test(c.config.contactEmail.trim()) && !PLACEHOLDER.test(c.config.contactEmail) },
   { id: 'domain', label: 'Domain confirmed', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.domain) },
-  { id: 'founder-name', label: 'Full name on the site', kind: 'config', blocking: true, check: (c) => isFullName(c.config.founder.name) },
   { id: 'founder-photo', label: 'Photo of Peter', kind: 'asset', blocking: true, check: (c) => assetSet(c.config.founder.photo, c) },
   { id: 'stripe-deposit', label: 'Work deposit Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.workDeposit) },
   { id: 'stripe-home', label: 'Home Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.homeCheckout) },
@@ -82,7 +80,6 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'no-referral', label: '"No referral fees" claim is true', kind: 'signoff', blocking: true, check: (c) => c.signoff.noReferralFees },
   { id: 'passwords', label: 'Password/access claim is true', kind: 'signoff', blocking: true, check: (c) => c.signoff.passwordPolicy },
   { id: 'future-price', label: 'Will honour the post-founding prices', kind: 'signoff', blocking: true, check: (c) => c.signoff.futurePriceCommitted },
-  { id: 'bio', label: 'About bio approved', kind: 'signoff', blocking: true, check: (c) => c.signoff.bioApproved },
   // Not blocking
   { id: 'founding-perk', label: 'Founding perk confirmed', kind: 'signoff', blocking: false, check: (c) => c.signoff.foundingPerkConfirmed },
   { id: 'home-lead', label: 'Home session lead time confirmed', kind: 'signoff', blocking: false, check: (c) => c.signoff.homeSessionLeadConfirmed },

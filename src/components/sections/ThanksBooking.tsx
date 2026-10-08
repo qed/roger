@@ -20,7 +20,7 @@ export type ThanksBookingCopy = {
 
 // Body of /thanks/work and /thanks/home (spec §9.2, §9.4). Reads the picks (never clears them), builds
 // the Cal session link with the picks prefilled, and fires no analytics: no `cta` prop on the Cta.
-// A missing Cal link shows the "I'll email you" fallback instead of "Opening soon", since they've paid.
+// A missing Cal link shows the "We'll email you" fallback instead of "Opening soon", since they've paid.
 export function ThanksBooking({ kind, copy }: { kind: MenuKind; copy: ThanksBookingCopy }) {
   const { picks } = usePicks(kind);
   const titles = picksTitles(picks);

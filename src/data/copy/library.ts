@@ -34,11 +34,11 @@ export const libraryCopy = {
   clear: 'See every example',
   readOriginal: 'Read the original ↗',
   newTab: ' (opens in a new tab)',
-  setUp: 'I can set this up for you →',
+  setUp: 'We can set this up for you →',
   honestMiss: "Didn't go as planned.",
   via: 'via',
   bandHeading: 'Want one of these running for you?',
-  bandBody: "Book a free 20-minute fit call. I'll tell you what's realistic for your business.",
+  bandBody: "Book a free 20-minute fit call. We'll tell you what's realistic for your business.",
   newsletterHeading: 'Get 5 real AI-assistant use cases every week.'
 };
 
