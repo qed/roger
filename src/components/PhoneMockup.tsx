@@ -1,4 +1,3 @@
-import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ClockIcon } from 'lucide-react';
 import { siteConfig } from '../data/config';

@@ -25,3 +25,6 @@ dist-ssr
 
 # compound-engineering run artifacts
 .context/
+
+# generated at build time (launch status)
+src/generated/

@@ -1,6 +1,16 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { siteConfig } from '../data/config';
 import { ToqueMark } from './ToqueMark';
+
+// Minimal shell footer. The full rewrite (spec §6.12) lands in Unit 5.
+const footerLinks = [
+{ to: '/workshops', label: 'Workshops' },
+{ to: '/library', label: 'Use-case library' },
+{ to: '/home', label: 'For your home' },
+{ to: '/terms', label: 'Terms' },
+{ to: '/privacy', label: 'Privacy' },
+{ to: '/refunds', label: 'Refunds' }];
+
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -14,12 +24,13 @@ export function Footer() {
         </div>
         <nav aria-label="Footer">
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            <li>
-              <a href="#privacy" className="transition-colors duration-150 hover:text-ink">Privacy</a>
-            </li>
-            <li>
-              <a href="#terms" className="transition-colors duration-150 hover:text-ink">Terms</a>
-            </li>
+            {footerLinks.map((link) =>
+            <li key={link.to}>
+                <Link to={link.to} className="transition-colors duration-150 hover:text-ink">
+                  {link.label}
+                </Link>
+              </li>
+            )}
             {siteConfig.contactEmail &&
             <li>
                 <a href={`mailto:${siteConfig.contactEmail}`} className="transition-colors duration-150 hover:text-ink">
@@ -27,6 +38,7 @@ export function Footer() {
                 </a>
               </li>
             }
+            <li>Made in Toronto</li>
           </ul>
         </nav>
       </div>

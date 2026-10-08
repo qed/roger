@@ -1,6 +1,4 @@
-import React from 'react';
 import { ArrowRightIcon } from 'lucide-react';
-import { WaitlistForm } from './WaitlistForm';
 import { FadeUp } from './FadeUp';
 
 export function TimeMathBand() {
@@ -30,11 +28,6 @@ export function TimeMathBand() {
             </p>
             <p className="mt-4 text-sm text-cream/60">Source: National Zero Waste Council, 2022</p>
           </FadeUp>
-        </div>
-
-        <div className="mt-16 grid gap-6 border-t border-white/15 pt-10 lg:grid-cols-12 lg:items-center">
-          <p className="font-serif text-3xl lg:col-span-5">Get your Sundays back.</p>
-          <WaitlistForm tone="dark" audienceOverride="home" showPostalCode className="lg:col-span-7" />
         </div>
       </div>
     </section>);

@@ -206,7 +206,7 @@ sequenceDiagram
 
 ### Phase B — Foundation
 
-- [ ] **Unit 2: Scaffolding, data files and waitlist removal**
+- [x] **Unit 2: Scaffolding, data files and waitlist removal**
 
 **Goal:** The router shell, new data files and the cleanup that spec chunk 1 needs.
 
