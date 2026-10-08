@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { siteConfig } from './config.ts';
-import { faqText, faqs } from './faqs.ts';
+import { SHARED_FAQ_IDS, faqText, faqs, sharedFaq } from './faqs.ts';
 import * as sharedCopy from './copy/shared.ts';
 import * as pricingCopyModule from './copy/pricing.ts';
 import * as workCopy from './copy/work.ts';
 import * as whatYouGetCopyModule from './copy/whatYouGet.ts';
 import * as thanksCopy from './copy/thanks.ts';
+import * as homeCopy from './copy/home.ts';
+import * as homeContentModule from './homeContent.ts';
+import { homeFaqs } from './homeFaqs.ts';
 import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
 import { pricingCopy } from './copy/pricing.ts';
 import { faqAnswer, renderLine } from '../lib/claims.ts';
@@ -202,14 +205,15 @@ describe('gating', () => {
   it('uses only boolean signoff keys in `needs`', () => {
     const needs = [
       ...Object.values(offers).flatMap((o) => [o.futurePriceLine, ...o.whatYouGet, ...o.how]).map((l) => l.needs),
-      ...faqs.map((f) => f.needs)
+      ...[...faqs, ...homeFaqs].map((f) => f.needs),
+      ...homeCopy.homeTimelineCopy.steps.map((step) => ('whenNote' in step && typeof step.whenNote === 'object' ? step.whenNote.needs : undefined))
     ].filter((n): n is NonNullable<typeof n> => n !== undefined);
     assert.ok(needs.length > 0);
     for (const n of needs) assert.ok(flags.has(n), n);
   });
 
   it('keeps every optionalClause an exact substring of its answer', () => {
-    for (const faq of faqs) {
+    for (const faq of [...faqs, ...homeFaqs]) {
       if (faq.optionalClause === undefined) continue;
       assert.equal(typeof faq.a, 'string', faq.id);
       assert.ok(String(faq.a).includes(faq.optionalClause), faq.id);
@@ -218,7 +222,7 @@ describe('gating', () => {
   });
 
   it('interpolates only string siteConfig keys that appear in the answer', () => {
-    for (const faq of faqs) {
+    for (const faq of [...faqs, ...homeFaqs]) {
       if (faq.interpolates === undefined) continue;
       assert.equal(typeof siteConfig[faq.interpolates], 'string', faq.id);
       assert.equal(typeof faq.a, 'string', faq.id);
@@ -252,9 +256,9 @@ describe('config invariants', () => {
 });
 
 // Every exported string and function in src/data/copy/*.ts, offers.ts and the FAQs, rendered in both
-// founding states. Functions are called with the state's amounts (home amounts on any path that names
-// home), templates are filled the way the components fill them, and the result must state only that
-// state's amounts and leave no placeholder, "undefined" or "NaN" behind.
+// founding states. Functions are called with the state's amounts for the module's offer (MODULE_OFFER),
+// templates are filled the way the components fill them, and the result must state only that state's
+// amounts, of that module's offer, and leave no placeholder, "undefined" or "NaN" behind.
 describe('copy sweep, founding and full', () => {
   type State = 'founding' | 'full';
   const { prices } = siteConfig;
@@ -267,9 +271,11 @@ describe('copy sweep, founding and full', () => {
 
   // The amounts a visitor can see in each state: work price + deposit (= balance), home price, and the
   // "about $X a month" figures. Nothing else; in particular no "$0" and nothing from the other state.
-  const allowedIn = (state: State) => {
+  const STAT_PATH = 'home.homeMealPlanCopy.timeMath.statValue';
+
+  const allowedIn = (state: State, only?: OfferId) => {
     const set = new Set<string>();
-    for (const offer of ['work', 'home'] as const) {
+    for (const offer of only ? [only] : (['work', 'home'] as const)) {
       const d = displayedOffer(offer, configs[state]);
       [d.price, d.deposit, d.monthly].forEach((n) => set.add(cad(n)));
       if (d.balance > 0) set.add(cad(d.balance));
@@ -280,11 +286,38 @@ describe('copy sweep, founding and full', () => {
   it('allows exactly the spec amounts in each state', () => {
     assert.deepEqual([...allowedIn('founding')].sort(), ['$1,000', '$167', '$2,000', '$42', '$500'].sort());
     assert.deepEqual([...allowedIn('full')].sort(), ['$1,500', '$250', '$3,000', '$63', '$750'].sort());
+    assert.deepEqual([...allowedIn('founding', 'home')].sort(), ['$42', '$500']);
+    assert.deepEqual([...allowedIn('full', 'work')].sort(), ['$1,500', '$250', '$3,000']);
   });
 
   type Found = { path: string; text: string; needs?: string };
 
-  const offerFor = (path: string): OfferId => (/home/i.test(path) ? 'home' : 'work');
+  // Which offer's amounts each swept module may state. A module that renders on one page only is strict:
+  // home copy may state only home amounts, work copy only work amounts. Modules holding copy for both
+  // pages (or cross-offer lines, like the work card's "Home setup, $500 →") may state either.
+  const MODULE_OFFER: Record<string, OfferId | 'both'> = {
+    shared: 'both',
+    pricing: 'both',
+    whatYouGet: 'both',
+    thanks: 'both',
+    offers: 'both',
+    work: 'work',
+    faqs: 'work',
+    home: 'home',
+    homeContent: 'home',
+    homeFaqs: 'home'
+  };
+  const scopeOf = (path: string): OfferId | 'both' => {
+    const scope = MODULE_OFFER[path.split('.')[0]];
+    assert.ok(scope, `no MODULE_OFFER entry for ${path}`);
+    return scope;
+  };
+  // The amounts a function is called with: the module's offer, or for a two-offer module the offer its
+  // path names (pricingCopy.home.*, homeCheckoutLabels, guaranteeCopy.home, ...).
+  const offerFor = (path: string): OfferId => {
+    const scope = scopeOf(path);
+    return scope === 'both' ? (/home/i.test(path) ? 'home' : 'work') : scope;
+  };
 
   // Arguments that aren't amounts.
   const SPECIAL_ARGS: Record<string, unknown[]> = {
@@ -355,17 +388,24 @@ describe('copy sweep, founding and full', () => {
       work: workCopy,
       whatYouGet: whatYouGetCopyModule,
       thanks: thanksCopy,
+      home: homeCopy,
+      homeContent: homeContentModule,
       offers: offersModule
     };
     for (const [name, mod] of Object.entries(modules)) collect({ ...mod }, name, state, out);
-    const amounts = offerAmounts('work', configs[state]);
-    for (const values of [
-      { providerCostRange: '', taxNote: '' },
-      { providerCostRange: 'RANGE', taxNote: 'Prices in CAD.' }
-    ]) {
-      for (const faq of faqs) {
-        const text = faqAnswer(faq, { amounts, values, signoff: allOn });
-        if (text !== null) out.push({ path: `faqs.${faq.id}`, text });
+    for (const [name, list, offer] of [
+      ['faqs', faqs, 'work'],
+      ['homeFaqs', homeFaqs, 'home']
+    ] as const) {
+      const amounts = offerAmounts(offer, configs[state]);
+      for (const values of [
+        { providerCostRange: '', taxNote: '' },
+        { providerCostRange: 'RANGE', taxNote: 'Prices in CAD.' }
+      ]) {
+        for (const faq of list) {
+          const text = faqAnswer(faq, { amounts, values, signoff: allOn });
+          if (text !== null) out.push({ path: `${name}.${faq.id}`, text });
+        }
       }
     }
     return out
@@ -374,21 +414,23 @@ describe('copy sweep, founding and full', () => {
   };
 
   for (const state of ['founding', 'full'] as const) {
-    it(`states only ${state}-state amounts, with nothing unresolved (${state})`, () => {
-      const allowed = allowedIn(state);
+    it(`states only ${state}-state amounts of its own offer, with nothing unresolved (${state})`, () => {
       const rendered = render(state);
       assert.ok(rendered.length > 150, `swept only ${rendered.length} strings`);
       let amounts = 0;
       for (const f of rendered) {
         for (const bad of ['{', '}', 'undefined', 'NaN', '[object']) assert.ok(!f.text.includes(bad), `${f.path}: "${f.text}"`);
+        const scope = scopeOf(f.path);
+        const allowed = allowedIn(state, scope === 'both' ? undefined : scope);
         for (const amount of amountsIn(f.text)) {
           amounts++;
-          // A future-price line names the regular price it's heading for; that line shows only while founding.
+          // A future-price line names its own offer's regular price; that line shows only while founding.
+          // The one non-price figure: the sourced food-waste statistic on /home (spec §6A.5).
+          const regular = offerFor(f.path) === 'home' ? prices.regularHome : prices.regularWork;
           const ok =
             allowed.has(amount) ||
-            (state === 'founding' &&
-              /futurePrice/.test(f.path) &&
-              [cad(prices.regularWork), cad(prices.regularHome)].includes(amount));
+            (f.path === STAT_PATH && amount === '$1,300') ||
+            (state === 'founding' && foundingOnly(f) && /futurePrice/.test(f.path) && amount === cad(regular));
           assert.ok(ok, `${state}: ${amount} not allowed at ${f.path}: "${f.text}"`);
         }
       }
@@ -417,7 +459,14 @@ describe('copy sweep, founding and full', () => {
       'faqs.skip-call',
       'thanks.thanksWorkCopy.',
       'thanks.thanksHomeCopy.timing.',
-      'thanks.notFoundCopy.'
+      'thanks.notFoundCopy.',
+      'home.homeMeta.description()',
+      'home.homeHeroCopy.',
+      'home.homeTimelineCopy.steps',
+      'home.homeMealPlanCopy.timeMath.statValue',
+      'homeContent.homeSteps',
+      'homeFaqs.home-allergies',
+      'homeFaqs.home-cost-after'
     ]) {
       assert.ok(paths.some((p) => p.startsWith(prefix)), prefix);
     }
@@ -443,5 +492,168 @@ describe('thanks copy', () => {
     const work = thanksCopy.thanksWorkCopy.checklist.join(' ');
     for (const item of [/admin access to your email and calendar/i, /list of your tools/i, /join Session 2/i]) assert.match(work, item);
     assert.deepEqual(thanksCopy.notFoundCopy.links.map((l) => l.to), ['/', '/home', '/library']);
+  });
+});
+
+// /home copy (spec §6A, R7).
+describe('home copy', () => {
+  const founding = { prices: siteConfig.prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 5 } };
+  const full = { prices: siteConfig.prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 0 } };
+
+  it('keeps the spec §6A.1 headline and subhead verbatim', () => {
+    assert.equal(homeCopy.homeHeroCopy.headline, 'Get your Sundays back.');
+    assert.equal(
+      homeCopy.homeHeroCopy.subhead,
+      "I'm Peter. I'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. Live the same day."
+    );
+    assert.equal(homeCopy.homeMeta.title, 'Roger at home: your first AI assistant, set up for you · Toronto');
+  });
+
+  it('states the displayed home price in the meta description and hero CTA', () => {
+    assert.match(homeCopy.homeMeta.description(offerAmounts('home', founding).price), /\$500 CAD/);
+    assert.match(homeCopy.homeMeta.description(offerAmounts('home', full).price), /\$750 CAD/);
+    assert.equal(sharedCopy.homeCheckoutLabels.long(offerAmounts('home', founding).price), 'Pay $500 & book your session');
+    assert.equal(sharedCopy.homeCheckoutLabels.long(offerAmounts('home', full).price), 'Pay $750 & book your session');
+  });
+
+  it('has the four spec §6A.2 rows', () => {
+    assert.equal(homeCopy.homeBeforeAfterCopy.label, 'An example Sunday');
+    assert.deepEqual(
+      homeCopy.homeBeforeAfterCopy.rows.map((r) => r.before),
+      [
+        '"What\'s for dinner?" asked all week',
+        'A school email you missed the form in',
+        'A Sunday afternoon at the grocery store',
+        'A subscription you forgot to cancel'
+      ]
+    );
+  });
+
+  it('gates the session lead time with the spec fallback', () => {
+    const notes = homeCopy.homeTimelineCopy.steps.flatMap((step) =>
+      'whenNote' in step && typeof step.whenNote === 'object' ? [step.whenNote] : []
+    );
+    assert.equal(notes.length, 1);
+    assert.equal(notes[0].needs, 'homeSessionLeadConfirmed');
+    assert.equal(notes[0].fallback, 'Pick a time that suits you');
+    assert.match(notes[0].text, /within 3 business days/);
+    // No other part of the timeline promises the lead time ungated.
+    const ungated = JSON.stringify(homeCopy.homeTimelineCopy.steps.map((step) => ({ ...step, whenNote: undefined })));
+    assert.doesNotMatch(ungated, /business days/);
+  });
+
+  it('keeps the meal-plan facts and never says "Roger does X" (spec §1)', () => {
+    const text = JSON.stringify({ homeContentModule, homeCopy });
+    assert.doesNotMatch(text, /Roger (shops|plans|does|builds|sends|books)/);
+    assert.equal(homeContentModule.homeSteps.length, 4);
+    assert.equal(homeCopy.homeMealPlanCopy.timeMath.before, '2–3 hours');
+    assert.equal(homeCopy.homeMealPlanCopy.timeMath.after, '10 minutes');
+    assert.equal(homeCopy.homeMealPlanCopy.timeMath.source, 'Source: National Zero Waste Council, 2022');
+  });
+
+  it('has the R7 home FAQ items plus ownership, password (gated) and cost, with unique ids', () => {
+    const ids = homeFaqs.map((f) => f.id);
+    assert.equal(new Set(ids).size, ids.length);
+    for (const id of ['home-allergies', 'home-grocery-account', 'home-partner', 'own-it', 'home-passwords', 'home-cost-after']) {
+      assert.ok(ids.includes(id), id);
+    }
+    const amounts = offerAmounts('home', founding);
+    // Home answers don't mention a fit call (there isn't one on /home) or state an amount.
+    for (const faq of homeFaqs) assert.doesNotMatch(faqText(faq, amounts), /fit call|\$\d/i, faq.id);
+  });
+
+  it('reuses the shared work answers by typed id, and home-passwords keeps the work gating', () => {
+    for (const id of SHARED_FAQ_IDS) assert.deepEqual(faqs.find((f) => f.id === id), sharedFaq(id), id);
+    const work = sharedFaq('passwords');
+    const home = homeFaqs.find((f) => f.id === 'home-passwords');
+    assert.ok(home);
+    assert.equal(home.needs, work.needs);
+    assert.equal(home.needs, 'passwordPolicy');
+    assert.equal(home.a, work.a);
+    const amounts = offerAmounts('home', founding);
+    assert.equal(faqAnswer(home, { amounts, signoff: { ...signoff, passwordPolicy: false } }), null);
+    assert.ok(faqAnswer(home, { amounts, signoff: { ...signoff, passwordPolicy: true } }));
+    assert.deepEqual(homeFaqs.find((f) => f.id === 'own-it'), sharedFaq('own-it'));
+  });
+
+  it('answers the cost question without the work care-plan sentence, dropping the range when unset', () => {
+    const cost = homeFaqs.find((f) => f.id === 'home-cost-after');
+    assert.ok(cost);
+    const amounts = offerAmounts('home', founding);
+    const withRange = faqAnswer(cost, { amounts, values: { providerCostRange: '$25–$30', taxNote: '' } });
+    const without = faqAnswer(cost, { amounts, values: { providerCostRange: '', taxNote: '' } });
+    assert.equal(withRange, "Your assistant's own subscription, paid directly to the provider (usually $25–$30/month).");
+    assert.equal(without, "Your assistant's own subscription, paid directly to the provider.");
+    for (const text of [withRange, without]) assert.doesNotMatch(text ?? '', /care plan/i);
+  });
+
+  it('leads the allergy answer with the disclaimer and keeps "check the labels"', () => {
+    const answer = faqText(homeFaqs.find((f) => f.id === 'home-allergies') ?? { a: '' }, offerAmounts('home', founding));
+    assert.match(answer, /^I can't guarantee allergy safety\./);
+    assert.match(answer, /still check the labels yourself/);
+    assert.match(answer, /take that list into account/);
+    assert.doesNotMatch(answer, /work from that list/);
+  });
+
+  // Spec §12: every number on /home is a price, a time commitment, the cited food-waste stat, or an
+  // illustration labelled "example". Each digit-bearing phrase in the home copy must match one of these
+  // rules, scoped to the paths where it's allowed; anything left over (like an invented "150 hours a
+  // year") fails until it's sourced and added here on purpose.
+  it('states no number outside the §12 allow-list', () => {
+    type Rule = { path: RegExp; phrase: RegExp; why: string };
+    const escape = (s: string) => s.replace(/[$,+.]/g, '\\$&');
+    const homePrices = [...new Set([founding, full].map((c) => offerAmounts('home', c).price))].map(escape);
+    const RULES: Rule[] = [
+      { path: /^home\.homeMeta\.description\(\)$/, phrase: new RegExp(`(${homePrices.join('|')}) CAD`), why: 'the displayed home price' },
+      // Offer terms and time commitments (spec §3.2, §6A.6).
+      { path: /./, phrase: /\b5 jobs\b|\b12 jobs\b|\b90-minute\b/, why: 'what the home setup includes' },
+      { path: /^home\.homeTimelineCopy\./, phrase: /\bDay (0|7|14)\b|\b3 business days\b|\b30 days\b/, why: 'timeline commitments' },
+      // The meal-plan time math (spec §6A.5).
+      { path: /^home\.homeMealPlanCopy\.timeMath\.before$/, phrase: /^2–3 hours$/, why: 'time math' },
+      { path: /^home\.homeMealPlanCopy\.timeMath\.after$/, phrase: /^10 minutes$/, why: 'time math' },
+      // The cited food-waste statistic and its source year.
+      { path: /^home\.homeMealPlanCopy\.timeMath\.statValue$/, phrase: /^\$1,300\+$/, why: 'cited stat' },
+      { path: /^home\.homeMealPlanCopy\.timeMath\.source$/, phrase: /\b2022\b/, why: 'cited stat source' },
+      // Illustrations labelled "example": the "An example Sunday" strip, the "Featured example" meal-plan
+      // steps, and the phone mockup (badged "Example").
+      { path: /^home\.homeBeforeAfterCopy\.rows\[\d+\]\.after$/, phrase: /\b5 minutes\b/, why: 'example Sunday' },
+      {
+        path: /^homeContent\.homeSteps\[\d+\]\./,
+        phrase: /\b15 (ideas|dinners)\b|\bAbout 5 minutes\b|\b5–7\b|\b20-minute\b/,
+        why: 'featured example'
+      },
+      { path: /^home\.homeHeroCopy\.phone\.time$/, phrase: /\b8:12 AM\b/, why: 'example phone' }
+    ];
+    assert.equal(homeCopy.homeBeforeAfterCopy.label, 'An example Sunday');
+    assert.equal(homeCopy.homeMealPlanCopy.label, 'Featured example');
+
+    const found: { path: string; text: string }[] = [];
+    const walk = (v: unknown, path: string): void => {
+      if (typeof v === 'string') found.push({ path, text: v });
+      else if (typeof v === 'function') {
+        for (const c of [founding, full]) walk((v as (p: string) => unknown)(offerAmounts('home', c).price), `${path}()`);
+      } else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${path}[${i}]`));
+      else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, `${path}.${k}`);
+    };
+    walk({ ...homeCopy }, 'home');
+    walk({ homeSteps: homeContentModule.homeSteps }, 'homeContent');
+    const amounts = offerAmounts('home', founding);
+    for (const faq of homeFaqs) {
+      found.push({ path: `homeFaqs.${faq.id}.q`, text: faq.q });
+      const text = faqAnswer(faq, { amounts, values: { providerCostRange: '', taxNote: '' }, signoff: { ...signoff, passwordPolicy: true } });
+      if (text) found.push({ path: `homeFaqs.${faq.id}`, text });
+    }
+    assert.ok(found.length > 40, `walked only ${found.length} strings`);
+    let numbered = 0;
+    for (const { path, text } of found) {
+      if (!/\d/.test(text)) continue;
+      numbered++;
+      let rest = text;
+      for (const rule of RULES) {
+        if (rule.path.test(path)) rest = rest.replace(new RegExp(rule.phrase.source, 'g'), '');
+      }
+      assert.doesNotMatch(rest, /\d/, `${path}: number outside the §12 allow-list in "${text}"`);
+    }
+    assert.ok(numbered >= 15, `only ${numbered} digit-bearing strings seen`);
   });
 });

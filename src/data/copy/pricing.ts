@@ -1,9 +1,12 @@
 // Pricing card, DIY comparison and payback calculator copy (spec §6.7, §6A.7).
 // Gated lines carry `needs` (spec §8.4.3) and render through renderLine.
+import { formatCad } from '../../lib/proofLines';
+import { siteConfig } from '../config';
 import type { OfferAmounts, OfferId, OfferLine } from '../offers';
 
 // Price-derived strings are functions of the displayed price (founding or regular; see displayedOffer in
 // src/lib/offerPrice.ts), so nothing here hard-codes an amount that changes when founding spots fill.
+// The future-price lines show only while founding (PricingCard) and name the regular price from config.
 export type PricingCopy = {
   heading: string; // the pricing section's heading (screen-reader only; the card carries the price)
   priceNote: (monthly: string) => string; // after "{price} CAD"
@@ -24,7 +27,7 @@ export const pricingCopy: Record<OfferId, PricingCopy> = {
     heading: 'Pricing',
     priceNote: (monthly) => `one-time · About ${monthly} a month over your first year.`,
     futurePrice: {
-      text: 'Founding price · becomes $3,000 after the first 10 clients.',
+      text: `Founding price · becomes ${formatCad(siteConfig.prices.regularWork)} after the first 10 clients.`,
       needs: 'futurePriceCommitted',
       fallback: 'Founding price'
     },
@@ -48,7 +51,7 @@ export const pricingCopy: Record<OfferId, PricingCopy> = {
     heading: 'Pricing',
     priceNote: (monthly) => `one-time · about ${monthly} a month over your first year.`,
     futurePrice: {
-      text: 'Founding price · becomes $750 after the first 10 clients.',
+      text: `Founding price · becomes ${formatCad(siteConfig.prices.regularHome)} after the first 10 clients.`,
       needs: 'futurePriceCommitted',
       fallback: 'Founding price'
     },

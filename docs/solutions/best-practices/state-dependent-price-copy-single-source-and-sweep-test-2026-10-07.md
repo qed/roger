@@ -10,7 +10,8 @@ applies_when:
   - Displayed prices switch at a threshold (founding/early-bird → regular, sale → full price)
   - Many strings across the site state an amount (CTAs, guarantees, FAQs, meta descriptions)
   - Showing a stale or mixed price would be misleading (consumer-protection rules on reference prices)
-tags: [pricing, copy, founding-price, testing, sweep-test, consumer-protection, single-source-of-truth]
+tags: [pricing, copy, founding-price, testing, sweep-test, consumer-protection, single-source-of-truth, invented-numbers]
+last_updated: 2026-10-07
 ---
 
 # Price copy that changes at a threshold — one source of amounts and a per-state sweep test
@@ -33,7 +34,13 @@ that state.
    Allow *only that state's* amounts, and fail on leftover `{`, `undefined`, `NaN` or `[object`. In the full
    state, also fail on founding-only words ("founding", "tune-up") outside the one sentence that announces
    the change.
-4. **Mutation-test the sweep once.** Plant a stale `$1,000`, a "founding" and a `{oops}` in a copy file
+4. **Make the sweep offer-strict, not just state-strict.** Map each copy module to the offer it renders
+   on (an explicit table, not a `/home/i` path regex). Home-only modules may state only home amounts, and
+   work-only modules only work amounts. Only modules shown on both pages get the union.
+5. **Ban unsourced numbers outright.** Marketing copy attracts plausible extrapolations ("Up to 150 hours a
+   year back"). A second sweep strips the allowed number phrases per path (prices, time commitments,
+   the cited stat, "example"-labelled illustrations) and fails on any digit left over.
+6. **Mutation-test the sweeps once.** Plant a stale `$1,000`, a "founding" and a `{oops}` in a copy file
    and confirm all three fail. Otherwise the sweep may be passing vacuously.
 
 ## Why This Matters

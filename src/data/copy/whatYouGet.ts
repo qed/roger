@@ -16,11 +16,12 @@ export const whatYouGetCopy: Record<OfferId, WhatYouGetCopy> = {
     toolsLine:
       "Works with the tools you already use: email, calendar, accounting, booking and messaging apps. We'll confirm yours on the fit call."
   },
-  // §6A.4: pick 5 of 12 home jobs; no Chief of Staff card. Draft copy (the spec gives only the summary).
+  // §6A.4: pick 5 of 12 home jobs; no Chief of Staff card. The spec gives the summary line; the
+  // headings and intro are a draft for Peter to approve.
   home: {
-    heading: 'Five jobs you hate, off your plate.',
-    pickerHeading: 'Pick your 5 jobs',
-    pickerIntro: 'Pick 5 of 12. Picking is optional; we can choose together in your session.',
+    heading: 'Pick the 5 jobs you most want off your plate.',
+    pickerHeading: 'The 12 jobs',
+    pickerIntro: "Pick up to 5. Not sure yet? Skip it, and we'll choose together in your session.",
     summaryLabel: 'Your 5 jobs',
     summary: (picks, price) => `${picks} · ${price}`,
     summaryNoPicks: 'chosen in your session'

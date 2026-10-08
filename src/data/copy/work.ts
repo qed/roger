@@ -23,7 +23,13 @@ export const workHeroCopy = {
     "I'm Peter. I set your business up with an AI Chief of Staff and 3 helpers that answer customers, chase invoices and draft every email, on your own accounts, live within 5 days. Half up front, half only once it's running.",
   depositLead: 'Know you want it?',
   included: (price: string) => `What's included · ${price}`,
-  phone: { title: 'Your Chief of Staff', time: 'Monday 6:48 AM' }
+  phone: { title: 'Your Chief of Staff', time: 'Monday 6:48 AM' },
+  // The morning brief on the hero's phone mockup: an illustration with an "Example" badge (spec §12).
+  phoneBrief: [
+    { label: '23 replies drafted', detail: 'Ready for your review' },
+    { label: '3 open loops', detail: "From Friday's board meeting" },
+    { label: '2 meetings prepped', detail: 'Briefs from your notes and docs' }
+  ]
 };
 
 // §6.3 Before and after

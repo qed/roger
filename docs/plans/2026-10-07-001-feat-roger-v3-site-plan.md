@@ -448,7 +448,7 @@ sequenceDiagram
 
 **Verification:** Both thanks pages render correctly with and without picks and with empty Cal config.
 
-- [ ] **Unit 8: Home page `/home`**
+- [x] **Unit 8: Home page `/home`**
 
 **Goal:** The spec §6A page for parents.
 

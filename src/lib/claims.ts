@@ -2,6 +2,7 @@
 // config value leaves a gap like "usually  a month" behind.
 import { siteConfig } from '../data/config';
 import { faqText } from '../data/faqs';
+import type { GatedTimelineStep, TimelineStep } from '../data/copy/types';
 import type { Faq, FaqInterpolationKey } from '../data/faqs';
 import type { OfferAmounts, OfferLine } from '../data/offers';
 import { signoff as repoSignoff } from '../data/signoff';
@@ -57,4 +58,13 @@ export function faqAnswer(faq: Faq, { amounts, values = configValues(), signoff 
   if (faq.needs && !isUnlocked(faq.needs, signoff)) return null;
   const text = faqText(faq, amounts);
   return fillClause({ text, interpolates: faq.interpolates, optionalClause: faq.optionalClause }, values);
+}
+
+// Timeline steps as rendered: a gated `whenNote` becomes its text once signed off, otherwise its
+// fallback, otherwise it's dropped (the step itself always shows).
+export function resolveTimelineSteps(steps: readonly GatedTimelineStep[], signoff: Signoff = repoSignoff): TimelineStep[] {
+  return steps.map(({ whenNote, ...step }) => {
+    const note = typeof whenNote === 'string' ? whenNote : whenNote ? renderLine(whenNote, signoff) : null;
+    return note ? { ...step, whenNote: note } : step;
+  });
 }

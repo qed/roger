@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { faqAnswer, fillClause, isUnlocked, renderLine } from './claims.ts';
+import { faqAnswer, fillClause, isUnlocked, renderLine, resolveTimelineSteps } from './claims.ts';
+import { homeTimelineCopy } from '../data/copy/home.ts';
 import { honestyLine } from '../data/offers.ts';
 import { faqs } from '../data/faqs.ts';
 import type { Faq } from '../data/faqs.ts';
@@ -265,5 +266,29 @@ describe('fillClause fallbacks (review)', () => {
       fillClause({ text: 'Cost {providerCostRange}.', interpolates: 'providerCostRange' }, { providerCostRange: '$& {x}', taxNote: '' }),
       'Cost $& {x}.'
     );
+  });
+});
+
+describe('resolveTimelineSteps', () => {
+  it('keeps plain notes, renders a gated note once signed off, else its fallback', () => {
+    const steps = [
+      { when: 'A', what: 'a', whenNote: 'plain' },
+      { when: 'B', what: 'b', whenNote: { text: 'claim', needs: 'homeSessionLeadConfirmed' as const, fallback: 'fallback' } },
+      { when: 'C', what: 'c' }
+    ];
+    assert.deepEqual(resolveTimelineSteps(steps, allOn).map((s) => s.whenNote), ['plain', 'claim', undefined]);
+    assert.deepEqual(resolveTimelineSteps(steps, allOff).map((s) => s.whenNote), ['plain', 'fallback', undefined]);
+  });
+
+  it('drops a gated note with no fallback, keeping the step', () => {
+    const [step] = resolveTimelineSteps([{ when: 'X', what: 'x', whenNote: { text: 'claim', needs: 'passwordPolicy' } }], allOff);
+    assert.deepEqual(step, { when: 'X', what: 'x' });
+  });
+
+  it('renders the /home session step per homeSessionLeadConfirmed (spec §8.4.3)', () => {
+    const notes = (s: Signoff) => resolveTimelineSteps(homeTimelineCopy.steps, s).map((step) => step.whenNote ?? '').join(' | ');
+    assert.match(notes(allOff), /Pick a time that suits you/);
+    assert.doesNotMatch(notes(allOff), /3 business days/);
+    assert.match(notes(allOn), /within 3 business days of payment/);
   });
 });

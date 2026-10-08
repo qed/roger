@@ -1,6 +1,7 @@
 import { ClockIcon } from 'lucide-react';
 import { phoneMockupCopy } from '../data/copy/shared';
-import { sampleBrief, sampleMeals } from '../data/homeContent';
+import { workHeroCopy } from '../data/copy/work';
+import { sampleMeals } from '../data/homeContent';
 import { ToqueMark } from './ToqueMark';
 
 type PhoneMockupProps = {
@@ -80,7 +81,7 @@ function MorningBrief() {
         Good morning. Here's your day, prepared.
       </p>
       <ul className="divide-y divide-rule rounded-xl border border-rule bg-white">
-        {sampleBrief.map((item) =>
+        {workHeroCopy.phoneBrief.map((item) =>
         <li key={item.label} className="px-3 py-2.5">
             <p className="text-[13px] font-medium text-ink">{item.label}</p>
             <p className="text-[11.5px] text-ink-faint">{item.detail}</p>

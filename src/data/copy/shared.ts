@@ -3,6 +3,7 @@
 // renderLine in src/lib/claims.ts. Strings stating a deposit, balance or refund are functions of the
 // displayed amounts (offerAmounts in src/lib/offerPrice.ts), never a hard-coded "$1,000".
 import type { OfferAmounts, OfferLine } from '../offers';
+import type { Audience, WontDoLine } from './types';
 
 export const ctaLabels = {
   openingSoon: 'Opening soon',
@@ -93,20 +94,33 @@ export const newsletterCopy = {
 };
 
 // Proof section (spec §6.4, R9a).
-export const proofCopy = {
+export const proofCopy: {
+  caseStudiesHeading: Record<Audience, string>;
+  metricBefore: string;
+  metricAfter: string;
+  screenshotsHeading: Record<Audience, string>;
+  sampleReport: string;
+  reviews: string;
+  wontDoHeading: string;
+  wontDo: WontDoLine[];
+} = {
   caseStudiesHeading: { work: 'Set up for real Toronto businesses.', home: 'Set up for real Toronto homes.' },
   metricBefore: 'Before',
   metricAfter: 'After',
-  screenshotsHeading: 'I run my own business this way',
+  screenshotsHeading: { work: 'I run my own business this way', home: 'I run my own week this way' },
   sampleReport: 'See exactly what you get →',
   reviews: 'Read independent reviews ↗',
   wontDoHeading: "What I won't do",
   wontDo: [
     { text: "I won't set up anything that sends money or messages on its own unless you write the rule." },
-    { text: "I won't promise a task the assistant can't do reliably yet. If it's shaky, I'll tell you on the fit call." },
+    {
+      text: "I won't promise a task the assistant can't do reliably yet. If it's shaky, I'll tell you on the fit call.",
+      // /home has no fit call (spec §6A): the visitor pays, then books the session.
+      home: "I won't promise a job the assistant can't do reliably yet. If one you picked is shaky, I'll tell you before we set it up."
+    },
     { text: "I won't keep your passwords.", needs: 'passwordPolicy' },
     { text: "I don't take referral fees from AI companies, so I recommend what fits you.", needs: 'noReferralFees' }
-  ] satisfies OfferLine[]
+  ]
 };
 
 // Work guarantee (spec §6.8), shared by the band and FAQ #6 (src/data/faqs.ts).

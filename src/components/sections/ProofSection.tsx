@@ -3,11 +3,10 @@ import type { CaseStudy } from '../../data/caseStudies';
 import { siteConfig } from '../../data/config';
 import { proofCopy } from '../../data/copy/shared';
 import { findMenuItem } from '../../data/menu';
-import { renderLine } from '../../lib/claims';
+import type { Audience } from '../../data/copy/types';
 import { counterLine } from '../../lib/proofLines';
+import { headingFor, resolveWontDo } from '../../lib/proofSection';
 import { FadeUp } from '../FadeUp';
-
-type Audience = 'work' | 'home';
 
 function publishable(study: CaseStudy, audience: Audience): boolean {
   return study.for === audience && study.permission === true && study.metrics.length > 0;
@@ -24,14 +23,14 @@ export function ProofSection({ for: audience, id = 'proof' }: { for: Audience; i
   const videos = proof.videos.filter((v) => v.src.trim());
   const screenshots = proof.screenshots.filter((s) => s.src.trim());
   const stats = proof.stats.filter((s) => s.value.trim() && s.label.trim());
-  const wontDo = proofCopy.wontDo.map((line) => renderLine(line)).filter((line): line is string => line !== null);
+  const wontDo = resolveWontDo(proofCopy.wontDo, audience);
 
   return (
     <section id={id} aria-label="Proof" className="border-t border-rule bg-paper">
       <div className="mx-auto max-w-7xl space-y-16 px-4 py-16 md:px-8 md:py-24">
         {studies.length > 0 && (
           <div>
-            <h2 className="font-serif text-3xl leading-tight md:text-4xl">{proofCopy.caseStudiesHeading[audience]}</h2>
+            <h2 className="font-serif text-3xl leading-tight md:text-4xl">{headingFor(proofCopy.caseStudiesHeading, audience)}</h2>
             <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {studies.map((study) => (
                 <li key={study.id}>
@@ -80,7 +79,7 @@ export function ProofSection({ for: audience, id = 'proof' }: { for: Audience; i
 
         {(screenshots.length > 0 || stats.length > 0) && (
           <div>
-            <h2 className="font-serif text-3xl leading-tight md:text-4xl">{proofCopy.screenshotsHeading}</h2>
+            <h2 className="font-serif text-3xl leading-tight md:text-4xl">{headingFor(proofCopy.screenshotsHeading, audience)}</h2>
             {screenshots.length > 0 && (
               <ul className="mt-8 grid gap-6 md:grid-cols-3">
                 {screenshots.map((s) => (

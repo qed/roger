@@ -87,6 +87,8 @@ export function StickyCtaBar({ ctas, heroSentinelId = HERO_CTA_ID, finalBandId =
       const io = new IntersectionObserver(([entry]) => setFinalBandVisible(entry.isIntersecting));
       io.observe(final);
       observers.push(io);
+    } else if (import.meta.env.DEV) {
+      console.warn(`[StickyCtaBar] no #${finalBandId} on ${pathname}; the bar won't hide over the final CTA band.`);
     }
     return () => {
       observers.forEach((io) => io.disconnect());

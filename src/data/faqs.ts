@@ -27,17 +27,34 @@ export function faqText(faq: Pick<Faq, 'a'>, amounts: OfferAmounts): string {
   return typeof faq.a === 'function' ? faq.a(amounts) : faq.a;
 }
 
+// Work FAQ items that /home reuses (src/data/homeFaqs.ts). The ids are a typed tuple, so renaming one
+// here is a compile error at every use instead of a runtime "no FAQ" throw.
+export const SHARED_FAQ_IDS = ['own-it', 'passwords'] as const;
+export type SharedFaqId = (typeof SHARED_FAQ_IDS)[number];
+
+const sharedFaqBodies: Record<SharedFaqId, Omit<Faq, 'id'>> = {
+  'own-it': {
+    q: 'Do I own it?',
+    a: 'Yes. It runs on your accounts. If we stop working together, everything keeps running.'
+  },
+  passwords: {
+    q: 'What about my passwords and customer data?',
+    a: "You sign in yourself during our session. I don't store passwords, and I remove my access at handover.",
+    needs: 'passwordPolicy'
+  }
+};
+
+export function sharedFaq(id: SharedFaqId): Faq {
+  return { id, ...sharedFaqBodies[id] };
+}
+
 export const faqs: Faq[] = [
   {
     id: 'which-ai',
     q: 'Which AI do you use?',
     a: "Whichever fits your business. I'm not tied to one company. I'll recommend one on the fit call and tell you why."
   },
-  {
-    id: 'own-it',
-    q: 'Do I own it?',
-    a: 'Yes. It runs on your accounts. If we stop working together, everything keeps running.'
-  },
+  sharedFaq('own-it'),
   {
     id: 'cost-after',
     q: 'What does it cost after setup?',
@@ -45,12 +62,7 @@ export const faqs: Faq[] = [
     interpolates: 'providerCostRange',
     optionalClause: ' (usually {providerCostRange}/month)'
   },
-  {
-    id: 'passwords',
-    q: 'What about my passwords and customer data?',
-    a: "You sign in yourself during our session. I don't store passwords, and I remove my access at handover.",
-    needs: 'passwordPolicy'
-  },
+  sharedFaq('passwords'),
   {
     id: 'sends-without-asking',
     q: 'Does it send things without asking?',

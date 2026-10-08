@@ -5,6 +5,7 @@
 // data.test.ts checks every $-amount in the copy, in both states, matches a siteConfig.prices value.
 // Sign-off-gated lines (founding perk, future price, home lead time) carry `needs`; render them only when
 // the matching signoff flag is true, otherwise render `fallback` if present, else nothing (spec §8.4.3).
+import { formatCad } from '../lib/proofLines';
 import { siteConfig } from './config';
 import type { SignoffFlag } from './signoff';
 
@@ -45,7 +46,7 @@ const workOffer: Offer = {
   deposit: prices.workDeposit,
   currency: prices.currency,
   futurePriceLine: {
-    text: 'Founding price: $2,000. Becomes $3,000 after the first 10 clients.',
+    text: `Founding price: ${formatCad(prices.work)}. Becomes ${formatCad(prices.regularWork)} after the first 10 clients.`,
     needs: 'futurePriceCommitted'
   },
   whatYouGet: [
@@ -80,7 +81,7 @@ const homeOffer: Offer = {
   deposit: prices.home,
   currency: prices.currency,
   futurePriceLine: {
-    text: 'Founding price: $500. Becomes $750 after the first 10 clients.',
+    text: `Founding price: ${formatCad(prices.home)}. Becomes ${formatCad(prices.regularHome)} after the first 10 clients.`,
     needs: 'futurePriceCommitted'
   },
   whatYouGet: [
