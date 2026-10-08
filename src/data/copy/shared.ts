@@ -42,7 +42,9 @@ export const foundingCopy = {
 // Form submit failure (R12b): the email clause is dropped when no contact email is configured.
 export const formCopy = {
   submitError: (contactEmail: string) =>
-    contactEmail ? `Something went wrong. Try again, or email ${contactEmail}.` : 'Something went wrong. Try again.'
+    contactEmail ? `Something went wrong. Try again, or email ${contactEmail}.` : 'Something went wrong. Try again.',
+  // The spam-trap field's label. Hidden from people (visually and from assistive tech); bots read it.
+  honeypotLabel: 'Leave this field empty'
 };
 
 // Copy that only makes sense next to a live CTA; it hides with the CTA.

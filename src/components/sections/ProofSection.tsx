@@ -4,9 +4,10 @@ import { siteConfig } from '../../data/config';
 import { proofCopy } from '../../data/copy/shared';
 import { findMenuItem } from '../../data/menu';
 import type { Audience } from '../../data/copy/types';
-import { counterLine } from '../../lib/proofLines';
+import { counterLine, publishedEndorsements } from '../../lib/proofLines';
 import { headingFor, resolveWontDo } from '../../lib/proofSection';
 import { FadeUp } from '../FadeUp';
+import { Endorsements } from './Endorsements';
 
 function publishable(study: CaseStudy, audience: Audience): boolean {
   return study.for === audience && study.permission === true && study.metrics.length > 0;
@@ -19,7 +20,7 @@ export function ProofSection({ for: audience, id = 'proof' }: { for: Audience; i
   const { proof } = siteConfig;
   const studies = caseStudies.filter((study) => publishable(study, audience));
   const counter = counterLine(proof.counter);
-  const endorsements = proof.endorsements.filter((e) => e.quote.trim() && e.person.trim());
+  const endorsements = publishedEndorsements(proof.endorsements);
   const videos = proof.videos.filter((v) => v.src.trim());
   const screenshots = proof.screenshots.filter((s) => s.src.trim());
   const stats = proof.stats.filter((s) => s.value.trim() && s.label.trim());
@@ -43,23 +44,7 @@ export function ProofSection({ for: audience, id = 'proof' }: { for: Audience; i
 
         {counter && <p className="font-serif text-2xl text-ink md:text-3xl">{counter}</p>}
 
-        {endorsements.length > 0 && (
-          <ul className="grid gap-6 md:grid-cols-2">
-            {endorsements.map((e) => (
-              <li key={`${e.org}-${e.person}`}>
-                <figure className="h-full rounded-2xl border border-rule bg-cream p-6">
-                  {e.logo && <img src={e.logo} alt={e.org} className="mb-4 h-8 w-auto" loading="lazy" />}
-                  <blockquote className="font-serif text-xl leading-snug text-ink">“{e.quote}”</blockquote>
-                  <figcaption className="mt-4 text-sm text-ink-soft">
-                    {e.person}
-                    {e.title && `, ${e.title}`}
-                    {e.org && ` · ${e.org}`}
-                  </figcaption>
-                </figure>
-              </li>
-            ))}
-          </ul>
-        )}
+        <Endorsements items={endorsements} />
 
         {videos.length > 0 && (
           <ul className="grid gap-6 md:grid-cols-2">

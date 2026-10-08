@@ -2,12 +2,13 @@ import { useCallback, useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import { siteConfig } from '../../data/config';
 import { ctaLabels, newsletterCopy } from '../../data/copy/shared';
-import { isValidEmail } from '../../lib/formPost';
+import { EMAIL_MAX_LENGTH, isValidEmail } from '../../lib/formPost';
 import type { FormErrors } from '../../lib/formPost';
 import type { MenuKind } from '../../data/menu';
 import { trackEvent } from '../../utils/analytics';
 import { ctaClassName } from '../cta/ctaStyles';
 import type { CtaTone } from '../cta/ctaStyles';
+import { Honeypot } from './Honeypot';
 import { useFormPost } from './useFormPost';
 
 type NewsletterFormProps = {
@@ -19,16 +20,18 @@ type NewsletterFormProps = {
 type Values = { email: string; for: string };
 
 const validate = (values: Values): FormErrors =>
-  isValidEmail(values.email) ? {} : { email: newsletterCopy.invalidEmail };
+  isValidEmail(values.email) && values.email.trim().length <= EMAIL_MAX_LENGTH ? {} : { email: newsletterCopy.invalidEmail };
 
 // Spec §8.3: email only, plus hidden `for` (and UTM fields, added on submit). Empty endpoint →
-// a disabled "Opening soon" button; never a fake success.
+// a disabled "Opening soon" button; never a fake success. While posting, the button stays focusable
+// (aria-disabled) and the status region says "Sending…"; a failed post moves focus to the error.
 export function NewsletterForm({ audience, tone = 'light', className = '' }: NewsletterFormProps) {
   const [email, setEmail] = useState('');
   const onSuccess = useCallback(() => trackEvent('newsletter_submit', { for: audience }), [audience]);
-  const { available, status, errors, submit, errorMessage } = useFormPost<Values>({
+  const { available, status, errors, submit, buttonState, liveText, statusRef, honeypotRef } = useFormPost<Values>({
     endpoint: siteConfig.forms.newsletterEndpoint,
     validate,
+    submittingText: newsletterCopy.submitting,
     onSuccess
   });
   const id = useId();
@@ -39,6 +42,7 @@ export function NewsletterForm({ audience, tone = 'light', className = '' }: New
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (status === 'submitting') return; // the button is aria-disabled, not disabled; ignore a second activation
     void submit({ email, for: audience });
   };
 
@@ -51,11 +55,11 @@ export function NewsletterForm({ audience, tone = 'light', className = '' }: New
   }
 
   const fieldError = errors.email;
-  const submitting = status === 'submitting';
 
   return (
-    <form noValidate onSubmit={onSubmit} className={`${dark ? 'surface-dark' : ''} ${className}`} aria-describedby={errorMessage ? statusId : undefined}>
+    <form noValidate onSubmit={onSubmit} className={`${dark ? 'surface-dark' : ''} ${className}`}>
       <input type="hidden" name="for" value={audience} />
+      <Honeypot ref={honeypotRef} />
       <label htmlFor={emailId} className={`block text-sm font-medium ${dark ? 'text-cream' : 'text-ink'}`}>
         {newsletterCopy.emailLabel}
       </label>
@@ -67,6 +71,7 @@ export function NewsletterForm({ audience, tone = 'light', className = '' }: New
           autoComplete="email"
           inputMode="email"
           placeholder={newsletterCopy.emailPlaceholder}
+          maxLength={EMAIL_MAX_LENGTH}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           disabled={!available}
@@ -78,15 +83,20 @@ export function NewsletterForm({ audience, tone = 'light', className = '' }: New
         />
         <button
           type="submit"
-          disabled={!available || submitting}
+          disabled={buttonState.disabled}
+          aria-disabled={buttonState.ariaDisabled || undefined}
           className={ctaClassName({
             variant: 'primary',
             tone,
             size: 'md',
             live: available,
-            className: `shrink-0 ${submitting ? 'opacity-80' : ''}`
+            className: `shrink-0 ${buttonState.ariaDisabled ? 'cursor-progress opacity-80' : ''}`
           })}>
-          {!available ? ctaLabels.openingSoon : submitting ? newsletterCopy.submitting : newsletterCopy.submit}
+          {buttonState.label === 'openingSoon'
+            ? ctaLabels.openingSoon
+            : buttonState.label === 'submitting'
+              ? newsletterCopy.submitting
+              : newsletterCopy.submit}
         </button>
       </div>
       {fieldError && (
@@ -94,8 +104,14 @@ export function NewsletterForm({ audience, tone = 'light', className = '' }: New
           {fieldError}
         </p>
       )}
-      <p id={statusId} role="status" aria-live="polite" className={`text-sm ${dark ? 'text-cream' : 'text-ink'} ${errorMessage ? 'mt-2' : ''}`}>
-        {errorMessage}
+      <p
+        ref={statusRef}
+        id={statusId}
+        tabIndex={-1}
+        role="status"
+        aria-live="polite"
+        className={`text-sm outline-none ${dark ? 'text-cream' : 'text-ink'} ${liveText ? 'mt-2' : ''}`}>
+        {liveText}
       </p>
     </form>
   );

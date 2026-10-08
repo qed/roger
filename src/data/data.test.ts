@@ -8,6 +8,7 @@ import * as workCopy from './copy/work.ts';
 import * as whatYouGetCopyModule from './copy/whatYouGet.ts';
 import * as thanksCopy from './copy/thanks.ts';
 import * as homeCopy from './copy/home.ts';
+import * as workshopsCopy from './copy/workshops.ts';
 import * as homeContentModule from './homeContent.ts';
 import { homeFaqs } from './homeFaqs.ts';
 import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
@@ -294,8 +295,10 @@ describe('copy sweep, founding and full', () => {
 
   // Which offer's amounts each swept module may state. A module that renders on one page only is strict:
   // home copy may state only home amounts, work copy only work amounts. Modules holding copy for both
-  // pages (or cross-offer lines, like the work card's "Home setup, $500 →") may state either.
-  const MODULE_OFFER: Record<string, OfferId | 'both'> = {
+  // pages (or cross-offer lines, like the work card's "Home setup, $500 →") may state either. A module
+  // on a page that sells neither offer directly ('none': /workshops) may state no amount at all.
+  type Scope = OfferId | 'both' | 'none';
+  const MODULE_OFFER: Record<string, Scope> = {
     shared: 'both',
     pricing: 'both',
     whatYouGet: 'both',
@@ -305,17 +308,20 @@ describe('copy sweep, founding and full', () => {
     faqs: 'work',
     home: 'home',
     homeContent: 'home',
-    homeFaqs: 'home'
+    homeFaqs: 'home',
+    workshops: 'none'
   };
-  const scopeOf = (path: string): OfferId | 'both' => {
+  const scopeOf = (path: string): Scope => {
     const scope = MODULE_OFFER[path.split('.')[0]];
     assert.ok(scope, `no MODULE_OFFER entry for ${path}`);
     return scope;
   };
   // The amounts a function is called with: the module's offer, or for a two-offer module the offer its
   // path names (pricingCopy.home.*, homeCheckoutLabels, guaranteeCopy.home, ...).
-  const offerFor = (path: string): OfferId => {
+  // null for a 'none' module: it has no offer, so nothing there may be filled with (or state) an amount.
+  const offerFor = (path: string): OfferId | null => {
     const scope = scopeOf(path);
+    if (scope === 'none') return null;
     return scope === 'both' ? (/home/i.test(path) ? 'home' : 'work') : scope;
   };
 
@@ -327,12 +333,14 @@ describe('copy sweep, founding and full', () => {
     'shared.foundingCopy.spotsLeft': [5, 10],
     'shared.foundingCopy.badge': ['5 of 10 founding spots left'],
     'shared.phoneMockupCopy.label': ['Your Chief of Staff', 'Monday 6:48 AM', 'work'],
-    'thanks.bookingFallbackCopy.mailtoSubject': ['work', 'home']
+    'thanks.bookingFallbackCopy.mailtoSubject': ['work', 'home'],
+    'workshops.workshopFormCopy.closedNote': ['peter@example.ca']
   };
 
   // A string (so `${x}` reads as an amount) that also carries the OfferAmounts fields.
   const amountArg = (path: string, state: State) => {
     const offer = offerFor(path);
+    assert.ok(offer, `${path}: a function in a module that states no amounts needs a SPECIAL_ARGS entry`);
     const a: OfferAmounts = offerAmounts(offer, configs[state]);
     const d = displayedOffer(offer, configs[state]);
     const value = /priceNote/.test(path) ? cad(d.monthly) : /deposit/i.test(path) ? a.deposit : a.price;
@@ -355,6 +363,12 @@ describe('copy sweep, founding and full', () => {
     }
   };
 
+  const offerOrFail = (path: string): OfferId => {
+    const offer = offerFor(path);
+    assert.ok(offer, `${path}: {price} in a module that states no amounts`);
+    return offer;
+  };
+
   const TEMPLATE_VALUES: Record<string, string> = {
     max: '3',
     n: '2',
@@ -367,7 +381,7 @@ describe('copy sweep, founding and full', () => {
   };
   const fill = (f: Found, state: State) =>
     f.text.replace(/\{(\w+)\}/g, (m, key: string) =>
-      key === 'price' ? offerAmounts(offerFor(f.path), configs[state]).price : TEMPLATE_VALUES[key] ?? m
+      key === 'price' ? offerAmounts(offerOrFail(f.path), configs[state]).price : TEMPLATE_VALUES[key] ?? m
     );
 
   // Shown only while founding spots remain: the future-price lines, the founding bonus and the spots badge.
@@ -390,7 +404,8 @@ describe('copy sweep, founding and full', () => {
       thanks: thanksCopy,
       home: homeCopy,
       homeContent: homeContentModule,
-      offers: offersModule
+      offers: offersModule,
+      workshops: workshopsCopy
     };
     for (const [name, mod] of Object.entries(modules)) collect({ ...mod }, name, state, out);
     for (const [name, list, offer] of [
@@ -421,7 +436,7 @@ describe('copy sweep, founding and full', () => {
       for (const f of rendered) {
         for (const bad of ['{', '}', 'undefined', 'NaN', '[object']) assert.ok(!f.text.includes(bad), `${f.path}: "${f.text}"`);
         const scope = scopeOf(f.path);
-        const allowed = allowedIn(state, scope === 'both' ? undefined : scope);
+        const allowed = scope === 'none' ? new Set<string>() : allowedIn(state, scope === 'both' ? undefined : scope);
         for (const amount of amountsIn(f.text)) {
           amounts++;
           // A future-price line names its own offer's regular price; that line shows only while founding.
@@ -466,7 +481,10 @@ describe('copy sweep, founding and full', () => {
       'home.homeMealPlanCopy.timeMath.statValue',
       'homeContent.homeSteps',
       'homeFaqs.home-allergies',
-      'homeFaqs.home-cost-after'
+      'homeFaqs.home-cost-after',
+      'workshops.workshopsHeroCopy.',
+      'workshops.workshopsMembersGetCopy.',
+      'workshops.workshopFormCopy.closedNote()'
     ]) {
       assert.ok(paths.some((p) => p.startsWith(prefix)), prefix);
     }
@@ -655,5 +673,63 @@ describe('home copy', () => {
       assert.doesNotMatch(rest, /\d/, `${path}: number outside the §12 allow-list in "${text}"`);
     }
     assert.ok(numbered >= 15, `only ${numbered} digit-bearing strings seen`);
+  });
+});
+
+// /workshops copy (spec §6B, §3.3). No amounts at all (the copy sweep above enforces that), and every
+// number is one the spec states: the 60/90-minute formats, 10–40 people, the 14-day member discount, the
+// 1-business-day reply, and the form's 1–500 size bound.
+describe('workshops copy', () => {
+  it('uses the spec title, hero and success line verbatim', () => {
+    assert.equal(workshopsCopy.workshopsMeta.title, 'Free AI assistant workshop for your members · Roger');
+    assert.equal(workshopsCopy.workshopsHeroCopy.headline, 'Give your members a free, live AI assistant workshop.');
+    assert.equal(
+      workshopsCopy.workshopsHeroCopy.subhead,
+      'In 60 minutes I set up a real AI assistant live, start to finish, and show your members what it can take off their plate. Free for BIAs, associations and school communities.'
+    );
+    assert.equal(workshopsCopy.workshopsHeroCopy.cta, 'Request a date');
+    assert.equal(workshopsCopy.workshopsHostPackCopy.link, 'Download the one-page host pack (PDF)');
+    assert.equal(workshopsCopy.workshopFormCopy.success, "Thanks. I'll reply within 1 business day to find a date.");
+  });
+
+  it('states no number outside the §6B allow-list', () => {
+    type Rule = { path: RegExp; phrase: RegExp };
+    const RULES: Rule[] = [
+      { path: /^workshops\.(workshopsMeta|workshopsHeroCopy)\./, phrase: /\b60 minutes\b/ },
+      { path: /^workshops\.workshopsFormatsCopy\./, phrase: /^60 or 90 min$/ },
+      { path: /^workshops\.workshopsProvideCopy\./, phrase: /\b10–40 people\b/ },
+      { path: /^workshops\.workshopsMembersGetCopy\./, phrase: /\b14-day\b/ },
+      { path: /^workshops\.workshopFormCopy\.success$/, phrase: /\b1 business day\b/ },
+      { path: /^workshops\.workshopFormCopy\.errors\.size$/, phrase: /\bfrom 1 to 500\b/ },
+      // The form's length caps (WORKSHOP_MAX_LENGTH; workshopForm.test.ts keeps them in step).
+      { path: /^workshops\.workshopFormCopy\.errors\.tooLong\./, phrase: /\b(120|254|2,000) characters\b/ }
+    ];
+    const found: { path: string; text: string }[] = [];
+    const walk = (v: unknown, path: string): void => {
+      if (typeof v === 'string') found.push({ path, text: v });
+      else if (typeof v === 'function') {
+        for (const arg of ['', 'peter@example.ca']) walk((v as (a: string) => unknown)(arg), `${path}()`);
+      } else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${path}[${i}]`));
+      else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, `${path}.${k}`);
+    };
+    walk({ ...workshopsCopy }, 'workshops');
+    assert.ok(found.length > 40, `walked only ${found.length} strings`);
+    let numbered = 0;
+    const used = new Set<Rule>();
+    for (const { path, text } of found) {
+      if (!/\d/.test(text)) continue;
+      numbered++;
+      let rest = text;
+      for (const rule of RULES) {
+        if (!rule.path.test(path)) continue;
+        const next = rest.replace(new RegExp(rule.phrase.source, 'g'), '');
+        if (next !== rest) used.add(rule);
+        rest = next;
+      }
+      assert.doesNotMatch(rest, /\d|\$/, `${path}: number outside the §6B allow-list in "${text}"`);
+    }
+    // A rule that never matches is stale (its copy moved or changed); drop or fix it.
+    for (const rule of RULES) assert.ok(used.has(rule), `unused §6B rule ${rule.path} ${rule.phrase}`);
+    assert.ok(numbered >= 6, `only ${numbered} digit-bearing strings seen`);
   });
 });

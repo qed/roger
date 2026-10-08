@@ -1,6 +1,18 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildPayload, canSubmit, createSubmitter, isValidEmail, postJson, submitErrorMessage } from './formPost.ts';
+import {
+  HONEYPOT_FIELD,
+  buildPayload,
+  buildPostBody,
+  canSubmit,
+  createSubmitter,
+  honeypotTripped,
+  isValidEmail,
+  liveStatusText,
+  postJson,
+  submitButtonState,
+  submitErrorMessage
+} from './formPost.ts';
 import type { FormErrors, FormStatus, SubmitterOptions } from './formPost.ts';
 
 describe('isValidEmail', () => {
@@ -37,6 +49,58 @@ describe('buildPayload', () => {
 
   it('never lets UTM overwrite a form field', () => {
     assert.deepEqual(buildPayload({ utm_source: 'typed' }, { utm_source: 'url' }), { utm_source: 'typed' });
+  });
+});
+
+describe('buildPostBody', () => {
+  it('without a shape, is buildPayload over the values', () => {
+    assert.deepEqual(buildPostBody({ email: ' a@b.ca ', for: 'work' }, { utm_source: 'qr' }), { utm_source: 'qr', email: 'a@b.ca', for: 'work' });
+  });
+
+  it('runs the shape, then trims, drops empties and adds UTM', () => {
+    const shape = (v: { first?: string; last?: string }) => ({ full_name: `${v.first ?? ''} ${v.last ?? ''}`, unused: '' });
+    assert.deepEqual(buildPostBody({ first: 'Jane', last: 'Doe' }, { utm_medium: 'email', utm_source: undefined }, shape), {
+      utm_medium: 'email',
+      full_name: 'Jane Doe'
+    });
+  });
+
+  it('treats a missing value as empty', () => {
+    assert.deepEqual(buildPostBody({ email: 'a@b.ca', phone: undefined }), { email: 'a@b.ca' });
+  });
+});
+
+describe('honeypot', () => {
+  it('uses the Formspree field name', () => {
+    assert.equal(HONEYPOT_FIELD, '_gotcha');
+  });
+
+  it('trips only on a non-blank value', () => {
+    for (const empty of ['', '   ', undefined, null]) assert.equal(honeypotTripped(empty), false, String(empty));
+    assert.equal(honeypotTripped('http://spam.test'), true);
+  });
+});
+
+describe('submitButtonState', () => {
+  it('is really disabled only when the form cannot submit ("Opening soon")', () => {
+    for (const status of ['idle', 'submitting', 'error'] as FormStatus[]) {
+      assert.deepEqual(submitButtonState(false, status), { disabled: true, ariaDisabled: false, label: 'openingSoon' });
+    }
+  });
+
+  it('stays focusable while posting (aria-disabled, not disabled)', () => {
+    assert.deepEqual(submitButtonState(true, 'submitting'), { disabled: false, ariaDisabled: true, label: 'submitting' });
+    assert.deepEqual(submitButtonState(true, 'idle'), { disabled: false, ariaDisabled: false, label: 'submit' });
+    assert.deepEqual(submitButtonState(true, 'error'), { disabled: false, ariaDisabled: false, label: 'submit' });
+  });
+});
+
+describe('liveStatusText', () => {
+  it('announces sending, then the error, and nothing otherwise', () => {
+    assert.equal(liveStatusText('submitting', 'Sending…', 'Oops'), 'Sending…');
+    assert.equal(liveStatusText('error', 'Sending…', 'Oops'), 'Oops');
+    assert.equal(liveStatusText('idle', 'Sending…', 'Oops'), '');
+    assert.equal(liveStatusText('success', 'Sending…', 'Oops'), '');
   });
 });
 
@@ -80,6 +144,38 @@ describe('postJson', () => {
       ),
       false
     );
+  });
+
+  it('gives up after the timeout, aborts the request and resolves false', async () => {
+    let signal: AbortSignal | undefined;
+    const started = Date.now();
+    const ok = await postJson(
+      (_url, init) => {
+        signal = init.signal;
+        return new Promise<{ ok: boolean }>(() => undefined); // never settles, and ignores the abort
+      },
+      'https://x.test',
+      { email: 'a@b.ca' },
+      30
+    );
+    assert.equal(ok, false);
+    assert.equal(signal?.aborted, true);
+    assert.ok(Date.now() - started < 2000);
+  });
+
+  it('a post that answers in time is unaffected by the timeout', async () => {
+    let signal: AbortSignal | undefined;
+    const ok = await postJson(
+      async (_url, init) => {
+        signal = init.signal;
+        return { ok: true };
+      },
+      'https://x.test',
+      {},
+      1000
+    );
+    assert.equal(ok, true);
+    assert.equal(signal?.aborted, false);
   });
 });
 
@@ -157,6 +253,22 @@ describe('createSubmitter', () => {
     const { log, submitter } = harness(async () => true);
     await submitter.submit({ email: 'a@b.ca' });
     assert.equal(await submitter.submit({ email: 'a@b.ca' }), 'done');
+    assert.equal(log.posts, 1);
+  });
+
+  it('a tripped honeypot shows success silently: no post, no onSuccess, and the form is done', async () => {
+    const { log, submitter } = harness(async () => true);
+    assert.equal(await submitter.submit({ email: 'a@b.ca' }, 'buy pills'), 'trapped');
+    assert.equal(log.posts, 0);
+    assert.equal(log.successes, 0);
+    assert.deepEqual(log.statuses, ['success']);
+    assert.equal(await submitter.submit({ email: 'a@b.ca' }), 'done');
+    assert.equal(log.posts, 0);
+  });
+
+  it('an empty honeypot posts as normal', async () => {
+    const { log, submitter } = harness(async () => true);
+    assert.equal(await submitter.submit({ email: 'a@b.ca' }, '  '), 'ok');
     assert.equal(log.posts, 1);
   });
 

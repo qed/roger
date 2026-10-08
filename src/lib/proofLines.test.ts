@@ -10,6 +10,8 @@ import {
   heroProofParts,
   monthlyOverFirstYear,
   pricingBadgeText,
+  publishedEndorsements,
+  workshopCounterLine,
   spotsLeftText
 } from './proofLines.ts';
 
@@ -100,5 +102,28 @@ describe('pricingBadgeText', () => {
 
   it('states the regular price once founding spots are full', () => {
     assert.equal(pricingBadgeText({ total: 10, spotsLeft: 0 }, 3000), 'Founding spots are full. Regular price from here: $3,000.');
+  });
+});
+
+describe('workshopCounterLine (/workshops, spec §6B.6)', () => {
+  it('is hidden until a workshop has run, whatever the setups count', () => {
+    assert.equal(workshopCounterLine(EMPTY), null);
+    assert.equal(workshopCounterLine({ workshops: 0 }), null);
+    assert.equal(workshopCounterLine({ workshops: -2 }), null);
+    assert.equal(workshopCounterLine({ workshops: Number.NaN }), null);
+  });
+
+  it('shows "{workshops} workshops" from 1, even below 3 setups', () => {
+    assert.equal(workshopCounterLine({ ...EMPTY, workshops: 1 }), '1 workshop');
+    assert.equal(workshopCounterLine({ ...EMPTY, workshops: 4 }), '4 workshops');
+    assert.equal(workshopCounterLine({ workshops: 2.7 }), '2 workshops');
+  });
+});
+
+describe('publishedEndorsements', () => {
+  it('keeps only endorsements with a quote and a person', () => {
+    const e = { org: 'Ossington BIA', person: 'Jane', title: 'ED', quote: 'Useful.' };
+    assert.deepEqual(publishedEndorsements([e, { ...e, quote: '  ' }, { ...e, person: '' }]), [e]);
+    assert.deepEqual(publishedEndorsements([]), []);
   });
 });

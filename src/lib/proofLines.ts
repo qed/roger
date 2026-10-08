@@ -38,6 +38,22 @@ export function counterLine(counter: ProofCounter): string | null {
   ].join(' · ');
 }
 
+// /workshops proof (spec §6B.6): hosts care how many workshops have run, so this line has its own rule.
+// "{workshops} workshops" once at least one has run; independent of the setups threshold above.
+export const WORKSHOP_COUNTER_MIN = 1;
+
+export function workshopCounterLine(counter: Pick<ProofCounter, 'workshops'>): string | null {
+  const n = count(counter.workshops);
+  return n >= WORKSHOP_COUNTER_MIN ? plural(n, 'workshop', 'workshops') : null;
+}
+
+export type Endorsement = { org: string; person: string; title: string; quote: string; logo?: string };
+
+// Endorsements with a quote and a person; the rest are placeholders and stay hidden (spec §8.1).
+export function publishedEndorsements<E extends Endorsement>(list: readonly E[]): E[] {
+  return list.filter((e) => e.quote.trim() !== '' && e.person.trim() !== '');
+}
+
 export function spotsLeftText(founding: Founding): string {
   const left = Math.min(count(founding.spotsLeft), count(founding.total));
   if (left === 0) return foundingCopy.full;

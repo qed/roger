@@ -473,7 +473,7 @@ sequenceDiagram
 
 **Verification:** The 5-second test for a parent; the spec §6A item list is ticked off.
 
-- [ ] **Unit 9: Workshops page `/workshops`**
+- [x] **Unit 9: Workshops page `/workshops`**
 
 **Goal:** The host-facing page and request form.
 
