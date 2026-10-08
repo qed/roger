@@ -2,14 +2,16 @@ import { lazy, Suspense } from 'react';
 import type { ComponentType, LazyExoticComponent } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SiteLayout } from './components/layout/SiteLayout';
-import { HomePage } from './pages/HomePage';
-import { LegalPage } from './pages/LegalPage';
-import { LibraryPage } from './pages/LibraryPage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import { ThanksHomePage } from './pages/ThanksHomePage';
-import { ThanksWorkPage } from './pages/ThanksWorkPage';
 import { WorkPage } from './pages/WorkPage';
-import { WorkshopsPage } from './pages/WorkshopsPage';
+
+// Every page except the main one loads on demand, so / ships only its own code (spec §10 performance).
+const HomePage = lazy(() => import('./pages/HomePage').then((m) => ({ default: m.HomePage })));
+const LegalPage = lazy(() => import('./pages/LegalPage').then((m) => ({ default: m.LegalPage })));
+const LibraryPage = lazy(() => import('./pages/LibraryPage').then((m) => ({ default: m.LibraryPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
+const ThanksHomePage = lazy(() => import('./pages/ThanksHomePage').then((m) => ({ default: m.ThanksHomePage })));
+const ThanksWorkPage = lazy(() => import('./pages/ThanksWorkPage').then((m) => ({ default: m.ThanksWorkPage })));
+const WorkshopsPage = lazy(() => import('./pages/WorkshopsPage').then((m) => ({ default: m.WorkshopsPage })));
 
 // Preview-only /launch page (spec §8.4.6). The lazy() call sits inside the build-time branch so Rollup
 // drops the chunk from production builds, and the route is never registered there. The preview banner
@@ -19,11 +21,13 @@ const LaunchPage: LazyExoticComponent<ComponentType> | null = showLaunchTools
   ? lazy(() => import('./pages/LaunchPage'))
   : null;
 
-// Route table (spec §5). Pages are placeholders until their units land.
+// Route table (spec §5).
 export function App() {
   return (
     <SiteLayout>
-      <Routes>
+      {/* Holds the page's space while its code loads, so the footer doesn't jump up and back (layout shift). */}
+      <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
+        <Routes>
         <Route path="/" element={<WorkPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/workshops" element={<WorkshopsPage />} />
@@ -44,7 +48,8 @@ export function App() {
           />
         )}
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </SiteLayout>
   );
 }
