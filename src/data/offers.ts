@@ -1,12 +1,17 @@
 // The offers (spec §3): source of truth for what each setup includes, how fast it runs and the guarantee.
-// Framework-free. Numbers come from siteConfig.prices; the copy strings state them as written in the spec
-// (data.test.ts checks every $-amount in the copy matches a siteConfig.prices value).
+// Framework-free. Numbers come from siteConfig.prices. Strings that state a deposit, balance or refund are
+// functions of OfferAmounts (from offerAmounts() in src/lib/offerPrice.ts), so they follow the founding →
+// regular switch (spec §3.1: $1,000 / $1,000 founding, $1,500 / $1,500 after; home $500, then $750).
+// data.test.ts checks every $-amount in the copy, in both states, matches a siteConfig.prices value.
 // Sign-off-gated lines (founding perk, future price, home lead time) carry `needs`; render them only when
 // the matching signoff flag is true, otherwise render `fallback` if present, else nothing (spec §8.4.3).
 import { siteConfig } from './config';
 import type { SignoffFlag } from './signoff';
 
 export type OfferId = 'work' | 'home';
+
+// The displayed amounts, formatted ("$1,000"). Home's deposit is its full price and its balance is $0.
+export type OfferAmounts = { price: string; deposit: string; balance: string };
 
 export type OfferLine = {
   text: string;
@@ -25,9 +30,9 @@ export type Offer = {
   futurePriceLine: OfferLine;
   whatYouGet: OfferLine[];
   how: OfferLine[];
-  payment: string;
-  guarantee: string;
-  flow: string[];
+  payment: (a: OfferAmounts) => string;
+  guarantee: (a: OfferAmounts) => string;
+  flow: (a: OfferAmounts) => string[];
 };
 
 const { prices } = siteConfig;
@@ -58,12 +63,12 @@ const workOffer: Offer = {
     { text: 'fully live within 5 days', emphasis: true },
     { text: 'remote by default; in person in Toronto on request' }
   ],
-  payment: '$1,000 to book; $1,000 after a full week of running.',
-  guarantee:
-    "If your setup isn't working within 14 days of Session 1, I refund the $1,000 too. You pay nothing. The second half is only due once it runs.",
-  flow: [
+  payment: (a) => `${a.deposit} to book; ${a.balance} after a full week of running.`,
+  guarantee: (a) =>
+    `If your setup isn't working within 14 days of Session 1, I refund the ${a.deposit} too. You pay nothing. The second half is only due once it runs.`,
+  flow: (a) => [
     'Book a free fit call → deposit link pasted in the call chat → /thanks/work → Session 1 booked before hanging up.',
-    "Skip the call → $1,000 deposit Payment Link → /thanks/work → book Session 1. The fit check is the first 15 min of Session 1; full refund if it's not a fit."
+    `Skip the call → ${a.deposit} deposit Payment Link → /thanks/work → book Session 1. The fit check is the first 15 min of Session 1; full refund if it's not a fit.`
   ]
 };
 
@@ -95,9 +100,9 @@ const homeOffer: Offer = {
     },
     { text: 'live the same day' }
   ],
-  payment: '$500, paid up front.',
-  guarantee: "Full $500 refund if it's not working within 14 days of the session.",
-  flow: ['Pay $500 & book (Payment Link) → /thanks/home → book the session (picks prefilled).']
+  payment: (a) => `${a.price}, paid up front.`,
+  guarantee: (a) => `Full ${a.price} refund if it's not working within 14 days of the session.`,
+  flow: (a) => [`Pay ${a.price} & book (Payment Link) → /thanks/home → book the session (picks prefilled).`]
 };
 
 // What "working" means (spec §3.5). /refunds uses this verbatim.

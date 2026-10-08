@@ -1,13 +1,21 @@
 import { ChevronDownIcon } from 'lucide-react';
+import { siteConfig } from '../../data/config';
 import { faqCopy } from '../../data/copy/shared';
 import type { Faq } from '../../data/faqs';
+import type { OfferId } from '../../data/offers';
 import { faqAnswer } from '../../lib/claims';
+import { offerAmounts } from '../../lib/offerPrice';
 
 // Spec §6.10. Native <details>/<summary> disclosures: keyboard and screen-reader accessible with no
 // script. Answers go through faqAnswer, so gated items and empty interpolations are omitted (R8).
-export function FaqList({ items, heading = faqCopy.heading, id = 'faq' }: { items: Faq[]; heading?: string; id?: string }) {
+type FaqListProps = { items: Faq[]; offer: OfferId; heading?: string; id?: string };
+
+// `offer` (required, so /home can't silently get work amounts) picks the amounts that fill deposit and
+// refund answers: the displayed price, spec §3.1.
+export function FaqList({ items, offer, heading = faqCopy.heading, id = 'faq' }: FaqListProps) {
+  const amounts = offerAmounts(offer, siteConfig);
   const visible = items
-    .map((faq) => ({ faq, answer: faqAnswer(faq) }))
+    .map((faq) => ({ faq, answer: faqAnswer(faq, { amounts }) }))
     .filter((entry): entry is { faq: Faq; answer: string } => entry.answer !== null);
   if (!visible.length) return null;
   return (

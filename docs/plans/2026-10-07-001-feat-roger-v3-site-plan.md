@@ -399,7 +399,7 @@ sequenceDiagram
 
 ### Phase D — Pages
 
-- [ ] **Unit 6: Main page `/`**
+- [x] **Unit 6: Main page `/`**
 
 **Goal:** The 10 sections in spec order, selling only the work setup.
 

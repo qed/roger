@@ -1,8 +1,9 @@
 // Sign-off gating and clause dropping (spec §8.4.3, R8). No unconfirmed claim renders, and no empty
 // config value leaves a gap like "usually  a month" behind.
 import { siteConfig } from '../data/config';
+import { faqText } from '../data/faqs';
 import type { Faq, FaqInterpolationKey } from '../data/faqs';
-import type { OfferLine } from '../data/offers';
+import type { OfferAmounts, OfferLine } from '../data/offers';
 import { signoff as repoSignoff } from '../data/signoff';
 import type { Signoff, SignoffFlag } from '../data/signoff';
 
@@ -45,11 +46,15 @@ export function fillClause(item: ClauseText, values: ClauseValues = configValues
   return null;
 }
 
-export function faqAnswer(
-  faq: Faq,
-  values: ClauseValues = configValues(),
-  signoff: Signoff = repoSignoff
-): string | null {
+export type FaqAnswerOptions = {
+  amounts: OfferAmounts; // the displayed amounts of the page's offer; fills deposit/refund answers (spec §3.1)
+  values?: ClauseValues; // interpolation values (siteConfig by default)
+  signoff?: Signoff; // the repo signoff by default
+};
+
+// The answer as rendered: null when gated off or when its only content is an empty config value.
+export function faqAnswer(faq: Faq, { amounts, values = configValues(), signoff = repoSignoff }: FaqAnswerOptions): string | null {
   if (faq.needs && !isUnlocked(faq.needs, signoff)) return null;
-  return fillClause({ text: faq.a, interpolates: faq.interpolates, optionalClause: faq.optionalClause }, values);
+  const text = faqText(faq, amounts);
+  return fillClause({ text, interpolates: faq.interpolates, optionalClause: faq.optionalClause }, values);
 }

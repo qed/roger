@@ -4,7 +4,7 @@
 import { siteConfig } from '../../data/config';
 import { ctaLabels, homeCheckoutLabels } from '../../data/copy/shared';
 import type { MenuKind } from '../../data/menu';
-import { displayedOffer } from '../../lib/offerPrice';
+import { displayedOffer, offerAmounts } from '../../lib/offerPrice';
 import { picksAnalyticsValue } from '../../lib/picks';
 import { formatCad } from '../../lib/proofLines';
 import type { CtaVariant, TrackedEvent } from './ctaStyles';
@@ -25,6 +25,7 @@ export type OfferCtaEntry = {
 };
 
 const homePrice = () => formatCad(displayedOffer('home', siteConfig).price);
+const workDeposit = () => offerAmounts('work', siteConfig).deposit;
 
 export const OFFER_CTAS: Record<OfferCtaKind, OfferCtaEntry> = {
   fitcall: {
@@ -43,7 +44,7 @@ export const OFFER_CTAS: Record<OfferCtaKind, OfferCtaEntry> = {
     newTab: false,
     cta: 'deposit',
     variant: 'secondary',
-    label: () => ctaLabels.depositSkip,
+    label: () => ctaLabels.depositSkip(workDeposit()),
     stickyLabel: () => ctaLabels.stickyDeposit,
     events: (picks) => [{ name: 'checkout_open', props: { offer: 'work_deposit', picks: picksAnalyticsValue(picks) } }]
   },

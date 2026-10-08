@@ -1,11 +1,5 @@
+import type { TimelineStep } from '../../data/copy/types';
 import { FadeUp } from '../FadeUp';
-
-export type TimelineStep = {
-  when: string; // e.g. "Day 0"
-  whenNote?: string; // e.g. "within 1 business day of booking"
-  what: string;
-  emphasis?: string; // bold sentence after `what`
-};
 
 type TimelineProps = {
   heading: string;

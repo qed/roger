@@ -1,7 +1,6 @@
 import { beforeAfterCopy } from '../../data/copy/shared';
+import type { BeforeAfterRow } from '../../data/copy/types';
 import { FadeUp } from '../FadeUp';
-
-export type BeforeAfterRow = { before: string; after: string };
 
 type BeforeAfterProps = {
   heading: string;

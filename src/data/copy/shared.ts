@@ -1,7 +1,8 @@
 // Copy for the shared layout, CTAs and sections (spec §6.1, §6.4, §6.8, §6.9, §6.11, §6.12, §8.3, §9).
 // Peter's first person, Canadian spelling. Gated lines carry `needs` (spec §8.4.3) and render through
-// renderLine in src/lib/claims.ts.
-import type { OfferLine } from '../offers';
+// renderLine in src/lib/claims.ts. Strings stating a deposit, balance or refund are functions of the
+// displayed amounts (offerAmounts in src/lib/offerPrice.ts), never a hard-coded "$1,000".
+import type { OfferAmounts, OfferLine } from '../offers';
 
 export const ctaLabels = {
   openingSoon: 'Opening soon',
@@ -9,7 +10,8 @@ export const ctaLabels = {
   fitCallFree: 'Book a free fit call',
   fitCallHero: 'Book a free 20-min fit call',
   deposit: 'Pay deposit & book',
-  depositSkip: 'Skip the call: pay $1,000 deposit',
+  depositSkip: (deposit: string) => `Skip the call: pay ${deposit} deposit`,
+  depositHero: (deposit: string) => `Pay ${deposit} deposit & book`,
   // Sticky mobile bar (spec §9.6)
   stickyFitCall: 'Book fit call',
   stickyDeposit: 'Pay deposit'
@@ -45,7 +47,8 @@ export const formCopy = {
 // Copy that only makes sense next to a live CTA; it hides with the CTA.
 export const ctaNotes = {
   fitCallNext: 'Next available: within 1 business day.',
-  depositFitCheck: "Your first 15 minutes of Session 1 is the fit check. If I can't help, you get the full $1,000 back."
+  depositFitCheck: (deposit: string) =>
+    `Your first 15 minutes of Session 1 is the fit check. If I can't help, you get the full ${deposit} back.`
 };
 
 export const headerCopy = {
@@ -106,20 +109,28 @@ export const proofCopy = {
   ] satisfies OfferLine[]
 };
 
+// Work guarantee (spec §6.8), shared by the band and FAQ #6 (src/data/faqs.ts).
+export const workGuaranteeBody = (a: OfferAmounts) =>
+  `You pay ${a.deposit} to book. The other ${a.balance} is due only after your Chief of Staff and 3 helpers have run for a full week. If it isn't working within 14 days of Session 1, I refund the ${a.deposit} too.`;
+
+const workWorking =
+  "Every helper you picked has run on its own at least once and produced something you'd actually use. We check it together, and it's written into your setup report. If we disagree, you decide.";
+
+// FAQ #6 is the guarantee text. The password line in §6.8 is gated and not repeated here.
+export const workGuaranteeAnswer = (a: OfferAmounts) =>
+  [workGuaranteeBody(a), `What "working" means: ${workWorking}`, 'How to claim: one email. No forms, no questions about why.'].join(' ');
+
 // Guarantee band (spec §6.8, §6A.8).
 export const guaranteeCopy = {
   heading: 'Working, or you pay nothing.',
   work: {
-    body: [
-      "You pay $1,000 to book. The other $1,000 is due only after your Chief of Staff and 3 helpers have run for a full week. If it isn't working within 14 days of Session 1, I refund the $1,000 too."
-    ],
+    body: (a: OfferAmounts) => [workGuaranteeBody(a)],
     workingLabel: 'What "working" means:',
-    working:
-      "Every helper you picked has run on its own at least once and produced something you'd actually use. We check it together, and it's written into your setup report. If we disagree, you decide."
+    working: workWorking
   },
   home: {
-    body: [
-      "If your assistant isn't doing your 5 jobs within 14 days of your session, I'll refund the full $500. If we disagree on whether it's working, you decide."
+    body: (a: OfferAmounts) => [
+      `If your assistant isn't doing your 5 jobs within 14 days of your session, I'll refund the full ${a.price}. If we disagree on whether it's working, you decide.`
     ],
     workingLabel: '',
     working: ''
@@ -152,6 +163,16 @@ export const pickerCopy = {
   overMax: 'Pick up to {max}. Swap one out first.',
   examples: 'See real examples →',
   count: '{n} of {max} picked'
+};
+
+// Phone mockup (spec §6.2, §6A.1). Its counts are an illustration, so it carries a visible "Example"
+// badge and the accessible label starts with "Example:" (spec §12: numbers are labelled "example").
+export const phoneMockupCopy = {
+  example: 'Example',
+  label: (title: string, time: string, view: 'home' | 'work') =>
+    `Example: ${title} · ${time}: ${
+      view === 'home' ? 'a Sunday message with dinner ideas for the week' : 'a morning brief with drafted replies and prepped meetings'
+    }`
 };
 
 // Before/after strip column labels (spec §6.3, §6A.2).

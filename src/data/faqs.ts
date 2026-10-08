@@ -1,10 +1,14 @@
 // Work FAQ (spec §6.10). Copy only; gating and interpolation are applied at render time.
 // - `needs`: render the item only when that signoff flag is true (spec §8.4.3).
+// - `a` is a function of OfferAmounts when it states a deposit or refund amount, so it follows the
+//   founding → regular switch (spec §3.1). Resolve it with faqText().
 // - `interpolates`: the answer contains `{key}` filled from siteConfig. When the value is empty,
 //   drop `optionalClause` from the answer (R8); if the whole answer is the value, hide the item.
 
 import type { SiteConfig } from './config';
+import type { OfferAmounts } from './offers';
 import type { SignoffFlag } from './signoff';
+import { workGuaranteeAnswer } from './copy/shared';
 
 // siteConfig keys whose value is a plain string.
 type StringConfigKey = { [K in keyof SiteConfig]: SiteConfig[K] extends string ? K : never }[keyof SiteConfig];
@@ -13,18 +17,15 @@ export type FaqInterpolationKey = Extract<StringConfigKey, 'providerCostRange' |
 export type Faq = {
   id: string;
   q: string;
-  a: string;
+  a: string | ((amounts: OfferAmounts) => string);
   needs?: SignoffFlag;
   interpolates?: FaqInterpolationKey;
   optionalClause?: string; // exact substring of `a` removed when the interpolated value is empty
 };
 
-// Guarantee text (spec §6.8), reused by FAQ #6. The password line in §6.8 is gated and not repeated here.
-export const workGuaranteeAnswer = [
-  "You pay $1,000 to book. The other $1,000 is due only after your Chief of Staff and 3 helpers have run for a full week. If it isn't working within 14 days of Session 1, I refund the $1,000 too.",
-  "What \"working\" means: every helper you picked has run on its own at least once and produced something you'd actually use. We check it together, and it's written into your setup report. If we disagree, you decide.",
-  'How to claim: one email. No forms, no questions about why.'
-].join(' ');
+export function faqText(faq: Pick<Faq, 'a'>, amounts: OfferAmounts): string {
+  return typeof faq.a === 'function' ? faq.a(amounts) : faq.a;
+}
 
 export const faqs: Faq[] = [
   {
@@ -58,12 +59,12 @@ export const faqs: Faq[] = [
   {
     id: 'doesnt-work',
     q: "What if it doesn't work?",
-    a: workGuaranteeAnswer
+    a: workGuaranteeAnswer // the guarantee text (spec §6.8), from copy/shared.ts
   },
   {
     id: 'skip-call',
     q: 'What if I skip the call?',
-    a: "The first 15 minutes of Session 1 is the fit check. If I can't help, you get the full $1,000 back."
+    a: (a) => `The first 15 minutes of Session 1 is the fit check. If I can't help, you get the full ${a.deposit} back.`
   },
   {
     id: 'staff',

@@ -1,13 +1,23 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { siteConfig } from './config.ts';
-import { faqs, workGuaranteeAnswer } from './faqs.ts';
+import { faqText, faqs } from './faqs.ts';
+import * as sharedCopy from './copy/shared.ts';
+import * as pricingCopyModule from './copy/pricing.ts';
+import * as workCopy from './copy/work.ts';
+import * as whatYouGetCopyModule from './copy/whatYouGet.ts';
+import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
+import { pricingCopy } from './copy/pricing.ts';
+import { faqAnswer } from '../lib/claims.ts';
+import { displayedOffer, offerAmounts } from '../lib/offerPrice.ts';
 import { isUseCaseCategory, library, useCaseCategories } from './library.ts';
 import type { UseCaseCategory } from './library.ts';
 import { chiefOfStaff, exampleHref, findMenuItem, helpers, homeJobs, menuItems } from './menu.ts';
+import * as offersModule from './offers.ts';
 import { offers } from './offers.ts';
-import type { OfferLine } from './offers.ts';
+import type { OfferAmounts, OfferId } from './offers.ts';
 import { signoff } from './signoff.ts';
+import type { Signoff } from './signoff.ts';
 
 const HELPER_IDS = [
   'work-customers',
@@ -160,33 +170,24 @@ describe('offers', () => {
     for (const offer of Object.values(offers)) assert.equal(offer.currency, prices.currency);
   });
 
-  it('states only $-amounts that exist in siteConfig.prices', () => {
-    const allowed = new Set(
-      Object.values(prices)
-        .filter((v): v is number => typeof v === 'number')
-        .map((v) => `$${v.toLocaleString('en-CA')}`)
-    );
-    const lineText = (l: OfferLine) => [l.text, l.fallback ?? ''];
-    const copy = [
-      ...Object.values(offers).flatMap((o) => [
-        ...lineText(o.futurePriceLine),
-        ...o.whatYouGet.flatMap(lineText),
-        ...o.how.flatMap(lineText),
-        o.payment,
-        o.guarantee,
-        ...o.flow
-      ]),
-      workGuaranteeAnswer,
-      ...faqs.map((f) => f.a)
-    ];
-    let seen = 0;
-    for (const text of copy) {
-      for (const amount of text.match(/\$\d{1,3}(?:,\d{3})*/g) ?? []) {
-        seen++;
-        assert.ok(allowed.has(amount), `${amount} not in siteConfig.prices: "${text}"`);
-      }
-    }
-    assert.ok(seen > 0);
+  const founding = { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 5 } };
+  const full = { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 0 } };
+  const amountsIn = (text: string) => text.match(/\$\d{1,3}(?:,\d{3})*/g) ?? [];
+
+  it('states the founding deposit while spots remain and $1,500 / $1,500 once full (spec §3.1)', () => {
+    const skipCall = faqs.find((f) => f.id === 'skip-call');
+    assert.ok(skipCall);
+    const f = offerAmounts('work', founding);
+    const r = offerAmounts('work', full);
+    assert.deepEqual(amountsIn(workGuaranteeAnswer(f)), ['$1,000', '$1,000', '$1,000']);
+    assert.deepEqual(amountsIn(workGuaranteeAnswer(r)), ['$1,500', '$1,500', '$1,500']);
+    assert.equal(ctaLabels.depositHero(f.deposit), 'Pay $1,000 deposit & book');
+    assert.equal(ctaLabels.depositSkip(r.deposit), 'Skip the call: pay $1,500 deposit');
+    assert.ok(faqText(skipCall, r).endsWith('you get the full $1,500 back.'));
+    assert.ok(ctaNotes.depositFitCheck(r.deposit).endsWith('you get the full $1,500 back.'));
+    assert.equal(pricingCopy.work.guarantee(r), 'working within 14 days or a full refund · second $1,500 due only once it runs.');
+    assert.deepEqual(amountsIn(guaranteeCopy.home.body(offerAmounts('home', founding)).join(' ')), ['$500']);
+    assert.deepEqual(amountsIn(guaranteeCopy.home.body(offerAmounts('home', full)).join(' ')), ['$750']);
   });
 
   it('gates the future price line on futurePriceCommitted', () => {
@@ -209,7 +210,8 @@ describe('gating', () => {
   it('keeps every optionalClause an exact substring of its answer', () => {
     for (const faq of faqs) {
       if (faq.optionalClause === undefined) continue;
-      assert.ok(faq.a.includes(faq.optionalClause), faq.id);
+      assert.equal(typeof faq.a, 'string', faq.id);
+      assert.ok(String(faq.a).includes(faq.optionalClause), faq.id);
       if (faq.interpolates) assert.ok(faq.optionalClause.includes(`{${faq.interpolates}}`), faq.id);
     }
   });
@@ -218,7 +220,200 @@ describe('gating', () => {
     for (const faq of faqs) {
       if (faq.interpolates === undefined) continue;
       assert.equal(typeof siteConfig[faq.interpolates], 'string', faq.id);
-      assert.ok(faq.a.includes(`{${faq.interpolates}}`), faq.id);
+      assert.equal(typeof faq.a, 'string', faq.id);
+      assert.ok(String(faq.a).includes(`{${faq.interpolates}}`), faq.id);
+    }
+  });
+});
+
+describe('config invariants', () => {
+  const { prices } = siteConfig;
+
+  // The copy says "half up front, half only once it's running" (hero subhead, meta description), and
+  // displayedOffer doesn't clamp, so the config itself must keep these true.
+  it('keeps the work deposit at exactly half the price, founding and regular', () => {
+    assert.equal(prices.workDeposit * 2, prices.work);
+    assert.equal(prices.regularWorkDeposit * 2, prices.regularWork);
+  });
+
+  it('never has a deposit above its price, in either state', () => {
+    assert.ok(prices.workDeposit <= prices.work);
+    assert.ok(prices.regularWorkDeposit <= prices.regularWork);
+    for (const spotsLeft of [5, 0]) {
+      const state = { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft } };
+      for (const offer of ['work', 'home'] as const) {
+        const d = displayedOffer(offer, state);
+        assert.ok(d.deposit <= d.price, `${offer} @ ${spotsLeft}`);
+        assert.ok(d.balance >= 0, `${offer} @ ${spotsLeft}`);
+      }
+    }
+  });
+});
+
+// Every exported string and function in src/data/copy/*.ts, offers.ts and the FAQs, rendered in both
+// founding states. Functions are called with the state's amounts (home amounts on any path that names
+// home), templates are filled the way the components fill them, and the result must state only that
+// state's amounts and leave no placeholder, "undefined" or "NaN" behind.
+describe('copy sweep, founding and full', () => {
+  type State = 'founding' | 'full';
+  const { prices } = siteConfig;
+  const configs: Record<State, Pick<typeof siteConfig, 'prices' | 'founding'>> = {
+    founding: { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 5 } },
+    full: { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 0 } }
+  };
+  const cad = (n: number) => `$${n.toLocaleString('en-CA')}`;
+  const amountsIn = (text: string) => text.match(/\$\d[\d,]*\d|\$\d/g) ?? [];
+
+  // The amounts a visitor can see in each state: work price + deposit (= balance), home price, and the
+  // "about $X a month" figures. Nothing else; in particular no "$0" and nothing from the other state.
+  const allowedIn = (state: State) => {
+    const set = new Set<string>();
+    for (const offer of ['work', 'home'] as const) {
+      const d = displayedOffer(offer, configs[state]);
+      [d.price, d.deposit, d.monthly].forEach((n) => set.add(cad(n)));
+      if (d.balance > 0) set.add(cad(d.balance));
+    }
+    return set;
+  };
+
+  it('allows exactly the spec amounts in each state', () => {
+    assert.deepEqual([...allowedIn('founding')].sort(), ['$1,000', '$167', '$2,000', '$42', '$500'].sort());
+    assert.deepEqual([...allowedIn('full')].sort(), ['$1,500', '$250', '$3,000', '$63', '$750'].sort());
+  });
+
+  type Found = { path: string; text: string; needs?: string };
+
+  const offerFor = (path: string): OfferId => (/home/i.test(path) ? 'home' : 'work');
+
+  // Arguments that aren't amounts.
+  const SPECIAL_ARGS: Record<string, unknown[]> = {
+    'shared.formCopy.submitError': ['peter@example.ca'],
+    'shared.workshopBannerCopy.text': ['OSSINGTONWORK'],
+    'shared.ctaA11yCopy.disabledPrefix': ['Book a fit call'],
+    'shared.foundingCopy.spotsLeft': [5, 10],
+    'shared.foundingCopy.badge': ['5 of 10 founding spots left'],
+    'shared.phoneMockupCopy.label': ['Your Chief of Staff', 'Monday 6:48 AM', 'work']
+  };
+
+  // A string (so `${x}` reads as an amount) that also carries the OfferAmounts fields.
+  const amountArg = (path: string, state: State) => {
+    const offer = offerFor(path);
+    const a: OfferAmounts = offerAmounts(offer, configs[state]);
+    const d = displayedOffer(offer, configs[state]);
+    const value = /priceNote/.test(path) ? cad(d.monthly) : /deposit/i.test(path) ? a.deposit : a.price;
+    return Object.assign(new String(value), a);
+  };
+
+  const collect = (value: unknown, path: string, state: State, out: Found[], needs?: string): void => {
+    if (typeof value === 'string') {
+      out.push({ path, text: value, needs });
+    } else if (typeof value === 'function') {
+      const fn = value as (...args: unknown[]) => unknown;
+      const args = SPECIAL_ARGS[path] ?? Array.from({ length: Math.max(fn.length, 1) }, () => amountArg(path, state));
+      collect(fn(...args), `${path}()`, state, out, needs);
+    } else if (Array.isArray(value)) {
+      value.forEach((v, i) => collect(v, `${path}[${i}]`, state, out, needs));
+    } else if (value && typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      const lineNeeds = typeof obj.needs === 'string' ? obj.needs : needs;
+      for (const [k, v] of Object.entries(obj)) collect(v, `${path}.${k}`, state, out, lineNeeds);
+    }
+  };
+
+  const TEMPLATE_VALUES: Record<string, string> = {
+    max: '3',
+    n: '2',
+    h: '3',
+    weeks: '14',
+    hourly: 'HOURLY',
+    annual: 'ANNUAL',
+    providerCostRange: 'RANGE',
+    taxNote: 'Prices in CAD.'
+  };
+  const fill = (f: Found, state: State) =>
+    f.text.replace(/\{(\w+)\}/g, (m, key: string) =>
+      key === 'price' ? offerAmounts(offerFor(f.path), configs[state]).price : TEMPLATE_VALUES[key] ?? m
+    );
+
+  // Shown only while founding spots remain: the future-price lines, the founding bonus and the spots badge.
+  const foundingOnly = (f: Found) =>
+    /futurePrice/.test(f.path) || f.needs === 'foundingPerkConfirmed' || /foundingCopy\.(spotsLeft|badge)/.test(f.path);
+  // Shown only once they're full.
+  const fullOnly = (f: Found) => /foundingCopy\.full/.test(f.path);
+
+  const allOn = Object.fromEntries(
+    Object.entries(signoff).map(([k, v]) => [k, typeof v === 'boolean' ? true : v])
+  ) as Signoff;
+
+  const render = (state: State): Found[] => {
+    const out: Found[] = [];
+    const modules = {
+      shared: sharedCopy,
+      pricing: pricingCopyModule,
+      work: workCopy,
+      whatYouGet: whatYouGetCopyModule,
+      offers: offersModule
+    };
+    for (const [name, mod] of Object.entries(modules)) collect({ ...mod }, name, state, out);
+    const amounts = offerAmounts('work', configs[state]);
+    for (const values of [
+      { providerCostRange: '', taxNote: '' },
+      { providerCostRange: 'RANGE', taxNote: 'Prices in CAD.' }
+    ]) {
+      for (const faq of faqs) {
+        const text = faqAnswer(faq, { amounts, values, signoff: allOn });
+        if (text !== null) out.push({ path: `faqs.${faq.id}`, text });
+      }
+    }
+    return out
+      .filter((f) => (state === 'founding' ? !fullOnly(f) : !foundingOnly(f)))
+      .map((f) => ({ ...f, text: fill(f, state) }));
+  };
+
+  for (const state of ['founding', 'full'] as const) {
+    it(`states only ${state}-state amounts, with nothing unresolved (${state})`, () => {
+      const allowed = allowedIn(state);
+      const rendered = render(state);
+      assert.ok(rendered.length > 150, `swept only ${rendered.length} strings`);
+      let amounts = 0;
+      for (const f of rendered) {
+        for (const bad of ['{', '}', 'undefined', 'NaN', '[object']) assert.ok(!f.text.includes(bad), `${f.path}: "${f.text}"`);
+        for (const amount of amountsIn(f.text)) {
+          amounts++;
+          // A future-price line names the regular price it's heading for; that line shows only while founding.
+          const ok =
+            allowed.has(amount) ||
+            (state === 'founding' &&
+              /futurePrice/.test(f.path) &&
+              [cad(prices.regularWork), cad(prices.regularHome)].includes(amount));
+          assert.ok(ok, `${state}: ${amount} not allowed at ${f.path}: "${f.text}"`);
+        }
+      }
+      assert.ok(amounts > 20, `only ${amounts} amounts seen`);
+    });
+  }
+
+  it('says nothing about founding spots or the tune-up once they are full, except the full-state badge', () => {
+    for (const f of render('full')) {
+      if (fullOnly(f)) continue;
+      assert.doesNotMatch(f.text, /founding|tune-up/i, `${f.path}: "${f.text}"`);
+    }
+  });
+
+  it('reaches every copy file, including copy/work.ts and both offers of whatYouGet', () => {
+    const paths = render('full').map((f) => f.path);
+    for (const prefix of [
+      'shared.',
+      'pricing.pricingCopy.home.',
+      'work.workHeroCopy.',
+      'work.workMeta.description()',
+      'work.workTimelineCopy.',
+      'whatYouGet.whatYouGetCopy.work.summary()',
+      'whatYouGet.whatYouGetCopy.home.summary()',
+      'offers.offers.home.payment()',
+      'faqs.skip-call'
+    ]) {
+      assert.ok(paths.some((p) => p.startsWith(prefix)), prefix);
     }
   });
 });

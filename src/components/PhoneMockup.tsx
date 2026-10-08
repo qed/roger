@@ -1,50 +1,44 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { ClockIcon } from 'lucide-react';
-import { siteConfig } from '../data/config';
+import { phoneMockupCopy } from '../data/copy/shared';
 import { sampleBrief, sampleMeals } from '../data/homeContent';
 import { ToqueMark } from './ToqueMark';
 
 type PhoneMockupProps = {
-  view: 'home' | 'work';
+  view: 'home' | 'work'; // one fixed view per page; there is no toggle
+  title: string; // e.g. "Your Chief of Staff"
+  time: string; // e.g. "Monday 6:48 AM"
 };
 
-export function PhoneMockup({ view }: PhoneMockupProps) {
+// An illustrative phone screen (spec §6.2, §6A.1). Its counts are made up, so it always carries a visible
+// "Example" badge above the phone (on the page's panel, outside the spec's title line) and an accessible
+// label that starts with "Example:" (spec §12). Decorative content is aria-hidden; the label describes it.
+export function PhoneMockup({ view, title, time }: PhoneMockupProps) {
   return (
-    <div
-      className="w-[280px] rounded-[2.4rem] border border-ink/10 bg-ink p-2.5 shadow-[0_30px_60px_-20px_rgba(26,33,48,0.45)]"
-      role="img"
-      aria-label={
-      view === 'home' ?
-      'Phone showing a Sunday message from Roger with three dinner ideas for the week' :
-      'Phone showing a morning brief from Roger with drafted replies and prepped meetings'
-      }>
-      
-      <div className="relative h-[520px] overflow-hidden rounded-[1.9rem] bg-paper">
-        <div className="flex items-center gap-2 border-b border-rule px-5 pb-3 pt-6">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-copper-wash">
-            <ToqueMark className="h-5 w-5 text-copper" />
-          </span>
-          <div>
-            <p className="text-sm font-medium text-ink">{siteConfig.productName}</p>
-            <p className="text-[11px] text-ink-faint">
-              {view === 'home' ? 'Sunday · 9:02 AM' : 'Monday · 6:48 AM'}
-            </p>
+    <div className="flex flex-col items-center gap-3">
+      <p
+        aria-hidden="true"
+        className="rounded-full border border-copper/40 bg-paper/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-copper">
+        {phoneMockupCopy.example}
+      </p>
+      <div
+        className="w-[280px] rounded-[2.4rem] border border-ink/10 bg-ink p-2.5 shadow-[0_30px_60px_-20px_rgba(26,33,48,0.45)]"
+        role="img"
+        aria-label={phoneMockupCopy.label(title, time, view)}>
+        <div className="relative h-[520px] overflow-hidden rounded-[1.9rem] bg-paper">
+          <div className="flex items-center gap-2 border-b border-rule px-5 pb-3 pt-6">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-copper-wash">
+              <ToqueMark className="h-5 w-5 text-copper" />
+            </span>
+            <div>
+              <p className="text-sm font-medium text-ink">{title}</p>
+              <p className="text-[11px] text-ink-faint">{time}</p>
+            </div>
+          </div>
+
+          <div className="space-y-3 px-4 py-4" aria-hidden="true">
+            {view === 'home' ? <SundayMessage /> : <MorningBrief />}
           </div>
         </div>
-
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={view}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="space-y-3 px-4 py-4"
-            aria-hidden="true">
-            
-            {view === 'home' ? <SundayMessage /> : <MorningBrief />}
-          </motion.div>
-        </AnimatePresence>
       </div>
     </div>);
 

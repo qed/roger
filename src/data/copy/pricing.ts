@@ -1,10 +1,11 @@
 // Pricing card, DIY comparison and payback calculator copy (spec §6.7, §6A.7).
 // Gated lines carry `needs` (spec §8.4.3) and render through renderLine.
-import type { OfferId, OfferLine } from '../offers';
+import type { OfferAmounts, OfferId, OfferLine } from '../offers';
 
 // Price-derived strings are functions of the displayed price (founding or regular; see displayedOffer in
 // src/lib/offerPrice.ts), so nothing here hard-codes an amount that changes when founding spots fill.
 export type PricingCopy = {
+  heading: string; // the pricing section's heading (screen-reader only; the card carries the price)
   priceNote: (monthly: string) => string; // after "{price} CAD"
 
   futurePrice: OfferLine; // small print under the price
@@ -13,12 +14,14 @@ export type PricingCopy = {
   speedLabel: string;
   speed: OfferLine[]; // joined with " · "
   guaranteeLabel: string;
-  guarantee: (price: string) => string; // home states its own price; work's amounts are the deposit
-  homeLine?: { text: string; linkText: (homePrice: string) => string; to: string };
+  guarantee: (a: OfferAmounts) => string; // home states its own price; work states the balance
+  carePlans?: string; // under the card (spec §6.7; not listed for home in §6A.7)
+  homeLine?: { text: string; linkText: (homePrice: string) => string; to: string }; // the cross-offer line (work only)
 };
 
 export const pricingCopy: Record<OfferId, PricingCopy> = {
   work: {
+    heading: 'Pricing',
     priceNote: (monthly) => `one-time · About ${monthly} a month over your first year.`,
     futurePrice: {
       text: 'Founding price · becomes $3,000 after the first 10 clients.',
@@ -37,10 +40,12 @@ export const pricingCopy: Record<OfferId, PricingCopy> = {
     speedLabel: 'Speed',
     speed: [{ text: 'fit call within 1 business day' }, { text: 'live within 5 days' }],
     guaranteeLabel: 'Guarantee',
-    guarantee: () => 'working within 14 days or a full refund · second $1,000 due only once it runs.',
+    guarantee: (a) => `working within 14 days or a full refund · second ${a.balance} due only once it runs.`,
+    carePlans: 'Ongoing care plans available after setup.',
     homeLine: { text: 'Setting up your home instead?', linkText: (homePrice) => `Home setup, ${homePrice} →`, to: '/home' }
   },
   home: {
+    heading: 'Pricing',
     priceNote: (monthly) => `one-time · about ${monthly} a month over your first year.`,
     futurePrice: {
       text: 'Founding price · becomes $750 after the first 10 clients.',
@@ -66,12 +71,8 @@ export const pricingCopy: Record<OfferId, PricingCopy> = {
       { text: 'live the same day' }
     ],
     guaranteeLabel: 'Guarantee',
-    guarantee: (price) => `working within 14 days or a full ${price} refund.`
+    guarantee: (a) => `working within 14 days or a full ${a.price} refund.`
   }
-};
-
-export const pricingFootnotes = {
-  carePlans: 'Ongoing care plans available after setup.'
 };
 
 // "Do it yourself vs. Roger" (spec §6.7). The home table mirrors the work one with the home terms.

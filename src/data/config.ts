@@ -12,7 +12,16 @@ export const siteConfig = {
   }, // TODO(Peter): full name, photo, links
   contactEmail: '', // TODO(Peter): required before launch
   headline: 'A' as 'A' | 'B' | 'C',
-  prices: { work: 2000, workDeposit: 1000, home: 500, regularWork: 3000, regularHome: 750, currency: 'CAD' as const },
+  // After the founding 10 (spec §3.1): $3,000 work paid $1,500 / $1,500, and $750 home.
+  prices: {
+    work: 2000,
+    workDeposit: 1000,
+    home: 500,
+    regularWork: 3000,
+    regularWorkDeposit: 1500,
+    regularHome: 750,
+    currency: 'CAD' as const
+  },
   anchor: { adminHourly: 0, source: '' }, // TODO(Peter): sourced Toronto admin hourly rate; hidden if 0
   founding: { total: 10, spotsLeft: 10, perk: 'a free 60-day tune-up session' },
   capacityLine: 'I take 3 setups a week',
