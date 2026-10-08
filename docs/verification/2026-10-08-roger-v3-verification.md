@@ -61,9 +61,17 @@ Every route renders with no horizontal scroll and no console errors. Behaviours 
 - thanks pages with and without picks
 - `/launch` → not-found in production builds
 
+## Merge to main (real Vercel production build)
+
+PR #1 merged as `b4748aa` (2026-10-08). The Vercel **production** deployment for that commit **failed**
+(deployment `dpl_5M3ry6wESSifNJsVoyMoG5thWBnW`), while every preview build of the same code succeeded.
+meetroger.vercel.app kept serving the previous site (title "Roger AI Meal Planning Landing", the honest
+"Signups aren't open yet" form). That is the designed outcome. The exact log line needs a Vercel login:
+`npx vercel inspect dpl_5M3ry6wESSifNJsVoyMoG5thWBnW --logs` should show "Production build blocked".
+
 ## Not yet done (needs Peter)
 
-- **R4c(2):** a staged production build on real Vercel (`vercel deploy --prod --skip-domain`) failing with the blocker list. The Vercel CLI here is logged out.
+- **R4c(2):** read the failed deployment's log to confirm the failure text is the launch gate. The Vercel CLI here is logged out.
 - **R4c(3):** confirm in the Vercel dashboard that the production branch is `main` and the Build Command isn't overridden. `vercel.json` pins it either way.
 - **Library URLs:** the 33 x.com links couldn't be reached from this machine, so the `libraryVerified` sign-off stays false.
 - **Real Stripe and Cal flows:** need Peter's links; the README covers the first test payment and booking.

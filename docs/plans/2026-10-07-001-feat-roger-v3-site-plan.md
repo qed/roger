@@ -1,7 +1,7 @@
 ---
 title: "feat: Roger v3 site — sell the work setup"
 type: feat
-status: active
+status: completed
 date: 2026-10-07
 origin: docs/brainstorms/2026-10-07-roger-v3-site-requirements.md
 ---
@@ -564,7 +564,7 @@ sequenceDiagram
 
 **Verification:** Every §9.7 event name appears at its trigger point.
 
-- [ ] **Unit 12: Verification, gate proof and self-grade**
+- [x] **Unit 12: Verification, gate proof and self-grade** (see docs/verification/2026-10-08-roger-v3-verification.md)
 
 **Goal:** Prove R4/R14 and the spec §12 checklist; produce the §2 self-grade.
 
