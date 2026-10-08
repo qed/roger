@@ -12,7 +12,7 @@ import { PricingCard } from './PricingCard';
 
 // The id="pricing" section (spec §6.7 work, §6A.7 home): the card, the lines under it, then the DIY table
 // (with the admin anchor, work only, inside DiyTable) and the payback calculator. Per offer:
-// - honesty line: both; the provider-cost clause drops when empty (R8)
+// - honesty line: both
 // - care plans line and the cross-offer "Setting up your home instead?" line: work only (pricingCopy)
 // - taxNote: both, hidden when empty
 export function PricingSection({ offer, id = 'pricing' }: { offer: OfferId; id?: string }) {

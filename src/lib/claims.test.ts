@@ -119,18 +119,11 @@ describe('fillClause', () => {
 });
 
 describe('honestyLine (pricing, spec §6.7)', () => {
-  it('drops the clause when providerCostRange is empty, with no "usually  a month"', () => {
-    const text = fillClause(honestyLine, { providerCostRange: '', taxNote: '' });
-    assert.ok(text);
-    assert.ok(!text.includes('usually'));
-    assert.ok(!text.includes('  '));
-    assert.ok(!text.includes('{'));
-    assert.match(text, /directly to the provider\. We'll recommend/);
-  });
-
-  it('includes the range when set', () => {
-    const text = fillClause(honestyLine, { providerCostRange: '$20–$40', taxNote: '' });
-    assert.match(text ?? '', /usually \$20–\$40 a month\./);
+  it('renders the owner wording whether or not a provider range is set', () => {
+    const expected =
+      'You subscribe to agent & personal intelligent services (e.g. Grok Bot, Muse, Hark). Our service is a separate line item.';
+    assert.equal(fillClause(honestyLine, { providerCostRange: '', taxNote: '' }), expected);
+    assert.equal(fillClause(honestyLine, { providerCostRange: '$20–$40', taxNote: '' }), expected);
   });
 });
 

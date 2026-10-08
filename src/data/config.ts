@@ -26,7 +26,7 @@ export const siteConfig = {
   founding: { total: 10, spotsLeft: 10, perk: 'a free 60-day tune-up session' },
   capacityLine: 'We take 3 setups a week',
   speed: { fitCallDays: 1, session1Days: 2, liveDays: 5, homeSessionLeadDays: 3 },
-  providerCostRange: '', // TODO(Peter): e.g. "$20–$40"; hidden if empty
+  providerCostRange: '', // optional: e.g. "$20–$40", shown only in the "cost after setup" FAQs; hidden if empty
   taxNote: 'Prices in CAD.', // TODO(Peter): HST wording
   stripe: {
     workDeposit: '', // $1,000 Payment Link: "Skip the call" + pasted on fit calls

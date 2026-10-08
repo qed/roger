@@ -63,7 +63,7 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'cal-home', label: 'Home session booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.homeSession) },
   { id: 'form-workshop', label: 'Workshop form endpoint', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.forms.workshopEndpoint) },
   { id: 'form-newsletter', label: 'Newsletter form endpoint', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.forms.newsletterEndpoint) },
-  { id: 'provider-cost', label: 'Monthly provider cost disclosed', kind: 'config', blocking: true, check: (c) => filled(c.config.providerCostRange) && !PLACEHOLDER.test(c.config.providerCostRange) },
+  { id: 'provider-cost', label: 'Monthly provider cost range in the FAQs (optional)', kind: 'config', blocking: false, check: (c) => filled(c.config.providerCostRange) && !PLACEHOLDER.test(c.config.providerCostRange) },
   {
     id: 'case-studies',
     label: '3 pilot case studies (≥ 2 business)',
