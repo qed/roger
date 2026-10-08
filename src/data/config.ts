@@ -30,7 +30,10 @@ export const siteConfig = {
   taxNote: 'Prices in CAD.', // TODO(Peter): HST wording
   stripe: {
     workDeposit: '', // $1,000 Payment Link: "Skip the call" + pasted on fit calls
-    homeCheckout: '' // $500 Payment Link (on /home only)
+    homeCheckout: '', // $500 Payment Link (on /home only)
+    // Regular prices (spec §3.4): once founding.spotsLeft hits 0 the CTAs switch to these. Empty → "Opening soon".
+    workDepositRegular: '', // $1,500 deposit Payment Link used once founding spots are full
+    homeCheckoutRegular: '' // $750 home Payment Link used once founding spots are full
     // workBalance is deliberately NOT here: anything in this file ships to the browser.
     // Peter emails it after the week of running. Document it in the README only.
   },

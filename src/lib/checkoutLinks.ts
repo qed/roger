@@ -2,9 +2,11 @@
 // which the UI renders as a disabled "Opening soon" button (spec §8.1). Stripe opens in the same tab so
 // sessionStorage survives to /thanks/*; Cal opens in a new tab.
 import { siteConfig } from '../data/config';
+import type { SiteConfig } from '../data/config';
 import { findMenuItem } from '../data/menu';
 import type { MenuKind } from '../data/menu';
 import { buildClientReference } from './clientReference';
+import { displayedOffer } from './offerPrice';
 import { promoCodeFor } from './workshopCode';
 
 export type LinkContext = {
@@ -67,10 +69,20 @@ function calUrl(ctx: LinkContext, base: string, withCode: boolean): string | nul
   return appendParams(base, params);
 }
 
-export const workDepositUrl = (ctx: LinkContext, base: string = siteConfig.stripe.workDeposit) =>
-  stripeUrl('work', ctx, base);
-export const homeCheckoutUrl = (ctx: LinkContext, base: string = siteConfig.stripe.homeCheckout) =>
-  stripeUrl('home', ctx, base);
+export type StripeTierConfig = Pick<SiteConfig, 'stripe' | 'prices' | 'founding'>;
+
+// The Payment Link for the price the site shows right now (spec §3.4): the founding link while founding
+// spots remain, the regular link once they're full. The founding link is never a fallback: an empty
+// regular link means "Opening soon", not a checkout at the old price.
+export function stripeBase(kind: MenuKind, config: StripeTierConfig = siteConfig): string {
+  const { isFounding } = displayedOffer(kind, config);
+  if (kind === 'work') return isFounding ? config.stripe.workDeposit : config.stripe.workDepositRegular;
+  return isFounding ? config.stripe.homeCheckout : config.stripe.homeCheckoutRegular;
+}
+
+// `base` is injectable for tests; by default it follows the current tier (stripeBase).
+export const workDepositUrl = (ctx: LinkContext, base: string = stripeBase('work')) => stripeUrl('work', ctx, base);
+export const homeCheckoutUrl = (ctx: LinkContext, base: string = stripeBase('home')) => stripeUrl('home', ctx, base);
 export const fitCallUrl = (ctx: LinkContext, base: string = siteConfig.cal.fitCall) => calUrl(ctx, base, true);
 export const workSessionUrl = (ctx: LinkContext, base: string = siteConfig.cal.workSession1) =>
   calUrl(ctx, base, false);

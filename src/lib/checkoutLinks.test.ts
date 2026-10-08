@@ -6,12 +6,15 @@ import {
   homeCheckoutUrl,
   homeSessionUrl,
   picksTitles,
+  stripeBase,
   workDepositUrl,
   workSessionUrl
 } from './checkoutLinks.ts';
 import { createPicksStore, readPicks } from './picks.ts';
 import { createMemoryStorage } from './storage.ts';
 import { findMenuItem, menuItems } from '../data/menu.ts';
+import { siteConfig } from '../data/config.ts';
+import type { SiteConfig } from '../data/config.ts';
 import { acceptWorkshopCode, readWorkshopCode, storeWorkshopCode } from './workshopCode.ts';
 
 const STRIPE_WORK = 'https://buy.stripe.com/test_work';
@@ -218,5 +221,48 @@ describe('review fixes: base links and the home path', () => {
 
   it('no menu title contains the ", " picks separator', () => {
     for (const item of menuItems) assert.ok(!item.title.includes(','), item.id);
+  });
+});
+
+describe('tier-aware Stripe links (spec §3.4)', () => {
+  const STRIPE_WORK_REGULAR = 'https://buy.stripe.com/work_regular';
+  const STRIPE_HOME_REGULAR = 'https://buy.stripe.com/home_regular';
+  function tierConfig(spotsLeft: number, regular: boolean): SiteConfig {
+    const c = structuredClone(siteConfig);
+    c.founding.spotsLeft = spotsLeft;
+    c.stripe.workDeposit = STRIPE_WORK;
+    c.stripe.homeCheckout = STRIPE_HOME;
+    c.stripe.workDepositRegular = regular ? STRIPE_WORK_REGULAR : '';
+    c.stripe.homeCheckoutRegular = regular ? STRIPE_HOME_REGULAR : '';
+    return c;
+  }
+
+  it('uses the founding links while founding spots remain', () => {
+    const c = tierConfig(3, true);
+    assert.equal(stripeBase('work', c), STRIPE_WORK);
+    assert.equal(stripeBase('home', c), STRIPE_HOME);
+    assert.ok(workDepositUrl({ picks: [] }, stripeBase('work', c))?.startsWith(`${STRIPE_WORK}?`));
+    assert.ok(homeCheckoutUrl({ picks: [] }, stripeBase('home', c))?.startsWith(`${STRIPE_HOME}?`));
+  });
+
+  it('founding full with only founding links: no link at all ("Opening soon"), never the founding price', () => {
+    const c = tierConfig(0, false);
+    assert.equal(workDepositUrl({ picks: PICKS, code: 'OSSINGTON' }, stripeBase('work', c)), null);
+    assert.equal(homeCheckoutUrl({ picks: [] }, stripeBase('home', c)), null);
+  });
+
+  it('founding full with regular links: the regular links are used', () => {
+    const c = tierConfig(0, true);
+    const work = workDepositUrl({ picks: PICKS }, stripeBase('work', c));
+    const home = homeCheckoutUrl({ picks: [] }, stripeBase('home', c));
+    assert.ok(work?.startsWith(`${STRIPE_WORK_REGULAR}?`), work ?? '');
+    assert.ok(home?.startsWith(`${STRIPE_HOME_REGULAR}?`), home ?? '');
+    assert.equal(params(work).get('client_reference_id'), 'w-customers-invoices-leads__direct');
+  });
+
+  it('defaults to the repo config and its current tier', () => {
+    const founding = siteConfig.founding.spotsLeft > 0;
+    assert.equal(stripeBase('work'), founding ? siteConfig.stripe.workDeposit : siteConfig.stripe.workDepositRegular);
+    assert.equal(stripeBase('home'), founding ? siteConfig.stripe.homeCheckout : siteConfig.stripe.homeCheckoutRegular);
   });
 });

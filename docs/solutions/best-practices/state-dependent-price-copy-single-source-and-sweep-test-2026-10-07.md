@@ -40,7 +40,14 @@ that state.
 5. **Ban unsourced numbers outright.** Marketing copy attracts plausible extrapolations ("Up to 150 hours a
    year back"). A second sweep strips the allowed number phrases per path (prices, time commitments,
    the cited stat, "example"-labelled illustrations) and fails on any digit left over.
-6. **Mutation-test the sweeps once.** Plant a stale `$1,000`, a "founding" and a `{oops}` in a copy file
+6. **The checkout link must switch tier with the copy.** A Stripe Payment Link has a fixed price. If
+   the page flips to "Pay $1,500" while the button still points at the $1,000 link, customers are charged
+   less than the page states and the guarantee refunds the wrong amount. Keep separate founding and regular
+   link slots and choose by the same `isFounding` the copy uses. If the regular link isn't set, show
+   "Opening soon", never the founding link. The launch checklist makes the regular links blocking once
+   spots run out. (A whole-branch review caught this at the seam between the copy unit and the checkout
+   unit; neither unit's own review could have.)
+7. **Mutation-test the sweeps once.** Plant a stale `$1,000`, a "founding" and a `{oops}` in a copy file
    and confirm all three fail. Otherwise the sweep may be passing vacuously.
 
 ## Why This Matters

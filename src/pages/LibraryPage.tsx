@@ -80,7 +80,8 @@ export function LibraryPage() {
   }, [params.q, location.key]);
   useEffect(() => cancelTimer, []);
 
-  const results = useMemo(() => filterLibrary(library, params), [params.for, params.cat, params.q]); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `params` is a new object each render; its three fields are the real inputs
+  const results = useMemo(() => filterLibrary(library, params), [params.for, params.cat, params.q]);
   const categories = categoriesFor(library, params.for);
   const half = Math.ceil(results.length / 2);
   const searchRef = useRef<HTMLInputElement>(null);

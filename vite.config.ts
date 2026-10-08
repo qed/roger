@@ -1,3 +1,5 @@
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -22,9 +24,33 @@ function absoluteOgImagePlugin(): Plugin {
   };
 }
 
+// Defence in depth for the launch gate: `npm run build` runs launch-check first, but a bare `vite build`
+// (a changed Vercel build command, a dashboard override) would skip it. So a strict build (Vercel
+// production, see resolveBuildEnv) re-runs the check here and fails before anything is bundled.
+// ROGER_BUNDLE_CHECK=1 is the one escape hatch: scripts/bundle-check.ts builds a production-mode bundle
+// into a temp folder only to scan it for preview tooling; that output is never deployed.
+function launchGatePlugin(): Plugin {
+  return {
+    name: 'roger-launch-gate',
+    apply: 'build',
+    buildStart() {
+      if (resolveBuildEnv(process.env).mode !== 'strict') return;
+      if (process.env.ROGER_BUNDLE_CHECK === '1') return;
+      const result = spawnSync(process.execPath, ['--import', 'tsx', 'scripts/launch-check.ts', '--strict'], {
+        cwd: fileURLToPath(new URL('.', import.meta.url)),
+        encoding: 'utf8'
+      });
+      if (result.status !== 0) {
+        const detail = result.stderr || result.error?.message || '';
+        throw new Error(`Launch check failed; production build blocked.\n${detail}`);
+      }
+    }
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), absoluteOgImagePlugin()],
+  plugins: [launchGatePlugin(), react(), absoluteOgImagePlugin()],
   define: {
     __VERCEL_ENV__: JSON.stringify(vercelEnv)
   }

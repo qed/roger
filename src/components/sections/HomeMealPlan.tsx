@@ -1,5 +1,5 @@
 import { homeMealPlanCopy } from '../../data/copy/home';
-import { homeSteps } from '../../data/homeContent';
+import { homeSteps } from '../../data/copy/home';
 import { FadeUp } from '../FadeUp';
 import { TimeMathBand } from '../TimeMathBand';
 

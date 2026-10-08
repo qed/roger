@@ -47,6 +47,10 @@ check it.
   production build until launch.
 - Preview `main` with `vercel deploy` (no `--prod`). Branch pushes get preview deploys too, with the
   launch banner.
+- The gate runs twice: `npm run build` runs `launch-check` first, and `vite.config.ts` re-runs it with
+  `--strict` before bundling on any strict (Vercel production) build, so a bare `vite build` or a changed
+  build command can't skip it. `ROGER_BUNDLE_CHECK=1` bypasses that second check; only
+  `npm run test:bundle` sets it, for a throwaway build it scans and deletes. Never set it on Vercel.
 - **Never** run `vercel deploy --prebuilt --prod` or upload a locally built `dist/`. Both skip the launch
   gate. "Promote to Production" in the dashboard is fine: it rebuilds and is gated.
 - Emergency on the live site: use Vercel **Instant Rollback** in the dashboard. It pauses automatic
@@ -76,6 +80,8 @@ Payment Links (live mode; `launch-check` rejects `test_` links):
 |---|---|
 | Work deposit | `config.stripe.workDeposit` ("Skip the call", and pasted in fit calls) |
 | Home | `config.stripe.homeCheckout` (on `/home` only) |
+| Work deposit, regular price ($1,500) | `config.stripe.workDepositRegular` (used once founding spots are full) |
+| Home, regular price ($750) | `config.stripe.homeCheckoutRegular` (used once founding spots are full) |
 | **Work balance** | **Here and in Peter's Stripe only. Never in config**: everything in config ships to the browser. Email it to the client after the week of running. |
 
 On each link:
@@ -84,7 +90,13 @@ On each link:
   `https://{domain}/thanks/home` (home), on the **same origin** that serves checkout, so the visitor's
   picks in sessionStorage survive.
 - Statement descriptor `ROGER`. On the work deposit, collect phone and add a "Business name" field.
-- Have regular-price links ready for after the founding 10.
+
+**After the founding 10 (the swap).** The CTAs pick the link for the price the site shows: the founding
+links while `config.founding.spotsLeft > 0`, the regular links once it's `0`. The founding link is never a
+fallback, so an empty regular link shows "Opening soon" (and hides the workshop-code banner) rather than
+charging the old price. Create both regular-price links before the last founding spot goes, paste them into
+`workDepositRegular` / `homeCheckoutRegular`, then set `spotsLeft: 0` in one commit. `launch-check` lists
+them as not blocking while founding spots remain and makes them **blocking** once `spotsLeft` is `0`.
 
 **Workshop codes.** For each group, e.g. `OSSINGTON`:
 1. Create two promotion codes, `OSSINGTONWORK` and `OSSINGTONHOME`. Alphanumeric only (Stripe

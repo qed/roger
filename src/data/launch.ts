@@ -2,6 +2,7 @@
 // If a TODO isn't in this file, it isn't tracked. `npm run launch-check` prints it; production builds
 // fail while any blocking item is undone (scripts/launch-check.ts).
 // Framework-free: evaluated in Node, where assetExists checks /public on disk.
+import { foundingIsFull } from '../lib/proofLines';
 import type { CaseStudy } from './caseStudies';
 import type { SiteConfig } from './config';
 import type { Signoff } from './signoff';
@@ -20,6 +21,10 @@ export type LaunchItem = {
   label: string;
   kind: LaunchKind;
   blocking: boolean; // true = production deploy fails until done
+  // Becomes blocking when this returns true (evaluateLaunch). The regular-price Payment Links are not
+  // needed while founding spots remain, but once founding.spotsLeft is 0 every Work/Home CTA depends on
+  // them, so a production build must not ship without them.
+  blockingWhen?: (ctx: LaunchCtx) => boolean;
   optional?: boolean; // shown separately, not counted in the total
   check: (ctx: LaunchCtx) => boolean;
 };
@@ -41,6 +46,9 @@ const isHttpsUrl = (value: string) => {
 const isPaymentLink = (value: string) => /^https:\/\/buy\.stripe\.com\/(?!test_)[A-Za-z0-9_-]+$/.test(value.trim());
 const isFullName = (value: string) => value.trim().split(/\s+/).filter((part) => part.length >= 2).length >= 2;
 const assetSet = (path: string, ctx: LaunchCtx) => filled(path) && ctx.assetExists(path);
+
+// Same rule as the displayed price (offerPrice.ts), so the gate and the CTAs switch together.
+const foundingFull = (c: LaunchCtx) => foundingIsFull(c.config.founding);
 
 const usable = (s: CaseStudy) => s.permission === true && s.metrics.length >= 1;
 
@@ -95,6 +103,22 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'sample-report', label: 'Sample setup report PDF', kind: 'asset', blocking: false, check: (c) => assetSet(c.config.proof.sampleReport, c) },
   { id: 'host-pack', label: 'Workshop host pack PDF', kind: 'asset', blocking: false, check: (c) => assetSet(c.config.workshopHostPack, c) },
   { id: 'founder-links', label: 'X / LinkedIn links', kind: 'config', blocking: false, check: (c) => c.config.founder.links.length >= 1 },
+  {
+    id: 'stripe-deposit-regular',
+    label: 'Regular-price work deposit Payment Link ready for after the founding 10',
+    kind: 'config',
+    blocking: false,
+    blockingWhen: foundingFull,
+    check: (c) => isPaymentLink(c.config.stripe.workDepositRegular)
+  },
+  {
+    id: 'stripe-home-regular',
+    label: 'Regular-price home Payment Link ready for after the founding 10',
+    kind: 'config',
+    blocking: false,
+    blockingWhen: foundingFull,
+    check: (c) => isPaymentLink(c.config.stripe.homeCheckoutRegular)
+  },
   { id: 'library-links', label: 'Library URLs verified', kind: 'signoff', blocking: false, check: (c) => c.signoff.libraryVerified },
   // Optional: later proof, not counted in the total
   { id: 'endorsements', label: 'Endorsements', kind: 'config', blocking: false, optional: true, check: (c) => c.config.proof.endorsements.length > 0 },
@@ -102,7 +126,7 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'reviews', label: 'Independent reviews link', kind: 'config', blocking: false, optional: true, check: (c) => isHttpsUrl(c.config.proof.reviewsUrl) }
 ];
 
-export type LaunchItemStatus = Omit<LaunchItem, 'check'> & { done: boolean };
+export type LaunchItemStatus = Omit<LaunchItem, 'check' | 'blockingWhen'> & { done: boolean };
 
 export type LaunchStatus = {
   items: LaunchItemStatus[];
@@ -112,7 +136,11 @@ export type LaunchStatus = {
 };
 
 export function evaluateLaunch(ctx: LaunchCtx): LaunchStatus {
-  const items = launchChecklist.map(({ check, ...item }) => ({ ...item, done: check(ctx) }));
+  const items = launchChecklist.map(({ check, blockingWhen, ...item }) => ({
+    ...item,
+    blocking: item.blocking || Boolean(blockingWhen?.(ctx)),
+    done: check(ctx)
+  }));
   const counted = items.filter((i) => !i.optional);
   return {
     items,

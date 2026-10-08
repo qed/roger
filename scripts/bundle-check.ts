@@ -1,7 +1,8 @@
 // npm run test:bundle — proves the preview-only launch tools never ship to production (spec §12).
-// Builds twice into temp folders, calling Vite directly so the launch gate doesn't block the
-// production-mode build: once as production (must contain none of the markers) and once as a preview
-// (must contain them, so the check can't pass vacuously).
+// Builds twice into temp folders, calling Vite directly (with ROGER_BUNDLE_CHECK=1, the escape hatch the
+// vite.config.ts launch gate honours) so the gate doesn't block the production-mode build: once as
+// production (must contain none of the markers) and once as a preview (must contain them, so the check
+// can't pass vacuously).
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -15,7 +16,9 @@ const MARKERS = ['Launch check', 'blockingMissing', 'launch-status'];
 function buildAndScan(vercelEnv: 'production' | 'preview'): string[] {
   const outDir = mkdtempSync(join(tmpdir(), `roger-${vercelEnv}-`));
   try {
-    const env = { ...process.env, VERCEL: '1', VERCEL_ENV: vercelEnv };
+    // ROGER_BUNDLE_CHECK=1 lets the production-mode build past vite.config.ts's launch gate: this output
+    // goes to a temp folder, is scanned and deleted, never deployed.
+    const env = { ...process.env, VERCEL: '1', VERCEL_ENV: vercelEnv, ROGER_BUNDLE_CHECK: '1' };
     const result = spawnSync(process.execPath, [viteBin, 'build', '--outDir', outDir, '--emptyOutDir'], {
       cwd: root,
       env,

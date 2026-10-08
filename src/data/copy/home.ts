@@ -2,7 +2,7 @@
 // and the before/after rows are verbatim from the spec; the rest is a draft for Peter to approve.
 // Copy says "I set you up", never "Roger does X" (spec §1, decision 1). Amounts are functions of the
 // displayed price (offerAmounts in src/lib/offerPrice.ts), so nothing goes stale when founding spots fill.
-// The meal-plan steps live in ../homeContent.ts; the job menu in ../menu.ts; the FAQ in ../homeFaqs.ts.
+// The job menu lives in ../menu.ts; the FAQ in ../homeFaqs.ts.
 import type { BeforeAfterRow, GatedTimelineStep, TimeMathCopy } from './types';
 
 export const homeMeta = {
@@ -40,7 +40,7 @@ export const homeBeforeAfterCopy = {
 // §6A.4 The picker section's id, so the hero's "See the 12 jobs" link can scroll to it.
 export const HOME_JOBS_ID = 'jobs';
 
-// §6A.5 Featured example: the weekly meal plan (steps in ../homeContent.ts, then the time-math band).
+// §6A.5 Featured example: the weekly meal plan (steps in homeSteps below, then the time-math band).
 export const homeMealPlanCopy: {
   label: string;
   heading: string;
@@ -66,6 +66,37 @@ export const homeMealPlanCopy: {
     source: 'Source: National Zero Waste Council, 2022'
   }
 };
+
+// §6A.5 The meal-plan steps, and the sample dinners on the home phone mockup (§6A.1). Illustrations,
+// not a client's results.
+export const homeSteps = [
+  {
+    when: 'Sunday morning',
+    title: '15 ideas',
+    body: "Your assistant suggests 15 dinners, built around your family's tastes, this week's sales and what's already in the pantry."
+  },
+  {
+    when: 'About 5 minutes',
+    title: 'You pick 5–7',
+    body: 'Easy meals land on your busiest nights. Soccer practice means a 20-minute dinner.'
+  },
+  {
+    when: 'Sunday afternoon',
+    title: 'The cart is built',
+    body: "Your assistant builds the online order with the brands and sizes you buy, checks the pantry staples and adds the kids' usual snacks."
+  },
+  {
+    when: 'Before Monday',
+    title: 'Recipes arrive',
+    body: "A clean PDF of the week's recipes in your inbox. Glance at the cart, pick a pickup window, done."
+  }
+];
+
+export const sampleMeals = [
+  { day: 'Mon', name: 'Sheet-pan lemon chicken', minutes: 35 },
+  { day: 'Tue', name: 'Turkey tacos, soccer night', minutes: 20 },
+  { day: 'Wed', name: 'Miso salmon rice bowls', minutes: 25 }
+];
 
 // §6A.6 How it works. The session step's lead time is gated on homeSessionLeadConfirmed (spec §8.4.3).
 export const homeTimelineCopy = {

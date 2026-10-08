@@ -1,7 +1,7 @@
 import { ClockIcon } from 'lucide-react';
 import { phoneMockupCopy } from '../data/copy/shared';
 import { workHeroCopy } from '../data/copy/work';
-import { sampleMeals } from '../data/homeContent';
+import { sampleMeals } from '../data/copy/home';
 import { ToqueMark } from './ToqueMark';
 
 type PhoneMockupProps = {

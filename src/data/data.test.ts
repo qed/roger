@@ -11,7 +11,6 @@ import * as homeCopy from './copy/home.ts';
 import * as workshopsCopy from './copy/workshops.ts';
 import * as libraryCopyModule from './copy/library.ts';
 import * as legalCopy from './copy/legal.ts';
-import * as homeContentModule from './homeContent.ts';
 import { homeFaqs } from './homeFaqs.ts';
 import { ctaLabels, ctaNotes, guaranteeCopy, workGuaranteeAnswer } from './copy/shared.ts';
 import { pricingCopy } from './copy/pricing.ts';
@@ -309,7 +308,6 @@ describe('copy sweep, founding and full', () => {
     work: 'work',
     faqs: 'work',
     home: 'home',
-    homeContent: 'home',
     homeFaqs: 'home',
     workshops: 'none',
     library: 'none',
@@ -409,7 +407,6 @@ describe('copy sweep, founding and full', () => {
       whatYouGet: whatYouGetCopyModule,
       thanks: thanksCopy,
       home: homeCopy,
-      homeContent: homeContentModule,
       offers: offersModule,
       workshops: workshopsCopy,
       library: libraryCopyModule,
@@ -487,7 +484,7 @@ describe('copy sweep, founding and full', () => {
       'home.homeHeroCopy.',
       'home.homeTimelineCopy.steps',
       'home.homeMealPlanCopy.timeMath.statValue',
-      'homeContent.homeSteps',
+      'home.homeSteps',
       'homeFaqs.home-allergies',
       'homeFaqs.home-cost-after',
       'workshops.workshopsHeroCopy.',
@@ -571,9 +568,9 @@ describe('home copy', () => {
   });
 
   it('keeps the meal-plan facts and never says "Roger does X" (spec §1)', () => {
-    const text = JSON.stringify({ homeContentModule, homeCopy });
+    const text = JSON.stringify({ homeCopy });
     assert.doesNotMatch(text, /Roger (shops|plans|does|builds|sends|books)/);
-    assert.equal(homeContentModule.homeSteps.length, 4);
+    assert.equal(homeCopy.homeSteps.length, 4);
     assert.equal(homeCopy.homeMealPlanCopy.timeMath.before, '2–3 hours');
     assert.equal(homeCopy.homeMealPlanCopy.timeMath.after, '10 minutes');
     assert.equal(homeCopy.homeMealPlanCopy.timeMath.source, 'Source: National Zero Waste Council, 2022');
@@ -646,7 +643,7 @@ describe('home copy', () => {
       // steps, and the phone mockup (badged "Example").
       { path: /^home\.homeBeforeAfterCopy\.rows\[\d+\]\.after$/, phrase: /\b5 minutes\b/, why: 'example Sunday' },
       {
-        path: /^homeContent\.homeSteps\[\d+\]\./,
+        path: /^home\.homeSteps\[\d+\]\./,
         phrase: /\b15 (ideas|dinners)\b|\bAbout 5 minutes\b|\b5–7\b|\b20-minute\b/,
         why: 'featured example'
       },
@@ -664,7 +661,6 @@ describe('home copy', () => {
       else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, `${path}.${k}`);
     };
     walk({ ...homeCopy }, 'home');
-    walk({ homeSteps: homeContentModule.homeSteps }, 'homeContent');
     const amounts = offerAmounts('home', founding);
     for (const faq of homeFaqs) {
       found.push({ path: `homeFaqs.${faq.id}.q`, text: faq.q });

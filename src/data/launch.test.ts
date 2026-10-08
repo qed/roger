@@ -136,6 +136,40 @@ describe('individual checks', () => {
   });
 });
 
+describe('regular-price Payment Links (spec §3.4, §11)', () => {
+  const item = (c: LaunchCtx, id: string) => evaluateLaunch(c).items.find((i) => i.id === id);
+
+  it('are tracked but not blocking while founding spots remain', () => {
+    const result = evaluateLaunch(ctx());
+    for (const id of ['stripe-deposit-regular', 'stripe-home-regular']) {
+      assert.equal(item(ctx(), id)?.blocking, false, id);
+      assert.ok(!result.blockingMissing.includes(id), id);
+    }
+  });
+
+  it('become blocking once founding.spotsLeft is 0', () => {
+    const full = ctx({ config: config((c) => (c.founding.spotsLeft = 0)) });
+    const result = evaluateLaunch(full);
+    for (const id of ['stripe-deposit-regular', 'stripe-home-regular']) {
+      assert.equal(item(full, id)?.blocking, true, id);
+      assert.ok(result.blockingMissing.includes(id), id);
+    }
+    const ready = ctx({
+      config: config((c) => {
+        c.founding.spotsLeft = 0;
+        c.stripe.workDepositRegular = 'https://buy.stripe.com/reg_work';
+        c.stripe.homeCheckoutRegular = 'https://buy.stripe.com/reg_home';
+      })
+    });
+    assert.ok(!evaluateLaunch(ready).blockingMissing.some((id) => id.endsWith('-regular')));
+  });
+
+  it('need live Payment Links', () => {
+    const test = ctx({ config: config((c) => (c.stripe.workDepositRegular = 'https://buy.stripe.com/test_abc')) });
+    assert.equal(done(test, 'stripe-deposit-regular'), false);
+  });
+});
+
 describe('a fully prepared launch', () => {
   it('has no blocking items missing', () => {
     const ready = config((c) => {

@@ -46,8 +46,7 @@ export function WorkshopRequestForm() {
     // Centre it, so the sticky header never covers the field or its error.
     el.focus({ preventScroll: true });
     el.scrollIntoView({ block: 'center' });
-    // fieldId is derived from the stable useId value.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fieldId is derived from the stable useId value
   }, [errors]);
 
   // The success message replaces the form; move focus to it so keyboard users aren't dropped on <body>.
