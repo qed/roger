@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "tsx --test src/data/data.test.ts",
+    "test": "tsx --test src/data/data.test.ts src/lib/browserStorage.test.ts src/lib/checkoutLinks.test.ts src/lib/claims.test.ts src/lib/clientReference.test.ts src/lib/payback.test.ts src/lib/picks.test.ts src/lib/workshopCode.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node-tests.json"
   },
   "dependencies": {

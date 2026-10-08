@@ -240,7 +240,7 @@ sequenceDiagram
 - `grep -ri waitlist src` returns nothing.
 - No `src/package.json`.
 
-- [ ] **Unit 3: Checkout and state logic library**
+- [x] **Unit 3: Checkout and state logic library**
 
 **Goal:** Pure, tested modules for every URL and state rule in spec §9.
 

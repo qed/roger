@@ -113,3 +113,11 @@ export const workingDefinition = {
 };
 
 export const offers: Record<OfferId, Offer> = { work: workOffer, home: homeOffer };
+
+// Pricing honesty line under the card (spec §6.7). `optionalClause` is dropped when providerCostRange
+// is empty (R8); see fillClause in src/lib/claims.ts.
+export const honestyLine = {
+  text: "You'll also pay your assistant's own subscription directly to the provider, usually {providerCostRange} a month. I'll recommend the right plan; you never pay me for it.",
+  interpolates: 'providerCostRange' as const,
+  optionalClause: ', usually {providerCostRange} a month'
+};
