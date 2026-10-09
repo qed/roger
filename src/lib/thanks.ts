@@ -1,5 +1,6 @@
 // Decisions behind the post-payment pages (spec §9.2, §9.4), kept pure so they're unit-tested.
 import type { MenuKind } from '../data/menu';
+import { mailtoHref } from './formPost';
 
 // Pages after a payment: the header hides its fit-call/checkout button there so a paying customer isn't
 // sent back to the start (and no conversion event fires). Expects a pathname without a trailing slash.
@@ -21,13 +22,11 @@ export function thanksBookingModel(input: {
   mailtoSubject: (kind: MenuKind) => string;
   hasTiming: boolean;
 }): ThanksBookingModel {
-  const email = input.contactEmail.trim();
   const live = input.href !== null;
   return {
     href: input.href,
     showFallback: !live,
-    mailto:
-      !live && email ? `mailto:${email}?subject=${encodeURIComponent(input.mailtoSubject(input.kind))}` : null,
+    mailto: live ? null : mailtoHref(input.contactEmail, input.mailtoSubject(input.kind)),
     showTiming: live && input.hasTiming
   };
 }

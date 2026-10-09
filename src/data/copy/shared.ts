@@ -92,7 +92,13 @@ export const newsletterCopy = {
   submit: 'Send me the use cases',
   submitting: 'Sending…',
   success: "You're in. First one lands next week.",
-  invalidEmail: 'Enter a valid email address, like name@example.ca.'
+  invalidEmail: 'Enter a valid email address, like name@example.ca.',
+  // While no form endpoint is configured, the sign-up is an email link (owner decision, 2026-10-09).
+  emailFallback: {
+    button: 'Email us to get the use cases',
+    subject: 'Send me the use cases',
+    body: 'Please add me to the weekly AI-assistant use cases.'
+  }
 };
 
 // Proof section (spec §6.4, R9a).

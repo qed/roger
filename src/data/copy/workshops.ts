@@ -119,7 +119,15 @@ export const workshopFormCopy = {
   submit: 'Send request',
   submitting: 'Sending…',
   success: "Thanks. We'll reply within 1 business day to find a date.",
-  // Shown under the disabled "Opening soon" button while no endpoint is configured.
+  // While no form endpoint is configured, the form is replaced by an email link (owner decision,
+  // 2026-10-09): the body lists the fields the form would have asked for.
+  emailFallback: {
+    intro: "Email us your group's name, roughly how many people, and a month that works. We'll reply within 1 business day to find a date.",
+    button: 'Email us to request a date',
+    subject: 'Workshop request',
+    body: 'Organisation:\nYour name:\nPhone:\nGroup type (BIA, business association, chamber, school, other):\nExpected size:\nPreferred month:\nIn person (Toronto) or Zoom:\nNotes:\n'
+  },
+  // Shown under the disabled "Opening soon" button when there is neither an endpoint nor a contact email.
   closedNote: (contactEmail: string) =>
     contactEmail ? `Requests open soon. In the meantime, email ${contactEmail}.` : 'Requests open soon.'
 };

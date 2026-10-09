@@ -2,7 +2,7 @@ import { useCallback, useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import { siteConfig } from '../../data/config';
 import { ctaLabels, newsletterCopy } from '../../data/copy/shared';
-import { EMAIL_MAX_LENGTH, isValidEmail } from '../../lib/formPost';
+import { EMAIL_MAX_LENGTH, isValidEmail, mailtoHref } from '../../lib/formPost';
 import type { FormErrors } from '../../lib/formPost';
 import type { MenuKind } from '../../data/menu';
 import { trackEvent } from '../../utils/analytics';
@@ -22,8 +22,8 @@ type Values = { email: string; for: string };
 const validate = (values: Values): FormErrors =>
   isValidEmail(values.email) && values.email.trim().length <= EMAIL_MAX_LENGTH ? {} : { email: newsletterCopy.invalidEmail };
 
-// Spec §8.3: email only, plus hidden `for` (and UTM fields, added on submit). Empty endpoint →
-// a disabled "Opening soon" button; never a fake success. While posting, the button stays focusable
+// Spec §8.3: email only, plus hidden `for` (and UTM fields, added on submit). Empty endpoint → an
+// "Email us" link to contactEmail (or, with no address either, a disabled "Opening soon" button); never a fake success. While posting, the button stays focusable
 // (aria-disabled) and the status region says "Sending…"; a failed post moves focus to the error.
 export function NewsletterForm({ audience, tone = 'light', className = '' }: NewsletterFormProps) {
   const [email, setEmail] = useState('');
@@ -51,6 +51,19 @@ export function NewsletterForm({ audience, tone = 'light', className = '' }: New
       <p role="status" className={`text-base ${dark ? 'text-cream' : 'text-ink'} ${className}`}>
         {newsletterCopy.success}
       </p>
+    );
+  }
+
+  const mailto = available
+    ? null
+    : mailtoHref(siteConfig.contactEmail, newsletterCopy.emailFallback.subject, newsletterCopy.emailFallback.body);
+  if (mailto) {
+    return (
+      <div className={className}>
+        <a href={mailto} className={ctaClassName({ variant: 'primary', tone, size: 'md', live: true })}>
+          {newsletterCopy.emailFallback.button}
+        </a>
+      </div>
     );
   }
 

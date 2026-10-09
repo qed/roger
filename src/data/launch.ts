@@ -60,8 +60,8 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'cal-fit', label: 'Fit-call booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.fitCall) },
   { id: 'cal-session1', label: 'Work Session 1 booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.workSession1) },
   { id: 'cal-home', label: 'Home session booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.homeSession) },
-  { id: 'form-workshop', label: 'Workshop form endpoint', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.forms.workshopEndpoint) },
-  { id: 'form-newsletter', label: 'Newsletter form endpoint', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.forms.newsletterEndpoint) },
+  { id: 'form-workshop', label: 'Workshop form endpoint (optional: an email link until set)', kind: 'config', blocking: false, check: (c) => isHttpsUrl(c.config.forms.workshopEndpoint) },
+  { id: 'form-newsletter', label: 'Newsletter form endpoint (optional: an email link until set)', kind: 'config', blocking: false, check: (c) => isHttpsUrl(c.config.forms.newsletterEndpoint) },
   { id: 'provider-cost', label: 'Monthly provider cost range in the FAQs (optional)', kind: 'config', blocking: false, check: (c) => filled(c.config.providerCostRange) && !PLACEHOLDER.test(c.config.providerCostRange) },
   {
     id: 'case-studies',

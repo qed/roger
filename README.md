@@ -119,8 +119,9 @@ Peter's first test booking is the real check that the prefill works.
 
 ## Forms
 
-Workshop requests and the newsletter post JSON to Formspree endpoints in `config.forms`. An empty endpoint
-shows "Opening soon". Each form has a `_gotcha` honeypot field; keep Formspree's spam filtering on.
+Workshop requests and the newsletter post JSON to Formspree endpoints in `config.forms`. Both are optional:
+an empty endpoint turns the form into an "Email us" link to `contactEmail` (subject and body prefilled), or
+"Opening soon" if there is no contact email either. Each form has a `_gotcha` honeypot field; keep Formspree's spam filtering on.
 
 ## For agents and scripts
 

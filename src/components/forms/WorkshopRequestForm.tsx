@@ -7,6 +7,7 @@ import { REQUIRED_WORKSHOP_FIELDS, WORKSHOP_MAX_LENGTH, emptyWorkshopValues, fir
 import type { WorkshopField, WorkshopValues } from '../../lib/workshopForm';
 import { trackEvent } from '../../utils/analytics';
 import { ctaClassName } from '../cta/ctaStyles';
+import { mailtoHref } from '../../lib/formPost';
 import { Honeypot } from './Honeypot';
 import { useFormPost } from './useFormPost';
 
@@ -17,7 +18,8 @@ const inputClass = (invalid: boolean) =>
 
 // Spec §6B.7 (R12b, §10 a11y): labelled fields with required markers, inline errors tied to their field
 // (aria-invalid + aria-describedby), focus on the first error, UTM fields added on submit. Empty endpoint →
-// fields and button disabled, "Opening soon"; success only on a real 2xx. While posting, the button stays
+// an "Email us" link to contactEmail instead of the form (or, with no address either, the form disabled with
+// "Opening soon"); success only on a real 2xx. While posting, the button stays
 // focusable (aria-disabled) and the status region says "Sending…"; a failed post moves focus to the error.
 export function WorkshopRequestForm() {
   const [values, setValues] = useState<WorkshopValues>(emptyWorkshopValues);
@@ -70,6 +72,19 @@ export function WorkshopRequestForm() {
       <p ref={successRef} tabIndex={-1} role="status" className="rounded-2xl border border-rule bg-cream p-6 font-serif text-2xl leading-snug text-ink outline-none">
         {copy.success}
       </p>
+    );
+  }
+
+  const mailto = available ? null : mailtoHref(contactEmail, copy.emailFallback.subject, copy.emailFallback.body);
+  if (mailto) {
+    return (
+      <div className="rounded-2xl border border-rule bg-cream p-5 sm:p-8">
+        <p className="text-base leading-relaxed text-ink">{copy.emailFallback.intro}</p>
+        <a href={mailto} className={ctaClassName({ variant: 'primary', size: 'lg', live: true, className: 'mt-6' })}>
+          {copy.emailFallback.button}
+        </a>
+        <p className="mt-3 text-sm text-ink-soft">{contactEmail}</p>
+      </div>
     );
   }
 

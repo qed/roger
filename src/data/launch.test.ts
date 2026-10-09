@@ -74,7 +74,7 @@ describe('launch checklist shape (spec §8.4.2)', () => {
       launchChecklist.filter((i) => i.blocking).map((i) => i.id),
       [
         'contact-email', 'domain', 'stripe-deposit', 'stripe-home', 'cal-fit',
-        'cal-session1', 'cal-home', 'form-workshop', 'form-newsletter', 'case-studies',
+        'cal-session1', 'cal-home', 'case-studies',
         'workshops-booked', 'legal', 'hst', 'future-price'
       ]
     );
@@ -91,7 +91,7 @@ describe('evaluateLaunch with today’s empty config', () => {
   const result = evaluateLaunch(ctx());
 
   it('has every blocking item undone', () => {
-    assert.equal(result.blockingMissing.length, 14);
+    assert.equal(result.blockingMissing.length, 12);
   });
 
   it('counts only non-optional items in the total', () => {
@@ -100,7 +100,7 @@ describe('evaluateLaunch with today’s empty config', () => {
   });
 
   it('formats the summary line like the spec', () => {
-    assert.equal(formatSummary(result), `Launch check: 0/${result.total} done · 14 blocking`);
+    assert.equal(formatSummary(result), `Launch check: 0/${result.total} done · 12 blocking`);
   });
 });
 
@@ -271,6 +271,6 @@ describe('groupLaunchItems and formatBanner', () => {
   it('groups in spec order and formats the banner without "done"', () => {
     const result = evaluateLaunch(ctx());
     assert.deepEqual(groupLaunchItems(result.items).map((g) => g.title), ['Blocking', 'Not blocking', 'Optional']);
-    assert.equal(formatBanner(result), `Launch check: 0/${result.total} · 14 blocking`);
+    assert.equal(formatBanner(result), `Launch check: 0/${result.total} · 12 blocking`);
   });
 });

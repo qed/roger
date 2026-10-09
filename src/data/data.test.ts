@@ -690,7 +690,7 @@ describe('workshops copy', () => {
       { path: /^workshops\.workshopsFormatsCopy\./, phrase: /^60 or 90 min$/ },
       { path: /^workshops\.workshopsProvideCopy\./, phrase: /\b10–40 people\b/ },
       { path: /^workshops\.workshopsMembersGetCopy\./, phrase: /\b14-day\b/ },
-      { path: /^workshops\.workshopFormCopy\.success$/, phrase: /\b1 business day\b/ },
+      { path: /^workshops\.workshopFormCopy\.(success|emailFallback\.intro)$/, phrase: /\b1 business day\b/ },
       { path: /^workshops\.workshopFormCopy\.errors\.size$/, phrase: /\bfrom 1 to 500\b/ },
       // The form's length caps (WORKSHOP_MAX_LENGTH; workshopForm.test.ts keeps them in step).
       { path: /^workshops\.workshopFormCopy\.errors\.tooLong\./, phrase: /\b(120|254|2,000) characters\b/ }

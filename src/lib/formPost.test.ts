@@ -9,6 +9,7 @@ import {
   honeypotTripped,
   isValidEmail,
   liveStatusText,
+  mailtoHref,
   postJson,
   submitButtonState,
   submitErrorMessage
@@ -281,5 +282,22 @@ describe('createSubmitter', () => {
     assert.equal(await pending, 'ok');
     assert.deepEqual(log.statuses, ['submitting']);
     assert.equal(log.successes, 0);
+  });
+});
+
+describe('mailtoHref', () => {
+  it('encodes the subject and body, with spaces as %20', () => {
+    assert.equal(
+      mailtoHref(' hello@meetroger.ai ', 'Workshop request', 'Organisation:\nSize: 20 & up'),
+      'mailto:hello@meetroger.ai?subject=Workshop%20request&body=Organisation%3A%0ASize%3A%2020%20%26%20up'
+    );
+  });
+
+  it('leaves the body off when there is none', () => {
+    assert.equal(mailtoHref('hello@meetroger.ai', 'Hi'), 'mailto:hello@meetroger.ai?subject=Hi');
+  });
+
+  it('returns null without an address, never a broken mailto', () => {
+    assert.equal(mailtoHref('   ', 'Hi'), null);
   });
 });

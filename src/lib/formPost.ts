@@ -27,6 +27,16 @@ export function isValidEmail(value: string): boolean {
   return EMAIL.test(value.trim());
 }
 
+// A mailto: link for a form's email fallback (no endpoint yet). Null without an address, so a form never
+// renders a broken link. Subject and body are encoded with encodeURIComponent (spaces as %20, not "+").
+export function mailtoHref(email: string, subject: string, body = ''): string | null {
+  const to = email.trim();
+  if (!to) return null;
+  const params = [`subject=${encodeURIComponent(subject)}`];
+  if (body) params.push(`body=${encodeURIComponent(body)}`);
+  return `mailto:${to}?${params.join('&')}`;
+}
+
 export function canSubmit(endpoint: string): boolean {
   return endpoint.trim().length > 0;
 }
