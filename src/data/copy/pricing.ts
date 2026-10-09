@@ -57,7 +57,7 @@ export const pricingCopy: Record<OfferId, PricingCopy> = {
     },
     includesHeading: 'Includes',
     includes: [
-      { text: '90-min session' },
+      { text: '60-min session' },
       { text: '5 jobs you pick' },
       { text: 'Setup report', emphasis: true },
       { text: 'Day-7 check-in' },

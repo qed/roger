@@ -149,9 +149,6 @@ describe('Cal links', () => {
     assert.equal(fitCallUrl({ picks: PICKS }, ''), null);
     assert.equal(workSessionUrl({ picks: PICKS }, ''), null);
     assert.equal(homeSessionUrl({ picks: [] }, ''), null);
-    assert.equal(fitCallUrl({ picks: PICKS }), null);
-    assert.equal(workSessionUrl({ picks: PICKS }), null);
-    assert.equal(homeSessionUrl({ picks: [] }), null);
   });
 
   it('session links carry picks only, never the code', () => {

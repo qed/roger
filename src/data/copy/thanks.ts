@@ -33,7 +33,7 @@ export const thanksHomeCopy = {
   eyebrow: 'Thank you',
   heading: 'Payment received.',
   receipt: 'Your receipt is on its way from Stripe.',
-  book: 'Pick your 90-min session',
+  book: 'Pick your 60-min session',
   // Spec §6A.6 timing, gated by sign-off (spec §8.4.3).
   timing: {
     text: 'Sessions are within 3 business days of payment.',
@@ -46,7 +46,7 @@ export const thanksHomeCopy = {
     'Your phone and laptop, charged.',
     'The sign-ins for the email and calendar you want your assistant to use.',
     'The jobs you picked. Bring a recent example of each if you have one, like a school email or a bill.',
-    '90 minutes somewhere you can talk.'
+    '60 minutes somewhere you can talk.'
   ]
 };
 

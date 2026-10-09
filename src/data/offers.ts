@@ -92,7 +92,7 @@ const homeOffer: Offer = {
     { text: 'Founding bonus: a 60-day tune-up session', needs: 'foundingPerkConfirmed' }
   ],
   how: [
-    { text: 'one 90-min video session (in person in Toronto on request)' },
+    { text: 'one 60-min video session (in person in Toronto on request)' },
     {
       text: 'within 3 business days of payment',
       emphasis: true,

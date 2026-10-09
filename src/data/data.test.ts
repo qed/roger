@@ -615,7 +615,7 @@ describe('home copy', () => {
     const RULES: Rule[] = [
       { path: /^home\.homeMeta\.description\(\)$/, phrase: new RegExp(`(${homePrices.join('|')}) CAD`), why: 'the displayed home price' },
       // Offer terms and time commitments (spec §3.2, §6A.6).
-      { path: /./, phrase: /\b5 jobs\b|\b12 jobs\b|\b90-minute\b/, why: 'what the home setup includes' },
+      { path: /./, phrase: /\b5 jobs\b|\b12 jobs\b|\b60-minute\b/, why: 'what the home setup includes' },
       { path: /^home\.homeTimelineCopy\./, phrase: /\bDay (0|7|14)\b|\b3 business days\b|\b30 days\b/, why: 'timeline commitments' },
       // The meal-plan time math (spec §6A.5).
       { path: /^home\.homeMealPlanCopy\.timeMath\.before$/, phrase: /^2–3 hours$/, why: 'time math' },

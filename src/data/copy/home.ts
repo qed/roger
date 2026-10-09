@@ -8,7 +8,7 @@ import type { BeforeAfterRow, GatedTimelineStep, TimeMathCopy } from './types';
 export const homeMeta = {
   title: 'Roger at home: your first AI assistant, set up for you · Toronto',
   description: (price: string) =>
-    `We'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. One 90-minute session, live the same day. ${price} CAD. Toronto.`
+    `We'll set you up with your first AI assistant, on your own account, doing 5 jobs you hate: the meal plan, the school emails, the bills. One 60-minute session, live the same day. ${price} CAD. Toronto.`
 };
 
 // §6A.1 Hero
@@ -102,7 +102,7 @@ export const sampleMeals = [
 export const homeTimelineCopy = {
   heading: 'How it works',
   steps: [
-    { when: 'Day 0', what: 'Pay, then pick a time for your 90-minute session.' },
+    { when: 'Day 0', what: 'Pay, then pick a time for your 60-minute session.' },
     {
       when: 'Your session',
       whenNote: {

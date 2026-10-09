@@ -35,9 +35,9 @@ export const siteConfig = {
     homeCheckoutRegular: '' // $750 home Payment Link used once founding spots are full
   },
   cal: {
-    fitCall: '', // 20-min, public, slots every business day
-    workSession1: '', // shown only on /thanks/work, next 2 business days
-    homeSession: '' // shown only on /thanks/home
+    fitCall: 'https://cal.com/peter.k/roger-fit-call', // 20-min, public, slots every business day
+    workSession1: 'https://cal.com/peter.k/roger-session-1-90-minutes', // 90 min; shown only on /thanks/work, next 2 business days
+    homeSession: 'https://cal.com/peter.k/roger-session-1-60-minutes' // 60 min; shown only on /thanks/home
   },
   forms: { workshopEndpoint: '', newsletterEndpoint: '' },
   // Workshop group codes Peter has created in Stripe (as {GROUP}WORK / {GROUP}HOME promotion codes).
