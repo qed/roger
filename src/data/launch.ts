@@ -55,7 +55,6 @@ export const launchChecklist: readonly LaunchItem[] = [
   // Blocking
   { id: 'contact-email', label: 'Public contact email', kind: 'config', blocking: true, check: (c) => EMAIL.test(c.config.contactEmail.trim()) && !PLACEHOLDER.test(c.config.contactEmail) },
   { id: 'domain', label: 'Domain confirmed', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.domain) },
-  { id: 'founder-photo', label: 'Photo of Peter', kind: 'asset', blocking: true, check: (c) => assetSet(c.config.founder.photo, c) },
   { id: 'stripe-deposit', label: 'Work deposit Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.workDeposit) },
   { id: 'stripe-home', label: 'Home Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.homeCheckout) },
   { id: 'cal-fit', label: 'Fit-call booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.fitCall) },

@@ -6,10 +6,10 @@ export const siteConfig = {
   domain: 'https://meetroger.ai',
   founder: {
     name: 'Peter',
-    photo: '', // TODO(Peter): '/peter.jpg' once the file is in /public
+    photo: '', // optional (owner dropped it from launch, 2026-10-09); hidden when empty
     city: 'Toronto',
     links: [] as { label: string; href: string }[] // e.g. X, LinkedIn
-  }, // TODO(Peter): full name, photo, links
+  },
   contactEmail: 'hello@meetroger.ai',
   headline: 'A' as 'A' | 'B' | 'C',
   // After the founding 10 (spec §3.1): $3,000 work paid $1,500 / $1,500, and $750 home.
