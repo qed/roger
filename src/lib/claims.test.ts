@@ -14,7 +14,7 @@ import { displayedOffer, offerAmounts } from './offerPrice.ts';
 import { signoff } from '../data/signoff.ts';
 import type { Signoff } from '../data/signoff.ts';
 
-const allOff: Signoff = { ...signoff };
+const allOff = Object.fromEntries(Object.entries(signoff).map(([k, v]) => [k, typeof v === 'number' ? 0 : false])) as Signoff;
 const allOn: Signoff = {
   ...signoff,
   legalReviewed: true,
