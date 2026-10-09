@@ -7,7 +7,7 @@ export const signoff = {
   futurePriceCommitted: false, // will honour "$3,000 / $750 after the first 10 clients"
   bioApproved: false, // About bio text approved
   foundingPerkConfirmed: true, // 60-day tune-up is the founding perk
-  homeSessionLeadConfirmed: false, // can promise a home session within 3 business days
+  homeSessionLeadConfirmed: true, // can promise a home session within 3 business days
   libraryVerified: false, // every library URL checked and resolving
   workshopsBooked: 0 // number of workshops on the calendar (gate needs ≥ 2)
 };
