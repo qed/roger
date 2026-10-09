@@ -15,7 +15,7 @@ export const workMeta = {
 export const workHeroCopy = {
   eyebrow: 'Toronto · AI assistants, set up for your business',
   headlines: {
-    A: 'Start every day with nothing waiting.',
+    A: 'Run your Business or Home with AI & Intelligence', // owner's pick (2026-10-08)
     B: 'Close the laptop at six. Your business keeps answering.',
     C: 'Stop being the bottleneck in your own business.'
   } satisfies Record<SiteConfig['headline'], string>,
