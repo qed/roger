@@ -77,7 +77,6 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'workshops-booked', label: '2 workshops booked', kind: 'gate', blocking: true, check: (c) => c.signoff.workshopsBooked >= 2 },
   { id: 'legal', label: 'Terms, Privacy, Refunds reviewed', kind: 'signoff', blocking: true, check: (c) => c.signoff.legalReviewed },
   { id: 'hst', label: 'HST wording confirmed', kind: 'signoff', blocking: true, check: (c) => c.signoff.hstConfirmed },
-  { id: 'no-referral', label: '"No referral fees" claim is true', kind: 'signoff', blocking: true, check: (c) => c.signoff.noReferralFees },
   { id: 'passwords', label: 'Password/access claim is true', kind: 'signoff', blocking: true, check: (c) => c.signoff.passwordPolicy },
   { id: 'future-price', label: 'Will honour the post-founding prices', kind: 'signoff', blocking: true, check: (c) => c.signoff.futurePriceCommitted },
   // Not blocking

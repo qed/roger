@@ -19,7 +19,6 @@ const allOn: Signoff = {
   ...signoff,
   legalReviewed: true,
   hstConfirmed: true,
-  noReferralFees: true,
   passwordPolicy: true,
   futurePriceCommitted: true,
   bioApproved: true,

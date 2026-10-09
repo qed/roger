@@ -31,7 +31,7 @@ Locally, `npm run build` only reports the checklist. On Vercel production it enf
 `src/data/launch.ts`; if it isn't there, it isn't tracked. Preview deploys show the same status in a banner
 and at `/launch`.
 
-Sign-offs are claims code can't verify (legal review, HST wording, "no referral fees", ...). They live in
+Sign-offs are claims code can't verify (legal review, HST wording, password policy, ...). They live in
 `src/data/signoff.ts`. Flip one only when it's true, **one commit per flip**: `signoff: <key>`
 (e.g. `signoff: legalReviewed`). Claims gated on a sign-off appear on the site only once it's true.
 

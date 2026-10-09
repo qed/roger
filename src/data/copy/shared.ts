@@ -120,8 +120,7 @@ export const proofCopy: {
       // /home has no fit call (spec §6A): the visitor pays, then books the session.
       home: "We won't promise a job the assistant can't do reliably yet. If one you picked is shaky, we'll tell you before we set it up."
     },
-    { text: "We won't keep your passwords.", needs: 'passwordPolicy' },
-    { text: "We don't take referral fees from AI companies, so we recommend what fits you.", needs: 'noReferralFees' }
+    { text: "We won't keep your passwords.", needs: 'passwordPolicy' }
   ]
 };
 

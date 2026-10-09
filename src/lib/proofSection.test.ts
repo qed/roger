@@ -6,14 +6,14 @@ import { proofCopy } from '../data/copy/shared.ts';
 import { signoff } from '../data/signoff.ts';
 import type { Signoff } from '../data/signoff.ts';
 
-const off: Signoff = { ...signoff, passwordPolicy: false, noReferralFees: false };
-const on: Signoff = { ...signoff, passwordPolicy: true, noReferralFees: true };
+const off: Signoff = { ...signoff, passwordPolicy: false, futurePriceCommitted: false };
+const on: Signoff = { ...signoff, passwordPolicy: true, futurePriceCommitted: true };
 
 const LINES: WontDoLine[] = [
   { text: 'plain' },
   { text: 'work wording', home: 'home wording' },
   { text: 'gated', needs: 'passwordPolicy' },
-  { text: 'gated work', home: 'gated home', needs: 'noReferralFees' },
+  { text: 'gated work', home: 'gated home', needs: 'futurePriceCommitted' },
   { text: 'gated with fallback', needs: 'passwordPolicy', fallback: 'fallback' },
   { text: 'blank home', home: '  ' }
 ];
