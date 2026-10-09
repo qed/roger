@@ -26,7 +26,7 @@ export const siteConfig = {
   capacityLine: 'We take 3 setups a week',
   speed: { fitCallDays: 1, session1Days: 2, liveDays: 5, homeSessionLeadDays: 3 },
   providerCostRange: '', // optional: e.g. "$20–$40", shown only in the "cost after setup" FAQs; hidden if empty
-  taxNote: 'Prices in CAD. No HST is charged.', // HST wording (owner: option B, small supplier); hstConfirmed in signoff.ts once an accountant agrees
+  taxNote: 'Prices in CAD. No HST is charged.', // HST wording (owner: small supplier, confirmed 2026-10-09)
   stripe: {
     workDeposit: 'https://buy.stripe.com/eVq28keXBgxScuT8Zx8g00n', // $2,000 work Payment Link (paid in full): "Skip the call" + pasted on fit calls
     homeCheckout: 'https://buy.stripe.com/14AcMY8zda9u1Qf3Fd8g00o', // $500 Payment Link (on /home only)
