@@ -4,7 +4,6 @@
 export const signoff = {
   legalReviewed: false, // Terms, Privacy, Refunds reviewed
   hstConfirmed: false, // taxNote wording confirmed with an accountant
-  passwordPolicy: false, // "We never keep your passwords; we remove our access at handover" is true
   futurePriceCommitted: false, // will honour "$3,000 / $750 after the first 10 clients"
   bioApproved: false, // About bio text approved
   foundingPerkConfirmed: false, // 60-day tune-up is the founding perk

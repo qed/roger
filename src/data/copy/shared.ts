@@ -2,7 +2,7 @@
 // Roger's "we" voice (owner decision, 2026-10-08), Canadian spelling. Gated lines carry `needs` (spec §8.4.3) and render through
 // renderLine in src/lib/claims.ts. Strings stating a deposit, balance or refund are functions of the
 // displayed amounts (offerAmounts in src/lib/offerPrice.ts), never a hard-coded "$1,000".
-import type { OfferAmounts, OfferLine } from '../offers';
+import type { OfferAmounts } from '../offers';
 import type { Audience, WontDoLine } from './types';
 
 export const ctaLabels = {
@@ -119,8 +119,7 @@ export const proofCopy: {
       text: "We won't promise a task the assistant can't do reliably yet. If it's shaky, we'll tell you on the fit call.",
       // /home has no fit call (spec §6A): the visitor pays, then books the session.
       home: "We won't promise a job the assistant can't do reliably yet. If one you picked is shaky, we'll tell you before we set it up."
-    },
-    { text: "We won't keep your passwords.", needs: 'passwordPolicy' }
+    }
   ]
 };
 
@@ -151,11 +150,7 @@ export const guaranteeCopy = {
     working: ''
   },
   claimLabel: 'How to claim:',
-  claim: 'One email. No forms, no questions about why.',
-  accounts: {
-    text: "Your accounts stay yours. We never keep your passwords, and we remove our access when we're done.",
-    needs: 'passwordPolicy'
-  } satisfies OfferLine
+  claim: 'One email. No forms, no questions about why.'
 };
 
 // About section (spec §6.9, replaced by Peter's decision on 2026-10-08): the section introduces Roger,

@@ -29,18 +29,13 @@ export function faqText(faq: Pick<Faq, 'a'>, amounts: OfferAmounts): string {
 
 // Work FAQ items that /home reuses (src/data/homeFaqs.ts). The ids are a typed tuple, so renaming one
 // here is a compile error at every use instead of a runtime "no FAQ" throw.
-export const SHARED_FAQ_IDS = ['own-it', 'passwords'] as const;
+export const SHARED_FAQ_IDS = ['own-it'] as const;
 export type SharedFaqId = (typeof SHARED_FAQ_IDS)[number];
 
 const sharedFaqBodies: Record<SharedFaqId, Omit<Faq, 'id'>> = {
   'own-it': {
     q: 'Do I own it?',
     a: 'Yes. It runs on your accounts. If we stop working together, everything keeps running.'
-  },
-  passwords: {
-    q: 'What about my passwords and customer data?',
-    a: "You sign in yourself during our session. We don't store passwords, and we remove our access at handover.",
-    needs: 'passwordPolicy'
   }
 };
 
@@ -62,7 +57,6 @@ export const faqs: Faq[] = [
     interpolates: 'providerCostRange',
     optionalClause: ' (usually {providerCostRange}/month)'
   },
-  sharedFaq('passwords'),
   {
     id: 'sends-without-asking',
     q: 'Does it send things without asking?',

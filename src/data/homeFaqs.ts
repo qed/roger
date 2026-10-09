@@ -1,8 +1,7 @@
 // Home FAQ (spec §6A.9, R7). Same shape and rendering as the work FAQ (./faqs.ts): FaqList runs each
 // answer through faqAnswer, so gated items hide and empty config values drop their clause.
 // R7: the three home answers are drafted conservatively and promise nothing beyond the home menu
-// (spec §4.3). Peter signs them off before launch. The ownership answer is the work FAQ's; the password
-// answer is the work one with a home question, under the same passwordPolicy gate. Both come from
+// (spec §4.3). Peter signs them off before launch. The ownership answer is the work FAQ's, from
 // sharedFaq(), whose ids are a typed tuple, so a rename in faqs.ts is a compile error here. The cost
 // answer is home's own: /home sells no care plan (spec §6A.7), so it stops at the provider subscription.
 import { sharedFaq } from './faqs';
@@ -25,7 +24,6 @@ export const homeFaqs: Faq[] = [
     a: "We'll decide in your session what your partner sees. It runs on your own account, so you choose what's shared."
   },
   sharedFaq('own-it'),
-  { ...sharedFaq('passwords'), id: 'home-passwords', q: 'What about my passwords?' },
   {
     id: 'home-cost-after',
     q: 'What does it cost after setup?',

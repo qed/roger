@@ -19,7 +19,6 @@ const allOn: Signoff = {
   ...signoff,
   legalReviewed: true,
   hstConfirmed: true,
-  passwordPolicy: true,
   futurePriceCommitted: true,
   bioApproved: true,
   foundingPerkConfirmed: true,
@@ -29,8 +28,8 @@ const allOn: Signoff = {
 
 describe('isUnlocked', () => {
   it('reads the signoff flag', () => {
-    assert.equal(isUnlocked('passwordPolicy', allOff), false);
-    assert.equal(isUnlocked('passwordPolicy', allOn), true);
+    assert.equal(isUnlocked('futurePriceCommitted', allOff), false);
+    assert.equal(isUnlocked('futurePriceCommitted', allOn), true);
   });
 
   it('defaults to the repo signoff', () => {
@@ -139,8 +138,6 @@ describe('faqAnswer', () => {
   it('gates on signoff and applies clause dropping', () => {
     const values = { providerCostRange: '', taxNote: '' };
     const opts = (signoff: Signoff) => ({ amounts: workAmounts, values, signoff });
-    assert.equal(faqAnswer(faqById('passwords'), opts(allOff)), null);
-    assert.ok(faqAnswer(faqById('passwords'), opts(allOn)));
     assert.ok(!faqAnswer(faqById('cost-after'), opts(allOff))?.includes('usually'));
     assert.equal(faqAnswer(faqById('hst'), opts(allOff)), null);
   });
@@ -273,7 +270,7 @@ describe('resolveTimelineSteps', () => {
   });
 
   it('drops a gated note with no fallback, keeping the step', () => {
-    const [step] = resolveTimelineSteps([{ when: 'X', what: 'x', whenNote: { text: 'claim', needs: 'passwordPolicy' } }], allOff);
+    const [step] = resolveTimelineSteps([{ when: 'X', what: 'x', whenNote: { text: 'claim', needs: 'futurePriceCommitted' } }], allOff);
     assert.deepEqual(step, { when: 'X', what: 'x' });
   });
 

@@ -577,10 +577,10 @@ describe('home copy', () => {
     assert.equal(homeCopy.homeMealPlanCopy.timeMath.source, 'Source: National Zero Waste Council, 2022');
   });
 
-  it('has the R7 home FAQ items plus ownership, password (gated) and cost, with unique ids', () => {
+  it('has the R7 home FAQ items plus ownership and cost, with unique ids', () => {
     const ids = homeFaqs.map((f) => f.id);
     assert.equal(new Set(ids).size, ids.length);
-    for (const id of ['home-allergies', 'home-grocery-account', 'home-partner', 'own-it', 'home-passwords', 'home-cost-after']) {
+    for (const id of ['home-allergies', 'home-grocery-account', 'home-partner', 'own-it', 'home-cost-after']) {
       assert.ok(ids.includes(id), id);
     }
     const amounts = offerAmounts('home', founding);
@@ -588,17 +588,8 @@ describe('home copy', () => {
     for (const faq of homeFaqs) assert.doesNotMatch(faqText(faq, amounts), /fit call|\$\d/i, faq.id);
   });
 
-  it('reuses the shared work answers by typed id, and home-passwords keeps the work gating', () => {
+  it('reuses the shared work answers by typed id', () => {
     for (const id of SHARED_FAQ_IDS) assert.deepEqual(faqs.find((f) => f.id === id), sharedFaq(id), id);
-    const work = sharedFaq('passwords');
-    const home = homeFaqs.find((f) => f.id === 'home-passwords');
-    assert.ok(home);
-    assert.equal(home.needs, work.needs);
-    assert.equal(home.needs, 'passwordPolicy');
-    assert.equal(home.a, work.a);
-    const amounts = offerAmounts('home', founding);
-    assert.equal(faqAnswer(home, { amounts, signoff: { ...signoff, passwordPolicy: false } }), null);
-    assert.ok(faqAnswer(home, { amounts, signoff: { ...signoff, passwordPolicy: true } }));
     assert.deepEqual(homeFaqs.find((f) => f.id === 'own-it'), sharedFaq('own-it'));
   });
 
@@ -665,7 +656,7 @@ describe('home copy', () => {
     const amounts = offerAmounts('home', founding);
     for (const faq of homeFaqs) {
       found.push({ path: `homeFaqs.${faq.id}.q`, text: faq.q });
-      const text = faqAnswer(faq, { amounts, values: { providerCostRange: '', taxNote: '' }, signoff: { ...signoff, passwordPolicy: true } });
+      const text = faqAnswer(faq, { amounts, values: { providerCostRange: '', taxNote: '' }, signoff });
       if (text) found.push({ path: `homeFaqs.${faq.id}`, text });
     }
     assert.ok(found.length > 40, `walked only ${found.length} strings`);
