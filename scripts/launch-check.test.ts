@@ -25,7 +25,10 @@ function run(env: Record<string, string>, ...args: string[]) {
   return { status: result.status, out: result.stdout, err: result.stderr };
 }
 
-describe('launch-check CLI with the live config (blocking items still missing)', () => {
+// Strict mode exits 1 exactly while blocking items are missing; at launch the live config has none.
+const strictStatus = missing > 0 ? 1 : 0;
+
+describe('launch-check CLI with the live config', () => {
   it('reports without failing locally', () => {
     const r = run({});
     assert.equal(r.status, 0, r.err);
@@ -39,22 +42,24 @@ describe('launch-check CLI with the live config (blocking items still missing)',
     assert.match(r.out, /mode=report/);
   });
 
-  it('fails a Vercel production build and lists what is missing', () => {
+  it('gates a Vercel production build: fails and lists what is missing, or passes when nothing is', () => {
     const r = run({ VERCEL: '1', VERCEL_ENV: 'production' });
-    assert.equal(r.status, 1);
+    assert.equal(r.status, strictStatus, r.err);
     assert.match(r.out, /mode=strict/);
-    assert.match(r.err, /Production build blocked/);
-    assert.match(r.err, /\n {2}- \S/);
+    if (missing > 0) {
+      assert.match(r.err, /Production build blocked/);
+      assert.match(r.err, /\n {2}- \S/);
+    }
   });
 
-  it('fails closed when Vercel sets no VERCEL_ENV', () => {
+  it('fails closed (strict) when Vercel sets no VERCEL_ENV', () => {
     const r = run({ VERCEL: '1' });
-    assert.equal(r.status, 1);
+    assert.equal(r.status, strictStatus);
     assert.match(r.out, /VERCEL_ENV=unset VERCEL=1 mode=strict/);
   });
 
-  it('--strict fails even locally', () => {
-    assert.equal(run({}, '--strict').status, 1);
+  it('--strict gates even locally', () => {
+    assert.equal(run({}, '--strict').status, strictStatus);
   });
 
   it('--json prints machine-readable status', () => {

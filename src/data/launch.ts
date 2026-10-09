@@ -67,13 +67,14 @@ export const launchChecklist: readonly LaunchItem[] = [
     id: 'case-studies',
     label: '3 pilot case studies (≥ 2 business)',
     kind: 'gate',
-    blocking: true,
+    // Owner launched before pilots (2026-10-09): the proof section stays hidden until these exist.
+    blocking: false,
     check: (c) => {
       const ok = c.caseStudies.filter(usable);
       return ok.length >= 3 && ok.filter((s) => s.for === 'work').length >= 2;
     }
   },
-  { id: 'workshops-booked', label: '2 workshops booked', kind: 'gate', blocking: true, check: (c) => c.signoff.workshopsBooked >= 2 },
+  { id: 'workshops-booked', label: '2 workshops booked', kind: 'gate', blocking: false, check: (c) => c.signoff.workshopsBooked >= 2 },
   { id: 'legal', label: 'Terms, Privacy, Refunds reviewed', kind: 'signoff', blocking: true, check: (c) => c.signoff.legalReviewed },
   { id: 'hst', label: 'HST wording confirmed', kind: 'signoff', blocking: true, check: (c) => c.signoff.hstConfirmed },
   { id: 'future-price', label: 'Will honour the post-founding prices', kind: 'signoff', blocking: true, check: (c) => c.signoff.futurePriceCommitted },
