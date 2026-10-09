@@ -29,7 +29,7 @@ export const siteConfig = {
   taxNote: 'Prices in CAD. No HST is charged.', // HST wording (owner: option B, small supplier); hstConfirmed in signoff.ts once an accountant agrees
   stripe: {
     workDeposit: 'https://buy.stripe.com/eVq28keXBgxScuT8Zx8g00n', // $2,000 work Payment Link (paid in full): "Skip the call" + pasted on fit calls
-    homeCheckout: '', // $500 Payment Link (on /home only)
+    homeCheckout: 'https://buy.stripe.com/14AcMY8zda9u1Qf3Fd8g00o', // $500 Payment Link (on /home only)
     // Regular prices (spec §3.4): once founding.spotsLeft hits 0 the CTAs switch to these. Empty → "Opening soon".
     workDepositRegular: '', // $3,000 work Payment Link used once founding spots are full
     homeCheckoutRegular: '' // $750 home Payment Link used once founding spots are full
