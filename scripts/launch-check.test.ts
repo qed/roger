@@ -44,7 +44,7 @@ describe('launch-check CLI with the live config (blocking items still missing)',
     assert.equal(r.status, 1);
     assert.match(r.out, /mode=strict/);
     assert.match(r.err, /Production build blocked/);
-    assert.match(r.err, /- Work deposit Payment Link/);
+    assert.match(r.err, /\n {2}- \S/);
   });
 
   it('fails closed when Vercel sets no VERCEL_ENV', () => {

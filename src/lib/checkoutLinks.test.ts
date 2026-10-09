@@ -56,8 +56,8 @@ describe('workDepositUrl', () => {
     assert.equal(workDepositUrl({ picks: PICKS }, ''), null);
   });
 
-  it('defaults to siteConfig.stripe.workDeposit (empty today)', () => {
-    assert.equal(workDepositUrl({ picks: PICKS }), null);
+  it('defaults to siteConfig.stripe.workDeposit', () => {
+    assert.equal(workDepositUrl({ picks: PICKS }), workDepositUrl({ picks: PICKS }, siteConfig.stripe.workDeposit));
   });
 
   it('carries picks and utm in client_reference_id', () => {

@@ -55,7 +55,7 @@ export const launchChecklist: readonly LaunchItem[] = [
   // Blocking
   { id: 'contact-email', label: 'Public contact email', kind: 'config', blocking: true, check: (c) => EMAIL.test(c.config.contactEmail.trim()) && !PLACEHOLDER.test(c.config.contactEmail) },
   { id: 'domain', label: 'Domain confirmed', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.domain) },
-  { id: 'stripe-deposit', label: 'Work deposit Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.workDeposit) },
+  { id: 'stripe-deposit', label: 'Work Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.workDeposit) },
   { id: 'stripe-home', label: 'Home Payment Link', kind: 'config', blocking: true, check: (c) => isPaymentLink(c.config.stripe.homeCheckout) },
   { id: 'cal-fit', label: 'Fit-call booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.fitCall) },
   { id: 'cal-session1', label: 'Work Session 1 booking link', kind: 'config', blocking: true, check: (c) => isHttpsUrl(c.config.cal.workSession1) },
@@ -99,7 +99,7 @@ export const launchChecklist: readonly LaunchItem[] = [
   { id: 'founder-links', label: 'X / LinkedIn links', kind: 'config', blocking: false, check: (c) => c.config.founder.links.length >= 1 },
   {
     id: 'stripe-deposit-regular',
-    label: 'Regular-price work deposit Payment Link ready for after the founding 10',
+    label: 'Regular-price work Payment Link ready for after the founding 10',
     kind: 'config',
     blocking: false,
     blockingWhen: foundingFull,
