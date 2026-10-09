@@ -78,18 +78,17 @@ Payment Links (live mode; `launch-check` rejects `test_` links):
 
 | Link | Where it goes |
 |---|---|
-| Work deposit | `config.stripe.workDeposit` ("Skip the call", and pasted in fit calls) |
+| Work, paid in full ($2,000) | `config.stripe.workDeposit` ("Skip the call", and pasted in fit calls) |
 | Home | `config.stripe.homeCheckout` (on `/home` only) |
-| Work deposit, regular price ($1,500) | `config.stripe.workDepositRegular` (used once founding spots are full) |
+| Work, regular price ($3,000) | `config.stripe.workDepositRegular` (used once founding spots are full) |
 | Home, regular price ($750) | `config.stripe.homeCheckoutRegular` (used once founding spots are full) |
-| **Work balance** | **Here and in Peter's Stripe only. Never in config**: everything in config ships to the browser. Email it to the client after the week of running. |
 
 On each link:
 - **Allow promotion codes.** Without it, workshop codes are silently ignored.
-- After payment, redirect to an **absolute** `https://{domain}/thanks/work` (deposit) or
+- After payment, redirect to an **absolute** `https://{domain}/thanks/work` (work) or
   `https://{domain}/thanks/home` (home), on the **same origin** that serves checkout, so the visitor's
   picks in sessionStorage survive.
-- Statement descriptor `ROGER`. On the work deposit, collect phone and add a "Business name" field.
+- Statement descriptor `ROGER`. On the work link, collect phone and add a "Business name" field.
 
 **After the founding 10 (the swap).** The CTAs pick the link for the price the site shows: the founding
 links while `config.founding.spotsLeft > 0`, the regular links once it's `0`. The founding link is never a
@@ -113,7 +112,7 @@ Peter's first test payment is the real check that the link, code and redirect wo
 - **Work Session 1** and **Home session**: unlisted. → `config.cal.workSession1`, `config.cal.homeSession`
 - On each event, add booking questions with identifiers **`picks`** and **`code`** (short text). The
   site prefills them from the URL.
-- On a fit call, when you paste the deposit link and they came from a workshop, append
+- On a fit call, when you paste the work payment link and they came from a workshop, append
   `?prefilled_promo_code={GROUP}WORK`.
 
 Peter's first test booking is the real check that the prefill works.

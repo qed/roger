@@ -169,7 +169,7 @@ describe('offers', () => {
   it('takes prices from siteConfig.prices', () => {
     assert.equal(offers.work.price, prices.work);
     assert.equal(offers.work.regularPrice, prices.regularWork);
-    assert.equal(offers.work.deposit, prices.workDeposit);
+    assert.equal(offers.work.deposit, prices.work);
     assert.equal(offers.home.price, prices.home);
     assert.equal(offers.home.regularPrice, prices.regularHome);
     assert.equal(offers.home.deposit, prices.home);
@@ -180,18 +180,18 @@ describe('offers', () => {
   const full = { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft: 0 } };
   const amountsIn = (text: string) => text.match(/\$\d{1,3}(?:,\d{3})*/g) ?? [];
 
-  it('states the founding deposit while spots remain and $1,500 / $1,500 once full (spec §3.1)', () => {
+  it('states the full price, paid up front: $2,000 while spots remain and $3,000 once full (spec §3.1)', () => {
     const skipCall = faqs.find((f) => f.id === 'skip-call');
     assert.ok(skipCall);
     const f = offerAmounts('work', founding);
     const r = offerAmounts('work', full);
-    assert.deepEqual(amountsIn(workGuaranteeAnswer(f)), ['$1,000', '$1,000', '$1,000']);
-    assert.deepEqual(amountsIn(workGuaranteeAnswer(r)), ['$1,500', '$1,500', '$1,500']);
-    assert.equal(ctaLabels.depositHero(f.deposit), 'Pay $1,000 deposit & book');
-    assert.equal(ctaLabels.depositSkip(r.deposit), 'Skip the call: pay $1,500 deposit');
-    assert.ok(faqText(skipCall, r).endsWith('you get the full $1,500 back.'));
-    assert.ok(ctaNotes.depositFitCheck(r.deposit).endsWith('you get the full $1,500 back.'));
-    assert.equal(pricingCopy.work.guarantee(r), 'working within 14 days or a full refund · second $1,500 due only once it runs.');
+    assert.deepEqual(amountsIn(workGuaranteeAnswer(f)), ['$2,000', '$2,000']);
+    assert.deepEqual(amountsIn(workGuaranteeAnswer(r)), ['$3,000', '$3,000']);
+    assert.equal(ctaLabels.depositHero(f.deposit), 'Pay $2,000 & book');
+    assert.equal(ctaLabels.depositSkip(r.deposit), 'Skip the call: pay $3,000');
+    assert.ok(faqText(skipCall, r).endsWith('you get the full $3,000 back.'));
+    assert.ok(ctaNotes.depositFitCheck(r.deposit).endsWith('you get the full $3,000 back.'));
+    assert.equal(pricingCopy.work.guarantee(r), 'working within 14 days or a full $3,000 refund.');
     assert.deepEqual(amountsIn(guaranteeCopy.home.body(offerAmounts('home', founding)).join(' ')), ['$500']);
     assert.deepEqual(amountsIn(guaranteeCopy.home.body(offerAmounts('home', full)).join(' ')), ['$750']);
   });
@@ -236,22 +236,14 @@ describe('gating', () => {
 describe('config invariants', () => {
   const { prices } = siteConfig;
 
-  // The copy says "half up front, half only once it's running" (hero subhead, meta description), and
-  // displayedOffer doesn't clamp, so the config itself must keep these true.
-  it('keeps the work deposit at exactly half the price, founding and regular', () => {
-    assert.equal(prices.workDeposit * 2, prices.work);
-    assert.equal(prices.regularWorkDeposit * 2, prices.regularWork);
-  });
-
-  it('never has a deposit above its price, in either state', () => {
-    assert.ok(prices.workDeposit <= prices.work);
-    assert.ok(prices.regularWorkDeposit <= prices.regularWork);
+  // Both offers are paid in full up front (owner decision, 2026-10-09): nothing is ever "due later".
+  it('charges the full price to book, with no balance, in either state', () => {
     for (const spotsLeft of [5, 0]) {
       const state = { prices, founding: { ...siteConfig.founding, total: 10, spotsLeft } };
       for (const offer of ['work', 'home'] as const) {
         const d = displayedOffer(offer, state);
-        assert.ok(d.deposit <= d.price, `${offer} @ ${spotsLeft}`);
-        assert.ok(d.balance >= 0, `${offer} @ ${spotsLeft}`);
+        assert.equal(d.deposit, d.price, `${offer} @ ${spotsLeft}`);
+        assert.equal(d.balance, 0, `${offer} @ ${spotsLeft}`);
       }
     }
   });
@@ -286,10 +278,10 @@ describe('copy sweep, founding and full', () => {
   };
 
   it('allows exactly the spec amounts in each state', () => {
-    assert.deepEqual([...allowedIn('founding')].sort(), ['$1,000', '$167', '$2,000', '$42', '$500'].sort());
-    assert.deepEqual([...allowedIn('full')].sort(), ['$1,500', '$250', '$3,000', '$63', '$750'].sort());
+    assert.deepEqual([...allowedIn('founding')].sort(), ['$167', '$2,000', '$42', '$500'].sort());
+    assert.deepEqual([...allowedIn('full')].sort(), ['$250', '$3,000', '$63', '$750'].sort());
     assert.deepEqual([...allowedIn('founding', 'home')].sort(), ['$42', '$500']);
-    assert.deepEqual([...allowedIn('full', 'work')].sort(), ['$1,500', '$250', '$3,000']);
+    assert.deepEqual([...allowedIn('full', 'work')].sort(), ['$250', '$3,000']);
   });
 
   type Found = { path: string; text: string; needs?: string };

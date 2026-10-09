@@ -32,7 +32,7 @@ export function FitCallCta(props: OfferCtaProps) {
   return <OfferCta kind="fitcall" {...props} />;
 }
 
-// Skip the call: the work deposit ($1,000 founding, then $1,500) (Stripe, same tab) (spec §9.1).
+// Skip the call: pay the work price in full ($2,000 founding, then $3,000) (Stripe, same tab) (spec §9.1).
 export function DepositCta(props: OfferCtaProps) {
   return <OfferCta kind="deposit" {...props} />;
 }

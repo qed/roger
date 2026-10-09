@@ -13,9 +13,9 @@ export const bookingFallbackCopy = {
 };
 
 export const thanksWorkCopy = {
-  meta: { title: 'Deposit received · Book Session 1 · Roger' },
+  meta: { title: 'Payment received · Book Session 1 · Roger' },
   eyebrow: 'Thank you',
-  heading: 'Deposit received.',
+  heading: 'Payment received.',
   receipt: 'Your receipt is on its way from Stripe.',
   book: 'Book Session 1',
   bookNote: 'Times are in the next 2 business days.',

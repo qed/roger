@@ -1,7 +1,7 @@
 // The offers (spec §3): source of truth for what each setup includes, how fast it runs and the guarantee.
 // Framework-free. Numbers come from siteConfig.prices. Strings that state a deposit, balance or refund are
 // functions of OfferAmounts (from offerAmounts() in src/lib/offerPrice.ts), so they follow the founding →
-// regular switch (spec §3.1: $1,000 / $1,000 founding, $1,500 / $1,500 after; home $500, then $750).
+// regular switch (spec §3.1: work $2,000 founding, $3,000 after; home $500, then $750; both paid in full up front).
 // data.test.ts checks every $-amount in the copy, in both states, matches a siteConfig.prices value.
 // Sign-off-gated lines (founding perk, future price, home lead time) carry `needs`; render them only when
 // the matching signoff flag is true, otherwise render `fallback` if present, else nothing (spec §8.4.3).
@@ -11,7 +11,7 @@ import type { SignoffFlag } from './signoff';
 
 export type OfferId = 'work' | 'home';
 
-// The displayed amounts, formatted ("$1,000"). Home's deposit is its full price and its balance is $0.
+// The displayed amounts, formatted ("$2,000"). Both offers are paid in full, so deposit = price and balance = $0.
 export type OfferAmounts = { price: string; deposit: string; balance: string };
 
 export type OfferLine = {
@@ -43,7 +43,7 @@ const workOffer: Offer = {
   name: 'Work setup',
   price: prices.work,
   regularPrice: prices.regularWork,
-  deposit: prices.workDeposit,
+  deposit: prices.work,
   currency: prices.currency,
   futurePriceLine: {
     text: `Founding price: ${formatCad(prices.work)}. Becomes ${formatCad(prices.regularWork)} after the first 10 clients.`,
@@ -58,18 +58,18 @@ const workOffer: Offer = {
   ],
   how: [
     { text: 'free 20-min fit call within 1 business day' },
-    { text: "if it's a fit, the deposit is paid and Session 1 booked during the call" },
+    { text: "if it's a fit, you pay and book Session 1 during the call" },
     { text: 'Session 1 within 2 business days: the first brief and drafts within 1 hour' },
     { text: 'Session 2: helpers live' },
     { text: 'fully live within 5 days', emphasis: true },
     { text: 'remote by default; in person in Toronto on request' }
   ],
-  payment: (a) => `${a.deposit} to book; ${a.balance} after a full week of running.`,
+  payment: (a) => `${a.price}, paid in full to book.`,
   guarantee: (a) =>
-    `If your setup isn't working within 14 days of Session 1, we refund the ${a.deposit} too. You pay nothing. The second half is only due once it runs.`,
+    `If your setup isn't working within 14 days of Session 1, we refund the full ${a.price}. You pay nothing.`,
   flow: (a) => [
-    'Book a free fit call → deposit link pasted in the call chat → /thanks/work → Session 1 booked before hanging up.',
-    `Skip the call → ${a.deposit} deposit Payment Link → /thanks/work → book Session 1. The fit check is the first 15 min of Session 1; full refund if it's not a fit.`
+    'Book a free fit call → payment link pasted in the call chat → /thanks/work → Session 1 booked before hanging up.',
+    `Skip the call → ${a.price} Payment Link → /thanks/work → book Session 1. The fit check is the first 15 min of Session 1; full refund if it's not a fit.`
   ]
 };
 

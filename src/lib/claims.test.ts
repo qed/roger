@@ -162,29 +162,29 @@ describe('faqAnswer end to end, founding and full (work)', () => {
   const answer = (id: string, state: typeof foundingState) =>
     faqAnswer(faqById(id), { amounts: offerAmounts('work', state), values, signoff: allOff });
 
-  it('states the displayed deposit in "What if I skip the call?"', () => {
+  it('states the displayed price in "What if I skip the call?"', () => {
     assert.equal(
       answer('skip-call', foundingState),
-      "The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full $1,000 back."
+      "The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full $2,000 back."
     );
     assert.equal(
       answer('skip-call', fullState),
-      "The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full $1,500 back."
+      "The first 15 minutes of Session 1 is the fit check. If we can't help, you get the full $3,000 back."
     );
   });
 
-  it('renders the guarantee FAQ with the displayed deposit and balance', () => {
+  it('renders the guarantee FAQ with the displayed price, paid in full', () => {
     const founding = answer('doesnt-work', foundingState);
     const full = answer('doesnt-work', fullState);
-    assert.ok(founding?.startsWith('You pay $1,000 to book. The other $1,000 is due only after'), founding ?? '');
-    assert.ok(full?.startsWith('You pay $1,500 to book. The other $1,500 is due only after'), full ?? '');
-    assert.ok(full?.includes('we refund the $1,500 too.'));
+    assert.ok(founding?.startsWith('You pay $2,000 to book. If your Chief of Staff'), founding ?? '');
+    assert.ok(full?.startsWith('You pay $3,000 to book. If your Chief of Staff'), full ?? '');
+    assert.ok(full?.includes('we refund the full $3,000.'));
     for (const text of [founding, full]) {
       assert.ok(text?.includes('What "working" means:'));
       assert.ok(text?.endsWith('How to claim: one email. No forms, no questions about why.'));
-      assert.ok(!text?.includes('$2,000') && !text?.includes('$3,000'));
+      assert.ok(!/due only|balance|second half/i.test(text ?? ''));
     }
-    assert.ok(!full?.includes('$1,000'));
+    assert.ok(!full?.includes('$2,000'));
   });
 });
 

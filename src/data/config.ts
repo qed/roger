@@ -12,13 +12,12 @@ export const siteConfig = {
   },
   contactEmail: 'hello@meetroger.ai',
   headline: 'A' as 'A' | 'B' | 'C',
-  // After the founding 10 (spec §3.1): $3,000 work paid $1,500 / $1,500, and $750 home.
+  // After the founding 10 (spec §3.1): $3,000 work and $750 home. Both are paid in full up front
+  // (owner decision, 2026-10-09), so there is no deposit or balance.
   prices: {
     work: 2000,
-    workDeposit: 1000,
     home: 500,
     regularWork: 3000,
-    regularWorkDeposit: 1500,
     regularHome: 750,
     currency: 'CAD' as const
   },
@@ -29,13 +28,11 @@ export const siteConfig = {
   providerCostRange: '', // optional: e.g. "$20–$40", shown only in the "cost after setup" FAQs; hidden if empty
   taxNote: 'Prices in CAD. No HST is charged.', // HST wording (owner: option B, small supplier); hstConfirmed in signoff.ts once an accountant agrees
   stripe: {
-    workDeposit: '', // $1,000 Payment Link: "Skip the call" + pasted on fit calls
+    workDeposit: 'https://buy.stripe.com/eVq28keXBgxScuT8Zx8g00n', // $2,000 work Payment Link (paid in full): "Skip the call" + pasted on fit calls
     homeCheckout: '', // $500 Payment Link (on /home only)
     // Regular prices (spec §3.4): once founding.spotsLeft hits 0 the CTAs switch to these. Empty → "Opening soon".
-    workDepositRegular: '', // $1,500 deposit Payment Link used once founding spots are full
+    workDepositRegular: '', // $3,000 work Payment Link used once founding spots are full
     homeCheckoutRegular: '' // $750 home Payment Link used once founding spots are full
-    // workBalance is deliberately NOT here: anything in this file ships to the browser.
-    // Peter emails it after the week of running. Document it in the README only.
   },
   cal: {
     fitCall: '', // 20-min, public, slots every business day

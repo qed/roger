@@ -8,7 +8,7 @@ import type { BeforeAfterRow, TimelineStep } from './types';
 export const workMeta = {
   title: 'Roger: an AI Chief of Staff for your business, set up in 5 days · Toronto',
   description: (price: string) =>
-    `We set your business up with an AI Chief of Staff and 3 helpers that answer customers, chase invoices and draft every email, on your own accounts, live within 5 days. ${price} CAD, half only once it's running. Toronto.`
+    `We set your business up with an AI Chief of Staff and 3 helpers that answer customers, chase invoices and draft every email, on your own accounts, live within 5 days. ${price} CAD, with a full refund if it isn't working within 14 days. Toronto.`
 };
 
 // §6.2 Hero (work only; /home has its own hero, spec §6A.1)
@@ -20,7 +20,7 @@ export const workHeroCopy = {
     C: 'Stop being the bottleneck in your own business.'
   } satisfies Record<SiteConfig['headline'], string>,
   subhead:
-    "We set your business up with an AI Chief of Staff and 3 helpers that answer customers, chase invoices and draft every email, on your own accounts, live within 5 days. Half up front, half only once it's running.",
+    "We set your business up with an AI Chief of Staff and 3 helpers that answer customers, chase invoices and draft every email, on your own accounts, live within 5 days. Working within 14 days, or a full refund.",
   depositLead: 'Know you want it?',
   included: (price: string) => `What's included · ${price}`,
   phone: { title: 'Your Chief of Staff', time: 'Monday 6:48 AM' },
@@ -59,7 +59,7 @@ export const workTimelineCopy = {
     {
       when: 'Day 0',
       whenNote: 'within 1 business day of booking',
-      what: 'Fit call. Deposit paid and Session 1 booked before you hang up.'
+      what: 'Fit call. Paid and Session 1 booked before you hang up.'
     },
     {
       when: 'Day 1–2',
@@ -67,7 +67,7 @@ export const workTimelineCopy = {
       emphasis: 'First brief and drafts within the hour.'
     },
     { when: 'Day 3–5', what: 'Session 2: your 3 helpers live.', emphasis: 'Fully live by day 5.' },
-    { when: 'Day 5–12', what: "A full week of running. We check it's working together. Balance due." },
+    { when: 'Day 5–12', what: "A full week of running. We check it's working together." },
     { when: '30 days', what: 'Email support. Setup report in your inbox.' }
   ] satisfies TimelineStep[],
   note: 'Everything set up before you need it.'

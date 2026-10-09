@@ -17,7 +17,7 @@ export type PricingCopy = {
   speedLabel: string;
   speed: OfferLine[]; // joined with " · "
   guaranteeLabel: string;
-  guarantee: (a: OfferAmounts) => string; // home states its own price; work states the balance
+  guarantee: (a: OfferAmounts) => string;
   carePlans?: string; // under the card (spec §6.7; not listed for home in §6A.7)
   homeLine?: { text: string; linkText: (homePrice: string) => string; to: string }; // the cross-offer line (work only)
 };
@@ -43,7 +43,7 @@ export const pricingCopy: Record<OfferId, PricingCopy> = {
     speedLabel: 'Speed',
     speed: [{ text: 'fit call within 1 business day' }, { text: 'live within 5 days' }],
     guaranteeLabel: 'Guarantee',
-    guarantee: (a) => `working within 14 days or a full refund · second ${a.balance} due only once it runs.`,
+    guarantee: (a) => `working within 14 days or a full ${a.price} refund.`,
     carePlans: 'Ongoing care plans available after setup.',
     homeLine: { text: 'Setting up your home instead?', linkText: (homePrice) => `Home setup, ${homePrice} →`, to: '/home' }
   },

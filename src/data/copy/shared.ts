@@ -1,7 +1,7 @@
 // Copy for the shared layout, CTAs and sections (spec §6.1, §6.4, §6.8, §6.9, §6.11, §6.12, §8.3, §9).
 // Roger's "we" voice (owner decision, 2026-10-08), Canadian spelling. Gated lines carry `needs` (spec §8.4.3) and render through
-// renderLine in src/lib/claims.ts. Strings stating a deposit, balance or refund are functions of the
-// displayed amounts (offerAmounts in src/lib/offerPrice.ts), never a hard-coded "$1,000".
+// renderLine in src/lib/claims.ts. Strings stating a price or refund are functions of the
+// displayed amounts (offerAmounts in src/lib/offerPrice.ts), never a hard-coded "$2,000".
 import type { OfferAmounts } from '../offers';
 import type { Audience, WontDoLine } from './types';
 
@@ -10,12 +10,12 @@ export const ctaLabels = {
   fitCall: 'Book a fit call',
   fitCallFree: 'Book a free fit call',
   fitCallHero: 'Book a free 20-min fit call',
-  deposit: 'Pay deposit & book',
-  depositSkip: (deposit: string) => `Skip the call: pay ${deposit} deposit`,
-  depositHero: (deposit: string) => `Pay ${deposit} deposit & book`,
+  deposit: 'Pay & book',
+  depositSkip: (price: string) => `Skip the call: pay ${price}`,
+  depositHero: (price: string) => `Pay ${price} & book`,
   // Sticky mobile bar (spec §9.6)
   stickyFitCall: 'Book fit call',
-  stickyDeposit: 'Pay deposit'
+  stickyDeposit: 'Pay & book'
 };
 
 // Home checkout labels carry the displayed price (founding or regular, see displayedOffer), e.g. "$500".
@@ -125,7 +125,7 @@ export const proofCopy: {
 
 // Work guarantee (spec §6.8), shared by the band and FAQ #6 (src/data/faqs.ts).
 export const workGuaranteeBody = (a: OfferAmounts) =>
-  `You pay ${a.deposit} to book. The other ${a.balance} is due only after your Chief of Staff and 3 helpers have run for a full week. If it isn't working within 14 days of Session 1, we refund the ${a.deposit} too.`;
+  `You pay ${a.price} to book. If your Chief of Staff and 3 helpers aren't working within 14 days of Session 1, we refund the full ${a.price}.`;
 
 const workWorking =
   "Every helper you picked has run on its own at least once and produced something you'd actually use. We check it together, and it's written into your setup report. If we disagree, you decide.";
