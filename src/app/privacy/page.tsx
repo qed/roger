@@ -1,3 +1,5 @@
+import { siteConfig } from "@/data/config";
+import { circlesPrivacyPreview } from "@/data/circles-legal";
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal-page";
 import { privacy } from "@/data/legal";
@@ -9,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <LegalPage doc={privacy} />;
+  return siteConfig.flags.circlesMode ? <LegalPage doc={circlesPrivacyPreview} reviewed={false} /> : <LegalPage doc={privacy} />;
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/data/config";
 import Link from "next/link";
 import { Suspense } from "react";
 import { StickyCta } from "@/components/client-boot";
@@ -15,6 +16,12 @@ export const metadata: Metadata = {
 };
 
 function SetUpBand() {
+  if (siteConfig.flags.circlesMode) return (
+    <div className="on-night grid gap-6 rounded-[8px] bg-night p-8 text-night-ink sm:p-10 md:grid-cols-[1.2fr_1fr] md:items-center">
+      <div><h2 className="text-h3">This is what people post.</h2><p className="mt-3 text-lead text-night-ink-2">A Circle gets what they don&apos;t.</p></div>
+      <Link href="/apply" className="btn btn-m justify-self-start">Apply for a founding Circle</Link>
+    </div>
+  );
   return (
     <div className="on-night grid gap-8 rounded-[8px] bg-night p-8 text-night-ink sm:p-10 md:grid-cols-[1.2fr_1fr] md:items-center">
       <h2 className="text-h3">Want these working for you?</h2>
@@ -53,9 +60,7 @@ export default async function LibraryPage() {
             {items.length.toLocaleString("en-CA")} real things people’s agents did, in our words, each linked to the person’s own post. Read from public posts every morning. None of them are Roger clients.
           </p>
           <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Link href="/packs/solopreneur" className="btn btn-m">
-              Get the free starter pack
-            </Link>
+            {siteConfig.flags.circlesMode ? <Link href="/apply" className="btn btn-m">Apply for a founding Circle</Link> : <Link href="/packs/solopreneur" className="btn btn-m">Get the free starter pack</Link>}
             <Link href="#watch" className="tlink chev">
               Watch for what you need
             </Link>
@@ -79,7 +84,7 @@ export default async function LibraryPage() {
         </div>
       </section>
 
-      <StickyCta actions={[{ kind: "setupCall", label: "Book a free setup call" }]} />
+      {!siteConfig.flags.circlesMode && <StickyCta actions={[{ kind: "setupCall", label: "Book a free setup call" }]} />}
     </>
   );
 }

@@ -13,6 +13,7 @@ import { getSettings } from "@/lib/settings";
 const { setupPrice, planPrice } = siteConfig.ladder;
 
 export const metadata: Metadata = {
+  ...(siteConfig.flags.circlesMode ? { robots: { index: false, follow: false } } : {}),
   title: { absolute: `A custom agent setup, $${setupPrice} · Roger` },
   description: `Peter designs a set of AI agents for how you work, from what's actually working in the Roger library, and installs them on your own accounts with you. $${setupPrice} once, then an optional $${planPrice}/month plan.`,
   alternates: { canonical: "/setup" },

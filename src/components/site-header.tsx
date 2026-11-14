@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { siteConfig } from "@/data/config";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Toque } from "./toque";
@@ -32,6 +33,18 @@ const company: NavSet = {
 };
 
 function navFor(path: string): NavSet {
+  if (siteConfig.flags.circlesMode && !(path.startsWith("/for/") || ["/rlpsignature", "/hampton", "/founders", "/rlp"].includes(path))) {
+    return {
+      links: [
+        { href: "/#how", label: "How it works" },
+        { href: "/zack", label: "Run Zack" },
+        { href: "/library", label: "Use cases" },
+        { href: "/#questions", label: "FAQ" },
+        { href: "/#letter", label: "About" },
+      ],
+      cta: path.startsWith("/apply") || path.startsWith("/admin") ? null : { href: "/apply", label: "Apply for a founding Circle", short: "Apply" },
+    };
+  }
   if (path.startsWith("/companies")) return company;
   // A page prepared for one company or group: no navigation, nothing to sell around it
   if (path.startsWith("/for/") || path === "/rlpsignature" || path === "/hampton" || path === "/founders" || path === "/rlp" || path === "/zack") return { links: [], cta: null };
@@ -74,7 +87,7 @@ export function SiteHeader() {
           Roger
         </Link>
 
-        <nav aria-label="Main" className="ml-auto hidden md:block">
+        <nav aria-label="Main" className="ml-auto hidden lg:block">
           <ul className="flex items-center gap-5 whitespace-nowrap text-small text-ink-2 lg:gap-7">
             {nav.links.map((l) => {
               const active = l.href === path;
@@ -93,18 +106,18 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className={`ml-auto flex items-center gap-2 md:ml-0 ${nav.cta ? "" : "md:hidden"}`}>
+        <div className={`ml-auto flex items-center gap-2 lg:ml-0 ${nav.cta ? "" : "lg:hidden"}`}>
           {nav.cta && (
             <span className="header-cta">
               {nav.cta.href ? (
                 <Link href={nav.cta.href} className="btn btn-m">
-                  <span className="hidden sm:inline">{nav.cta.label}</span>
-                  <span className="sm:hidden">{nav.cta.short}</span>
+                  <span className="hidden xl:inline">{nav.cta.label}</span>
+                  <span className="xl:hidden">{nav.cta.short}</span>
                 </Link>
               ) : (
                 <ActionLink kind={nav.cta.kind!} location="header" size="m" picksFor={nav.cta.picksFor}>
-                  <span className="hidden sm:inline">{nav.cta.label}</span>
-                  <span className="sm:hidden">{nav.cta.short}</span>
+                  <span className="hidden xl:inline">{nav.cta.label}</span>
+                  <span className="xl:hidden">{nav.cta.short}</span>
                 </ActionLink>
               )}
             </span>
@@ -113,7 +126,7 @@ export function SiteHeader() {
             <button
               ref={buttonRef}
               type="button"
-              className="-mr-2 grid size-11 place-items-center rounded-full text-ink md:hidden"
+              className="-mr-2 grid size-11 place-items-center rounded-full text-ink lg:hidden"
               aria-expanded={open}
               aria-controls="mobile-menu"
               onClick={() => setOpen(!open)}
@@ -128,7 +141,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div id="mobile-menu" ref={menuRef} className="bg-ground-2 md:hidden">
+        <div id="mobile-menu" ref={menuRef} className="bg-ground-2 lg:hidden">
           <nav aria-label="Main" className="wrap py-3">
             <ul>
               {nav.links.map((l) => (

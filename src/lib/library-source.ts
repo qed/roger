@@ -63,3 +63,16 @@ export function sortUseCases(list: UseCase[]) {
     (a, b) => Number(!!b.featured) - Number(!!a.featured) || b.weekOf.localeCompare(a.weekOf) || a.title.localeCompare(b.title),
   );
 }
+
+/** Unlike the seed fallback, this is safe to label as the current library total. */
+export async function getVerifiedUseCaseCount(): Promise<number | null> {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 3600, expire: 604800 });
+  cacheTag("library");
+  if (!hasDb()) return null;
+  try {
+    const rows = await sql`select count(*)::int as total from use_cases`;
+    const total = Number(rows[0]?.total);
+    return Number.isInteger(total) && total >= 0 ? total : null;
+  } catch { return null; }
+}

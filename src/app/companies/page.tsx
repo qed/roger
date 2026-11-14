@@ -7,6 +7,7 @@ import { companyFaqs, companyFinal, companyWontDo, exampleMap, partner } from "@
 import { siteConfig } from "@/data/config";
 
 export const metadata: Metadata = {
+  ...(siteConfig.flags.circlesMode ? { robots: { index: false, follow: false } } : {}),
   title: { absolute: "Roger: AI and automation for family-owned companies · Toronto" },
   description: `We map where your company’s hours go in one two-hour session, then build and run the automations every month: quotes, orders, customer questions, invoices. On your own systems. From ${partner.priceLabel} a month.`,
   alternates: { canonical: "/companies" },
