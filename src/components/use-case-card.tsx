@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@/data/config";
 import { categoryLabel, type UseCase } from "@/data/library";
 
 export function ExternalIcon({ className = "size-3.5" }: { className?: string }) {
@@ -60,9 +61,9 @@ export function UseCaseCard({ u, figure, size = "grid", headingLevel = 3 }: { u:
             <ExternalIcon />
             <span className="sr-only">Read the original post on X (opens in a new tab)</span>
           </a>
-          <Link href={offerHref(u)} className="tlink-quiet chev" data-to-offer={u.id}>
+          {!siteConfig.flags.circlesMode && (<Link href={offerHref(u)} className="tlink-quiet chev" data-to-offer={u.id}>
             We can set this up
-          </Link>
+          </Link>)}
         </div>
       </div>
     </article>
@@ -91,9 +92,9 @@ export function UseCaseRow({ u, shade }: { u: UseCase; shade: boolean }) {
           <ExternalIcon />
           <span className="sr-only">Read the original post (opens in a new tab)</span>
         </a>
-        <Link href={offerHref(u)} className="tlink chev inline-block py-1" data-to-offer={u.id}>
+        {!siteConfig.flags.circlesMode && (<Link href={offerHref(u)} className="tlink chev inline-block py-1" data-to-offer={u.id}>
           We can set this up
-        </Link>
+        </Link>)}
       </div>
     </article>
   );
