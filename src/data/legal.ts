@@ -1,6 +1,6 @@
 import { siteConfig } from "./config";
 
-export type LegalDoc = { title: string; intro: string; sections: { heading: string; body: string[] }[]; updated: string };
+export type LegalDoc = { title: string; intro: string; sections: { id?: string; heading: string; body: string[] }[]; updated: string };
 
 const email = siteConfig.contactEmail;
 
