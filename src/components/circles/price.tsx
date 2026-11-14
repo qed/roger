@@ -103,7 +103,7 @@ export function CirclesPrice({
             </Link>
           </p>
         </div>
-        <Link href="/apply" className="btn mt-10">
+        <Link href="/apply" className="btn btn-l mt-10">
           Apply for a founding Circle
         </Link>
         <p className="mt-7 text-meta text-night-ink-2">
