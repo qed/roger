@@ -3,7 +3,7 @@ import { siteConfig } from "@/data/config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/thanks/", "/for/"] },
+    rules: { userAgent: "*", allow: "/", disallow: ["/thanks/", "/for/", ...(siteConfig.flags.circlesMode ? ["/apply", "/setup", "/companies", "/packs/", "/workshops", "/refunds"] : [])] },
     sitemap: `${siteConfig.domain}/sitemap.xml`,
   };
 }
