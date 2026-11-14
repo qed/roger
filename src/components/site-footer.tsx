@@ -9,6 +9,13 @@ async function currentYear() {
   return new Date().getFullYear();
 }
 
+const circlesLinks = [
+  { href: "/#how", label: "How it works" },
+  { href: "/zack", label: "Run Zack" },
+  { href: "/library", label: "Use cases" },
+  { href: "/#questions", label: "FAQ" },
+  { href: "/#letter", label: "About" },
+];
 const links = [
   { href: "/library", label: "Use cases" },
   { href: "/packs/solopreneur", label: "Starter packs" },
@@ -44,7 +51,7 @@ function Line({ left, centre, year }: { left: React.ReactNode; centre: { href: s
         )}
         <p className="flex flex-wrap gap-x-5 gap-y-1 md:justify-end">
           <span>© {year}</span>
-          {legal.map((l) => (
+          {legal.filter((l) => !siteConfig.flags.circlesMode || l.href !== "/refunds").map((l) => (
             <Link key={l.label} href={l.href} className="inline-block py-1 text-ink underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-[180ms] hover:decoration-current">
               {l.label}
             </Link>
@@ -85,5 +92,5 @@ export async function MinimalFooter() {
 
 export async function SiteFooter() {
   const year = await currentYear();
-  return <Line year={year} centre={links} left={<span>Real agent use cases, read every morning in Toronto.</span>} />;
+  return <Line year={year} centre={siteConfig.flags.circlesMode ? circlesLinks : links} left={siteConfig.flags.circlesMode ? <><span>Roger, Toronto</span><a className="tlink" href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a></> : <span>Real agent use cases, read every morning in Toronto.</span>} />;
 }
