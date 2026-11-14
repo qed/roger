@@ -19,12 +19,12 @@ const mona = Mona_Sans({
 });
 
 const description =
-  "AI and automation for family-owned companies in Toronto. We map where your company’s hours go in one two-hour session, then build and run the automations every month, on your own systems. Smaller setups for owners and families.";
+  siteConfig.flags.circlesMode ? "Confidential Circles for people who use AI agents heavily for work." : "AI and automation for family-owned companies in Toronto. We map where your company’s hours go in one two-hour session, then build and run the automations every month, on your own systems. Smaller setups for owners and families.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.domain),
   title: {
-    default: "Roger: AI and automation for family-owned companies · Toronto",
+    default: siteConfig.flags.circlesMode ? "Roger Circles" : "Roger: AI and automation for family-owned companies · Toronto",
     template: "%s · Roger",
   },
   description,
@@ -45,6 +45,11 @@ export const viewport: Viewport = {
 };
 
 function jsonLd() {
+  if (siteConfig.flags.circlesMode) return JSON.stringify({
+    "@context": "https://schema.org", "@type": "Organization", name: siteConfig.productName,
+    url: siteConfig.domain, email: siteConfig.contactEmail,
+    description: "Confidential Circles for people who use AI agents heavily for work.",
+  }).replace(/</g, "\\u003c");
   const work = offerNow("work");
   const home = offerNow("home");
   const data = {
@@ -78,7 +83,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <ClientBoot />
           <Reveals />
           <SiteHeader />
-          <CodeBanner />
+          {!siteConfig.flags.circlesMode && <CodeBanner />}
+          {siteConfig.flags.circlesMode && !siteConfig.circles.applyOpen && <aside aria-label="Preview notice" className="border-b border-rule bg-ground-2 px-4 py-2 text-center text-meta text-ink-2">Marketing preview. Applications and weekly delivery are not live.</aside>}
           <main id="main" className="flex-1">
             {children}
           </main>
