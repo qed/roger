@@ -6,11 +6,22 @@
  */
 export const siteConfig = {
   productName: "Roger",
+  /** Feature-branch preview. Disable to restore the library-led site. */
+  flags: { circlesMode: true },
+  circles: {
+    priceUsd: 200,
+    priceCad: 280,
+    guaranteeDays: 45,
+    totalSeats: 24,
+    // Intake stays closed until persistence, email and legal review are ready.
+    applyOpen: false,
+    versionLabel: "November 13, 2026 version",
+  },
   domain: "https://meetroger.ai",
   founder: {
     name: "Peter",
     /** Full name for the company pages, e.g. "Peter K…". Falls back to name. */
-    fullName: "" as string,
+    fullName: "Peter Kuperman" as string,
     /** A direct line for company clients, e.g. "+1 416 555 0100". Hidden while empty. */
     phone: "" as string,
     /** Three or four true lines about what Peter has built. Shown once flags.bioApproved is true. */
