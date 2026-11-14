@@ -44,7 +44,7 @@ export default function ApplyPage() {
         </p>
       </div>
       <p className="mt-8">
-        <Link href="/zack" className="btn">
+        <Link href="/zack" className="btn btn-l">
           Run Zack on yourself
         </Link>
       </p>
